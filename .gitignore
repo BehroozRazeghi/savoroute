@@ -1,0 +1,36 @@
+# Python / tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+# Notebook and editors
+.ipynb_checkpoints/
+.vscode/
+.idea/
+# Local data, credentials, model artifacts
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+*.parquet
+*.npy
+*.npz
+*.safetensors
+*.bin
+.cache/
+data/raw/
+data/processed/
+data/indexes/
+artifacts/
+outputs/
+# OS
+.DS_Store

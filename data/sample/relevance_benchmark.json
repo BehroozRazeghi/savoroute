@@ -1,0 +1,162 @@
+{
+  "benchmark_version": 1,
+  "queries": [
+    {
+      "case_id": "q001",
+      "query": "spicy tofu noodles",
+      "relevant_item_ids": [
+        "p001"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q002",
+      "query": "creamy mushroom pasta",
+      "relevant_item_ids": [
+        "p002"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q003",
+      "query": "lemon and chickpeas lunch",
+      "relevant_item_ids": [
+        "p003"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q004",
+      "query": "ginger lentil curry",
+      "relevant_item_ids": [
+        "p004"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q005",
+      "query": "roasted salmon asparagus",
+      "relevant_item_ids": [
+        "p005"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q006",
+      "query": "black bean tacos",
+      "relevant_item_ids": [
+        "p006"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q007",
+      "query": "cozy Japanese noodle bar",
+      "relevant_item_ids": [
+        "r001"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "q008",
+      "query": "relaxed Mediterranean hummus",
+      "relevant_item_ids": [
+        "r002"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "q009",
+      "query": "intimate Italian pasta dinner",
+      "relevant_item_ids": [
+        "r003"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "q010",
+      "query": "plant based grain bowls",
+      "relevant_item_ids": [
+        "r004"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "q011",
+      "query": "Indian lentil street food",
+      "relevant_item_ids": [
+        "r005"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "q012",
+      "query": "seasonal seafood dinner",
+      "relevant_item_ids": [
+        "r006"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "q013",
+      "query": "quasar xylophone nebula",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q014",
+      "query": "noodles",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "restaurant",
+        "location": "Unlisted City"
+      }
+    },
+    {
+      "case_id": "q015",
+      "query": "fish supper",
+      "relevant_item_ids": [
+        "p005"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "q016",
+      "query": "legume wraps",
+      "relevant_item_ids": [
+        "p006"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    }
+  ]
+}

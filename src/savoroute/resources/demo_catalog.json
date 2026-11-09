@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "dataset": {
+    "name": "savoroute-fictional-demo-v1",
+    "synthetic": true
+  },
+  "items": [
+    {
+      "item_id": "r001",
+      "kind": "restaurant",
+      "title": "Juniper Noodle Bar",
+      "description": "Cozy noodle counter serving spicy broth, fresh vegetables, and comforting ramen-inspired bowls.",
+      "cuisines": [
+        "Japanese"
+      ],
+      "dietary_tags": [
+        "vegetarian-options"
+      ],
+      "source": "synthetic_demo",
+      "location": "Sample City",
+      "price_tier": 2
+    },
+    {
+      "item_id": "r002",
+      "kind": "restaurant",
+      "title": "Mosaic Mezze",
+      "description": "Relaxed Mediterranean dining with hummus, grilled vegetables, herb salads, and shared plates.",
+      "cuisines": [
+        "Mediterranean"
+      ],
+      "dietary_tags": [
+        "vegetarian-options",
+        "vegan-options"
+      ],
+      "source": "synthetic_demo",
+      "location": "Sample City",
+      "price_tier": 2
+    },
+    {
+      "item_id": "r003",
+      "kind": "restaurant",
+      "title": "Copper Pan Pasta",
+      "description": "Handmade pasta, mushroom ragù, and intimate date-night seating.",
+      "cuisines": [
+        "Italian"
+      ],
+      "dietary_tags": [
+        "vegetarian-options"
+      ],
+      "source": "synthetic_demo",
+      "location": "Sample City",
+      "price_tier": 3
+    },
+    {
+      "item_id": "r004",
+      "kind": "restaurant",
+      "title": "Garden Spoon",
+      "description": "Casual plant-based grain bowls, seasonal greens, chickpeas, and citrus dressings.",
+      "cuisines": [
+        "Contemporary"
+      ],
+      "dietary_tags": [
+        "vegan-options",
+        "vegetarian-options"
+      ],
+      "source": "synthetic_demo",
+      "location": "Example Bay",
+      "price_tier": 1
+    },
+    {
+      "item_id": "r005",
+      "kind": "restaurant",
+      "title": "Saffron Street Kitchen",
+      "description": "Bright Indian street-food plates with fragrant lentils, rice, and spicy vegetable curry.",
+      "cuisines": [
+        "Indian"
+      ],
+      "dietary_tags": [
+        "vegetarian-options",
+        "vegan-options"
+      ],
+      "source": "synthetic_demo",
+      "location": "Example Bay",
+      "price_tier": 2
+    },
+    {
+      "item_id": "r006",
+      "kind": "restaurant",
+      "title": "Harbor Hearth",
+      "description": "Seasonal coastal menu with roasted seafood, potatoes, and vegetable sides.",
+      "cuisines": [
+        "Seafood"
+      ],
+      "dietary_tags": [],
+      "source": "synthetic_demo",
+      "location": "Sample City",
+      "price_tier": 4
+    },
+    {
+      "item_id": "p001",
+      "kind": "recipe",
+      "title": "Spicy Tofu Noodle Bowl",
+      "description": "Quick vegetarian noodles with chili, ginger, tofu, and crunchy greens.",
+      "cuisines": [
+        "Japanese"
+      ],
+      "dietary_tags": [
+        "vegetarian",
+        "vegan"
+      ],
+      "source": "synthetic_demo",
+      "ingredients": [
+        "noodles",
+        "tofu",
+        "ginger",
+        "chili",
+        "greens"
+      ]
+    },
+    {
+      "item_id": "p002",
+      "kind": "recipe",
+      "title": "Creamy Mushroom Pasta",
+      "description": "Weeknight pasta with mushrooms, garlic, herbs, and a creamy sauce.",
+      "cuisines": [
+        "Italian"
+      ],
+      "dietary_tags": [
+        "vegetarian"
+      ],
+      "source": "synthetic_demo",
+      "ingredients": [
+        "pasta",
+        "mushrooms",
+        "garlic",
+        "cream"
+      ]
+    },
+    {
+      "item_id": "p003",
+      "kind": "recipe",
+      "title": "Lemon Chickpea Salad",
+      "description": "Simple Mediterranean salad with chickpeas, lemon, parsley, cucumber, and olive oil.",
+      "cuisines": [
+        "Mediterranean"
+      ],
+      "dietary_tags": [
+        "vegan",
+        "vegetarian"
+      ],
+      "source": "synthetic_demo",
+      "ingredients": [
+        "chickpeas",
+        "lemon",
+        "parsley",
+        "cucumber"
+      ]
+    },
+    {
+      "item_id": "p004",
+      "kind": "recipe",
+      "title": "Ginger Vegetable Curry",
+      "description": "Warm Indian-inspired vegetable curry with ginger, tomato, lentils, and rice.",
+      "cuisines": [
+        "Indian"
+      ],
+      "dietary_tags": [
+        "vegan",
+        "vegetarian"
+      ],
+      "source": "synthetic_demo",
+      "ingredients": [
+        "ginger",
+        "tomato",
+        "lentils",
+        "rice"
+      ]
+    },
+    {
+      "item_id": "p005",
+      "kind": "recipe",
+      "title": "Roasted Salmon Tray Bake",
+      "description": "Oven-baked salmon with potatoes, asparagus, herbs, and lemon.",
+      "cuisines": [
+        "Contemporary"
+      ],
+      "dietary_tags": [],
+      "source": "synthetic_demo",
+      "ingredients": [
+        "salmon",
+        "potatoes",
+        "asparagus",
+        "lemon"
+      ]
+    },
+    {
+      "item_id": "p006",
+      "kind": "recipe",
+      "title": "Black Bean Tacos",
+      "description": "Mexican-inspired tacos with black beans, cabbage, lime, and smoky pepper.",
+      "cuisines": [
+        "Mexican"
+      ],
+      "dietary_tags": [
+        "vegetarian",
+        "vegan"
+      ],
+      "source": "synthetic_demo",
+      "ingredients": [
+        "black beans",
+        "tortilla",
+        "cabbage",
+        "lime"
+      ]
+    }
+  ],
+  "media": []
+}

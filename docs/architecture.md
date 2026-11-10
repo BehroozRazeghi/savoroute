@@ -1,6 +1,6 @@
 # Architecture
 
-## Current implementation (`0.1.0`)
+## Retrieval foundation (`0.1.0`)
 
 ```text
 Jupyter notebooks ─────────┬──> catalog loader / validator ──> domain records
@@ -12,9 +12,9 @@ CLI ────────────────────────┤
 JSON demo fixtures ──> catalog loader ──> immutable Catalog, CatalogItem, MediaAsset
 ```
 
-`src/savoroute/domain` defines the records. `data/catalog.py` parses the catalog and checks types, keys, IDs and media references. `retrieval/lexical.py` applies exact metadata filters and ranks eligible items. `evaluation/retrieval.py` runs catalog-bound relevance judgments. `services/discovery.py` exposes the search operation; the CLI also calls the catalog loader and evaluator directly. Provider protocols are defined but have no concrete implementations.
+`src/savoroute/domain` defines the records. `data/catalog.py` parses the catalog and checks types, keys, IDs and media references. `retrieval/lexical.py` applies exact metadata filters and ranks eligible items. `evaluation/retrieval.py` runs catalog-bound relevance judgments. `services/discovery.py` exposes the search operation; the CLI also calls the catalog loader and evaluator directly. Provider protocols are defined; text-generation implementations are described below.
 
-The data source is a bundled JSON fixture. This release has no SQL database, embedding index, image loader, HTTP server, MCP server, or application client.
+The retrieval demo uses a bundled JSON fixture. No SQL database, embedding index, image loader, HTTP server, MCP server, or application client is implemented.
 
 ## Data and retrieval
 
@@ -60,3 +60,23 @@ The API and MCP interfaces will call shared application services. Model credenti
 The MCP `2026-07-28` specification deprecates Roots, Sampling, and Logging but retains them during the deprecation period. The planned MCP interface will not depend on those capabilities. Protocol and SDK compatibility will be checked when implementation begins.
 
 Reference: [MCP 2026-07-28 changelog](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/changelog.mdx).
+
+## Text ingestion (`0.2.0`)
+
+```text
+local JSON source batch
+        │
+ source-batch validation / normalized text
+        │
+ labeled extractor OR TextGenerator + model extractor
+        │
+ JSON contract + verbatim quote validation
+        │
+ immutable CatalogItem candidates
+        │
+ canonical schema-v1 admission
+        │
+ catalog JSON + field-evidence JSON
+```
+
+`ingestion/sources.py` owns source validation, timestamps, and normalized text hashes. `ingestion/extraction.py` owns both extraction strategies and the evidence validator. `services/ingestion.py` admits validated items through the existing catalog contract. Source-specific evidence is kept in a sidecar, leaving existing retrieval and benchmark APIs unchanged. All output writes are local; model providers are opt-in. See [text ingestion](ingestion.md).

@@ -159,3 +159,28 @@ def load_catalog(path: str | Path | None = None) -> Catalog:
     else:
         text = Path(path).read_text(encoding="utf-8")
     return parse_catalog(json.loads(text))
+
+
+def catalog_to_dict(catalog: Catalog) -> dict[str, Any]:
+    """Serialize the canonical catalog using the existing version-1 contract."""
+    return {
+        "schema_version": catalog.schema_version,
+        "dataset": {"name": catalog.dataset_name, "synthetic": catalog.synthetic},
+        "items": [
+            {
+                "item_id": item.item_id, "kind": item.kind, "title": item.title,
+                "description": item.description, "cuisines": list(item.cuisines),
+                "dietary_tags": list(item.dietary_tags), "source": item.source,
+                "source_url": item.source_url, "location": item.location,
+                "price_tier": item.price_tier, "ingredients": list(item.ingredients),
+            }
+            for item in catalog.items
+        ],
+        "media": [
+            {
+                "media_id": asset.media_id, "item_id": asset.item_id, "kind": asset.kind,
+                "uri": asset.uri, "source": asset.source, "caption": asset.caption,
+            }
+            for asset in catalog.media
+        ],
+    }

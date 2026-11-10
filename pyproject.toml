@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "savoroute"
-version = "0.1.0"
-description = "Offline catalog search and retrieval evaluation for a food-discovery application"
+version = "0.2.0"
+description = "Food catalog ingestion, evidence validation, and offline retrieval"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -21,6 +21,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.8,<1"]
+openai = ["openai>=2,<4"]
 notebooks = ["jupyterlab>=4,<5", "ipykernel>=6,<8", "nbclient>=0.10,<1", "nbformat>=5,<6"]
 
 [project.scripts]

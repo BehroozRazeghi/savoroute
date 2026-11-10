@@ -1,25 +1,24 @@
 # Development roadmap
 
-The project is built in two forms at each stage: reusable library code and an executable notebook that exposes the intermediate results. CLI commands, services, and later application interfaces reuse the same implementation. A milestone is complete when its code, tests, and notebook agree.
+Each milestone adds reusable Python functionality, tests, a corresponding Jupyter notebook, and CLI support where applicable. Application interfaces are introduced only after the underlying services exist.
 
-| Stage | Scope | Acceptance criteria | Status |
-| --- | --- | --- | --- |
-| 0 · Foundation | Catalog parser, lexical retrieval, evaluation, CLI, four notebooks | Installable wheel; valid demo and tests; notebooks execute offline | Implemented |
-| 1 · Ingestion | Source adapters, text normalization, structured extraction, field evidence | Invalid or unsupported extracted values rejected; source and transformation retained | Next |
-| 2 · Multimodal data | Permitted image ingestion, media IDs, captions, text and joint embeddings | Reproducible indexes with model/metric metadata; item joins tested | Planned |
-| 3 · Retrieval | Vector retrieval, deterministic filters, per-item rank fusion, benchmarks | Valid canonical IDs; measurable single-modality/fused comparisons | Planned |
-| 4 · Recommendations | Preference constraints, retrieved evidence, tool calls | Grounded results, explicit failure behavior and constraint tests | Planned |
-| 5 · Interfaces | HTTP API, MCP tools, responsive web client | Shared service contracts; integration, permissions and UI tests | Planned |
-| 6 · Release | Reproducibility notes, deployment, end-to-end tests and demonstration | Public build and documented operating limits | Planned |
+| Stage | Scope | Status |
+| --- | --- | --- |
+| 0 · Foundation | Canonical catalog, lexical retrieval, evaluation, CLI, notebooks 00–03 | Complete |
+| 1a · Text ingestion | Source-batch validation, labeled extraction, model extraction protocol, field evidence, catalog admission, notebook 04 | Complete; live model calls unverified |
+| 1b · Source acquisition | Licensed datasets, supported source adapters, duplicate entity handling, source policy, extraction quality assessment | Next |
+| 2 · Multimodal data | Permitted image ingestion, captions, text/image embeddings, reproducible indexes | Planned |
+| 3 · Retrieval | Vector search, deterministic filters, item-level fusion, evaluation | Planned |
+| 4 · Recommendations | Preference constraints, retrieved evidence, grounded recommendations | Planned |
+| 5 · Interfaces | Versioned HTTP API, MCP tools, responsive web application | Planned |
+| 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
 
-## Stage 1: ingestion
+## Completed ingestion work
 
-The first new notebook will be `04_structured_ingestion.ipynb`. The initial test fixture will remain local and deterministic. A concrete model adapter will be introduced alongside tests for structured output, missing attributes, unsupported values, model errors, and source evidence. IBM watsonx and at least one additional provider are candidate implementations; actual integration depends on provider access and model capability checks.
+Stage 1a reads a bounded local source batch, extracts supported catalog fields, attaches exact text quotations, and verifies every extracted value. It derives a stable item ID from the source ID, checks admission against catalog schema v1, and writes canonical catalog and provenance JSON files. OpenAI Responses and Ollama adapters implement the existing text-generation protocol. Network integrations have not been validated with provider credentials.
 
-The output will be a validated source record before it is admitted to the canonical catalog. Source IDs, collection timestamps, extraction versions, and field evidence will be retained. Model outputs will not be treated as verified facts without corresponding evidence.
+Stage 1b will establish rights-aware acquisition of non-synthetic source records, separate entity identity from source identity, and measure extraction failures on a held-out, human-annotated set. This must precede any claims about real-world extraction quality. Entity resolution and review decisions should not be delegated to the language model without verification.
 
 ## Application scope
 
-The first application is a responsive web interface backed by the same search and recommendation services used by Python clients. Its initial flows are catalog search, filters, and item details. Guided recommendations and image queries follow the underlying package implementation. The HTTP API and the web client will be introduced together with tests, rather than as empty directories.
-
-A native mobile client has no committed framework or schedule. A mobile build will be evaluated after the web interface, based on requirements that cannot be met adequately by a responsive site or PWA.
+The intended web application uses the same catalog, retrieval, and recommendation services as the notebooks and CLI. Its first flows are search, filtering, and item detail. Image search and guided recommendations follow the corresponding package implementations. The native mobile client has no assigned framework or development milestone.

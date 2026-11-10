@@ -1,0 +1,20 @@
+{
+  "source_schema_version": 1,
+  "dataset": {"name": "fictional-menu-excerpts", "synthetic": true},
+  "documents": [
+    {
+      "source_id": "fictional-recipe-ginger-01",
+      "kind": "recipe",
+      "source_name": "synthetic_ingestion_example",
+      "collected_at": "2026-11-09T00:00:00Z",
+      "text": "Title: Ginger Mushroom Rice\nDescription: Rice with ginger, mushrooms, and scallions.\nCuisines: Asian-inspired\nDietary tags: vegetarian\nIngredients: rice, ginger, mushrooms, scallions"
+    },
+    {
+      "source_id": "fictional-restaurant-linden-01",
+      "kind": "restaurant",
+      "source_name": "synthetic_ingestion_example",
+      "collected_at": "2026-11-09T00:00:00Z",
+      "text": "Title: Linden Kitchen\nDescription: A fictional neighborhood restaurant serving seasonal vegetable dishes.\nCuisines: Contemporary\nDietary tags: vegetarian options\nLocation: Imaginary City\nPrice tier: 2"
+    }
+  ]
+}

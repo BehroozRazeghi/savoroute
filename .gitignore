@@ -29,6 +29,7 @@ htmlcov/
 .cache/
 data/raw/
 data/processed/
+data/generated/
 data/indexes/
 artifacts/
 outputs/

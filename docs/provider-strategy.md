@@ -1,18 +1,18 @@
-# Model integration
+# Provider interfaces
 
-Version `0.1.0` defines four Python protocols in `src/savoroute/providers/contracts.py`:
+`src/savoroute/providers/contracts.py` defines four capabilities: text generation, image captioning, text embedding, and joint text/image embedding. Retrieval remains independent of all four.
 
-| Protocol | Operation | Current implementation |
-| --- | --- | --- |
-| `TextGenerator` | Prompt to text | Interface only |
-| `VisionCaptioner` | Image to caption | Interface only |
-| `TextEmbedder` | Text to vectors | Interface only |
-| `JointTextImageEmbedder` | Text and images to a declared shared embedding space | Interface only |
+The text-ingestion milestone adds two concrete text generators:
 
-No model SDK is installed and no protocol has an adapter in this release. The current lexical rankers require no model.
+| Adapter | Transport | Credential requirement | Status |
+| --- | --- | --- | --- |
+| `OpenAITextGenerator` | OpenAI Python SDK, Responses API | `OPENAI_API_KEY` | Implemented; mocked integration tests only |
+| `OllamaTextGenerator` | HTTP `POST /api/generate` | Depends on configured server | Implemented; mocked HTTP tests only |
 
-Hosted generation may be implemented through IBM watsonx, OpenAI, Anthropic, or Google; local execution is also a target. Text embeddings and joint text/image embeddings are separate capabilities. Candidate implementations include SentenceTransformers for text-only embeddings and CLIP/SigLIP-family models for joint embeddings. These are options under evaluation, not declared compatible adapters.
+`ModelTextExtractor` depends only on the `TextGenerator` protocol, not either adapter. It validates model output independently of the model provider. The package also includes `LabeledTextExtractor`, a deterministic parser that does not use a text generator.
 
-A concrete adapter will specify the provider, model identifier and revision, supported operations, request limits, timeout/retry behavior, error mapping, and any data transmitted externally. Embedding adapters will also report vector dimension, normalization, distance metric, and embedding-space identity. Model/provider selection will never silently change a local-only data flow into a hosted one.
+An IBM watsonx adapter is not included. It can implement `TextGenerator` after its target inference endpoint, credentials, request limits, and output semantics are established. Vision and embedding interfaces have no implementations yet.
 
-Provider integration tests will be isolated from offline unit tests and require explicit credentials. `.env.example` is an unpopulated reference; `.env` is excluded from version control.
+Model-backed extraction is opt-in. Source text is sent to the selected endpoint. Every live integration requires separate checks for model capability, availability, latency, service errors, costs, and provider data-handling policies. No fallback changes a local execution into a hosted request without explicit selection.
+
+See [text ingestion](ingestion.md) for invocation and output validation.

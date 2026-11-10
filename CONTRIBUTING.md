@@ -1,6 +1,6 @@
 # Development
 
-The library is the source of truth for retrieval and catalog behavior. Notebooks demonstrate package functions, while CLI and future HTTP/MCP interfaces expose the same operations.
+The library is the source of truth for ingestion, retrieval, and catalog behavior. Notebooks demonstrate package functions, while CLI and future HTTP/MCP interfaces expose the same operations.
 
 ## Local checks
 

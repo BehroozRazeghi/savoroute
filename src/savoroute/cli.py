@@ -7,16 +7,20 @@ import json
 import sys
 from collections import Counter
 from collections.abc import Sequence
+from pathlib import Path
 
 from savoroute.data.catalog import CatalogError, load_catalog
 from savoroute.evaluation.retrieval import BenchmarkError, evaluate_search, load_benchmark
+from savoroute.ingestion.extraction import LabeledTextExtractor, ModelTextExtractor
+from savoroute.ingestion.sources import IngestionError, parse_source_batch
 from savoroute.retrieval.lexical import SearchFilters
 from savoroute.services.discovery import DiscoveryService
+from savoroute.services.ingestion import ingest_sources, write_ingestion
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="savoroute", description="Offline catalog and retrieval baselines (Phase 0)"
+        prog="savoroute", description="Catalog ingestion and retrieval"
     )
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -44,7 +48,49 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--method", choices=("bm25", "overlap", "both"), default="both")
     evaluate.add_argument("--at-k", type=int, default=5)
     evaluate.add_argument("--json", action="store_true")
+    ingest = commands.add_parser("ingest", help="extract source records into a validated catalog")
+    ingest.add_argument("--sources", required=True, help="local source-batch JSON file")
+    base = ingest.add_mutually_exclusive_group()
+    base.add_argument("--catalog", help="base catalog (default: packaged demo)")
+    base.add_argument("--new-catalog", action="store_true",
+                      help="start an empty catalog named after the input dataset")
+    ingest.add_argument("--output", required=True, help="path for merged canonical catalog")
+    ingest.add_argument("--provenance", required=True, help="path for field-level evidence JSON")
+    ingest.add_argument("--provider", choices=("labeled", "openai", "ollama"),
+                        default="labeled", help="labeled input is offline and deterministic")
+    ingest.add_argument("--model", help="required when provider is openai or ollama")
+    ingest.add_argument("--ollama-url", default="http://127.0.0.1:11434")
+    ingest.add_argument("--overwrite", action="store_true")
     return parser
+
+
+def _run_ingest(args: argparse.Namespace) -> None:
+    batch = parse_source_batch(json.loads(Path(args.sources).read_text(encoding="utf-8")))
+    if args.new_catalog:
+        from savoroute.domain.models import Catalog
+        catalog = Catalog(1, batch.dataset_name, batch.synthetic, ())
+    else:
+        catalog = load_catalog(args.catalog)
+    if args.provider == "labeled":
+        if args.model:
+            raise IngestionError("--model is only supported for model providers")
+        extractor = LabeledTextExtractor()
+    else:
+        if not args.model:
+            raise IngestionError(f"--model is required for {args.provider}")
+        if args.provider == "openai":
+            from savoroute.providers.text import OpenAITextGenerator
+            generator = OpenAITextGenerator(args.model)
+        else:
+            from savoroute.providers.text import OllamaTextGenerator
+            generator = OllamaTextGenerator(args.model, base_url=args.ollama_url)
+        extractor = ModelTextExtractor(generator)
+    result = ingest_sources(batch, extractor, base_catalog=catalog)
+    write_ingestion(result, catalog_path=args.output, provenance_path=args.provenance,
+                    overwrite=args.overwrite)
+    print(f"Ingested {len(result.records)} sources; catalog contains "
+          f"{len(result.catalog.items)} items.")
+    print(f"Catalog: {args.output}\nEvidence: {args.provenance}")
 
 
 def _format_metric(value: float | None) -> str:
@@ -55,6 +101,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.command == "ingest":
+            _run_ingest(args)
+            return 0
         catalog = load_catalog(args.catalog)
         service = DiscoveryService(catalog)
         if args.command == "validate":
@@ -110,6 +159,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                       f"(positive={summary.positive_queries}, "
                       f"empty={summary.empty_queries})")
         return 0
-    except (CatalogError, BenchmarkError, ValueError, OSError, json.JSONDecodeError) as exc:
+    except (CatalogError, BenchmarkError, IngestionError, ValueError, OSError,
+            RuntimeError, json.JSONDecodeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2

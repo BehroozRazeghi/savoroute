@@ -57,3 +57,21 @@ def write_json_file(payload: dict[str, Any], path: str | Path, *, overwrite: boo
         raise IngestionError(f"output path is a directory: {target}")
     target.parent.mkdir(parents=True, exist_ok=True)
     _atomic_json(target, payload)
+
+
+def write_json_group(
+    documents: tuple[tuple[str | Path, dict[str, Any]], ...], *, overwrite: bool = False,
+) -> None:
+    """Preflight multiple outputs; each file is atomic, the group is not."""
+    paths = tuple(Path(path) for path, _ in documents)
+    if len({p.resolve() for p in paths}) != len(paths):
+        raise IngestionError("output paths must be distinct")
+    for path in paths:
+        if path.is_dir():
+            raise IngestionError(f"output path is a directory: {path}")
+        if path.exists() and not overwrite:
+            raise IngestionError("output already exists; use new paths or --overwrite")
+    for path in paths:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    for path, data in documents:
+        _atomic_json(Path(path), data)

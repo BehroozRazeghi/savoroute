@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 — Source identity and controlled updates
+
+- Added a versioned source registry with explicit source-to-item bindings.
+- Added controlled OSM snapshot synchronization without changing catalog schema v1 or item IDs.
+- Added a review path for conflicting source records and out-of-band edits.
+- Added CLI commands for registry bootstrapping, manual source links, and sync.
+- Added notebook 06, an offline update fixture, and regression tests.
+
+The matching heuristics have not been validated on independently annotated real data. Source-version ordering and transactional multi-file storage remain outstanding.
+
 ## 0.3.0 — OSM source adapter and extraction evaluation
 
 - Added an optional bounded Overpass fetch command and deterministic OSM restaurant tag importer.

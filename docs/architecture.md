@@ -51,7 +51,7 @@ licensed sources / submitted data
        optional native client
 ```
 
-These are design boundaries, not implemented modules. SQLite is the initial candidate for persistent canonical records; index storage will be selected after the embedding and retrieval experiments. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-index fusion will operate on canonical item IDs, not on uncalibrated raw similarity scores.
+The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. SQLite is the initial candidate for persistent canonical records; index storage will be selected after the embedding and retrieval experiments. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-index fusion will operate on canonical item IDs, not on uncalibrated raw similarity scores.
 
 The API and MCP interfaces will call shared application services. Model credentials and data access policy will remain server-side. A responsive web client is the first application target; a native mobile client is not yet scoped.
 
@@ -80,3 +80,7 @@ local JSON source batch
 ```
 
 `ingestion/sources.py` owns source validation, timestamps, and normalized text hashes. `ingestion/extraction.py` owns both extraction strategies and the evidence validator. `services/ingestion.py` admits validated items through the existing catalog contract. Source-specific evidence is kept in a sidecar, leaving existing retrieval and benchmark APIs unchanged. All output writes are local; model providers are opt-in. See [text ingestion](ingestion.md).
+
+## Source reconciliation (`0.4.0`)
+
+`identity/registry.py` maps provider source keys to existing catalog items without changing catalog schema v1. `services/osm_sync.py` admits new records, updates uniquely bound OSM-owned records, and records decisions for ambiguous cases. A digest of the last source-managed item prevents unreviewed overwrites of external catalog edits. Records absent from bounded snapshots are retained. The notebook and CLI use the same reconciliation functions. See [identity and updates](entity-identity-and-updates.md).

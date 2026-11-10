@@ -4,7 +4,7 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.3.0` adds an OSM snapshot importer, bounded optional source fetch, duplicate-review decisions, and extraction evaluation to the existing text-ingestion and retrieval baseline. The existing demo includes six fictional restaurants and six recipes, metadata filtering, two lexical rankers, and 16 synthetic evaluation queries. Text extraction can run offline on labeled records or through an explicitly selected OpenAI/Ollama text-generation adapter. The OSM adapter maps structured tags; live fetches have not been exercised in CI. Image processing, vector indexes, agents, MCP services, and applications are not implemented.
+Version `0.4.0` adds source identity bookkeeping and controlled updates to the existing OSM importer and extraction-evaluation baseline. The existing demo includes six fictional restaurants and six recipes, metadata filtering, two lexical rankers, and 16 synthetic evaluation queries. Text extraction can run offline on labeled records or through an explicitly selected OpenAI/Ollama text-generation adapter. The OSM adapter maps structured tags; live fetches have not been exercised in CI. Image processing, vector indexes, agents, MCP services, and applications are not implemented.
 
 ## Installation
 
@@ -49,8 +49,9 @@ savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 | [03 — Retrieval evaluation](notebooks/03_retrieval_evaluation.ipynb) | Calculate Recall@k, MRR@k, nDCG@k, and the empty-result rate |
 | [04 — Structured ingestion](notebooks/04_structured_ingestion.ipynb) | Validate source records, extract fields, audit literal evidence spans, and admit items |
 | [05 — OSM sources and evaluation](notebooks/05_osm_sources_and_evaluation.ipynb) | Import a synthetic Overpass-format snapshot, review duplicate candidates, and compute field metrics |
+| [06 — Source identity and updates](notebooks/06_source_identity_and_updates.ipynb) | Bootstrap source bindings, reconcile updates, review conflicts, and check idempotency |
 
-All six notebooks run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All seven notebooks run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
 
 ## Python API
 
@@ -82,8 +83,9 @@ savoroute/
 │   ├── retrieval/       # tokenization, filters, overlap and BM25
 │   ├── evaluation/      # retrieval and extraction metrics
 │   ├── ingestion/       # text extraction, evidence checks, OSM import
+│   ├── identity/        # source bindings and explicit identity links
 │   ├── providers/       # capability interfaces; OpenAI/Ollama text adapters
-│   ├── services/        # discovery and ingestion use cases
+│   ├── services/        # discovery, ingestion and OSM reconciliation
 │   ├── resources/       # packaged synthetic fixtures
 │   └── cli.py           # command-line entry point
 ├── notebooks/           # executable lessons
@@ -98,7 +100,9 @@ The catalog uses stable `item_id` identifiers for recipes and restaurants. Optio
 
 ## Development
 
-The implementation sequence is recorded in [docs/roadmap.md](docs/roadmap.md): completed initial rights-aware source acquisition, image/text embeddings, indexed retrieval, grounded recommendations, MCP and HTTP interfaces, then a responsive web application. Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
+The [development roadmap](docs/roadmap.md) separates the implemented ingestion and lexical retrieval foundation from the planned image/text embeddings, indexed retrieval, recommendation services, MCP and HTTP interfaces, and web application. Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
+
+Source identities are stored separately from the version-1 catalog. `osm sync` updates OSM-owned records when the source binding and previous catalog state are unambiguous; proposed cross-source matches are review-only. The implementation does not delete entries absent from a bounded snapshot. See [source identity and updates](docs/entity-identity-and-updates.md).
 
 Technical notes: [text ingestion](docs/ingestion.md) · [architecture](docs/architecture.md) · [catalog contract](docs/data-contract.md) · [provider interfaces](docs/provider-strategy.md) · [evaluation](docs/evaluation.md) · [design history](docs/comparison.md).
 

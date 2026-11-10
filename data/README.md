@@ -9,3 +9,5 @@ Local ingestion data and generated artifacts will live under `data/raw/`, `data/
 [Catalog fields and provenance](../docs/data-contract.md)
 
 `osm_overpass_fixture.json` is synthetic and has no connection to real OSM element IDs. `extraction_gold.json` contains reference fields from the fictional labeled ingestion sources. See [OSM and extraction evaluation](../docs/osm-and-extraction-evaluation.md).
+
+- `osm_overpass_update_fixture.json`: synthetic incremental snapshot used by notebook 06 and source-sync tests.

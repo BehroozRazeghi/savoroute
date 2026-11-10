@@ -19,7 +19,14 @@ from savoroute.ingestion.osm import (
     write_osm_import,
     write_overpass_snapshot,
 )
+from savoroute.identity.registry import (
+    bootstrap_osm_registry,
+    link_source,
+    load_registry,
+    write_registry,
+)
 from savoroute.ingestion.sources import IngestionError, parse_source_batch
+from savoroute.services.osm_sync import sync_osm_snapshot, write_osm_sync
 from savoroute.retrieval.lexical import SearchFilters
 from savoroute.services.discovery import DiscoveryService
 from savoroute.services.ingestion import ingest_sources, write_ingestion
@@ -83,6 +90,30 @@ def build_parser() -> argparse.ArgumentParser:
     import_cmd.add_argument("--output", required=True)
     import_cmd.add_argument("--report", required=True)
     import_cmd.add_argument("--overwrite", action="store_true")
+    sync = osm_commands.add_parser("sync", help="reconcile an OSM snapshot with stable source identities")
+    sync.add_argument("--input", required=True, help="saved Overpass JSON snapshot")
+    sync.add_argument("--catalog", required=True, help="existing version-1 catalog")
+    sync.add_argument("--registry", required=True, help="source identity registry (v1)")
+    sync.add_argument("--synthetic-fixture", action="store_true")
+    sync.add_argument("--output", required=True, help="updated catalog (new file)")
+    sync.add_argument("--registry-output", required=True, help="updated registry (new file)")
+    sync.add_argument("--report", required=True, help="source sync decisions")
+    sync.add_argument("--overwrite", action="store_true")
+
+    identity = commands.add_parser("identity", help="reviewed source-to-entity bindings")
+    identity_commands = identity.add_subparsers(dest="identity_command", required=True)
+    bootstrap = identity_commands.add_parser("bootstrap-osm", help="initialize bindings from a v0.3.0 OSM import report")
+    bootstrap.add_argument("--catalog", required=True)
+    bootstrap.add_argument("--report", required=True)
+    bootstrap.add_argument("--output", required=True)
+    link = identity_commands.add_parser("link", help="manually associate a source ID with an existing item")
+    link.add_argument("--catalog", required=True)
+    link.add_argument("--registry", required=True)
+    link.add_argument("--provider", required=True)
+    link.add_argument("--source-ref", required=True)
+    link.add_argument("--item-id", required=True)
+    link.add_argument("--output", required=True)
+
     extraction_eval = commands.add_parser("evaluate-extraction", help="compare field extraction with gold annotations")
     extraction_eval.add_argument("--gold", required=True)
     extraction_eval.add_argument("--predictions", required=True, help="schema-v1 ingestion provenance JSON")
@@ -130,7 +161,35 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "ingest":
             _run_ingest(args)
             return 0
+        if args.command == "identity":
+            catalog = load_catalog(args.catalog)
+            if args.identity_command == "bootstrap-osm":
+                report = json.loads(Path(args.report).read_text(encoding="utf-8"))
+                registry = bootstrap_osm_registry(catalog, report)
+            else:
+                registry = load_registry(args.registry, catalog)
+                registry = link_source(registry, catalog, provider=args.provider,
+                                       source_ref=args.source_ref, item_id=args.item_id)
+            write_registry(registry, args.output)
+            print(f"Saved {len(registry.bindings)} source bindings: {args.output}")
+            return 0
         if args.command == "osm":
+            if args.osm_command == "sync":
+                payload = json.loads(Path(args.input).read_text(encoding="utf-8"))
+                catalog = load_catalog(args.catalog)
+                registry = load_registry(args.registry, catalog)
+                result = sync_osm_snapshot(
+                    payload, base_catalog=catalog, registry=registry,
+                    synthetic_fixture=args.synthetic_fixture,
+                )
+                write_osm_sync(result, catalog_path=args.output,
+                               registry_path=args.registry_output, report_path=args.report,
+                               overwrite=args.overwrite)
+                counts = Counter(decision.status for decision in result.decisions)
+                print(f"OSM sync: {dict(sorted(counts.items()))}; "
+                      f"catalog items={len(result.catalog.items)}")
+                print(f"Catalog: {args.output}\nRegistry: {args.registry_output}\nReport: {args.report}")
+                return 0
             if args.osm_command == "fetch":
                 payload = fetch_overpass(tuple(args.bbox), contact=args.contact)
                 write_overpass_snapshot(payload, args.output)

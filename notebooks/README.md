@@ -17,3 +17,5 @@ jupyter lab
 ```
 
 The examples use bundled fictional data. Notebook execution requires no model download, remote service, or API key. Model-backed extraction is covered separately in the ingestion guide. Each notebook imports the production functions used by the library and CLI; algorithms are not maintained separately in notebook cells.
+
+- `06_source_identity_and_updates.ipynb`: source registry, controlled updates, conflict review, and replay behavior.

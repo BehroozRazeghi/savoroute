@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 — OSM source adapter and extraction evaluation
+
+- Added an optional bounded Overpass fetch command and deterministic OSM restaurant tag importer.
+- Added candidate duplicate review, source-level import decisions, and ODbL attribution metadata.
+- Added field-level exact-match extraction evaluation and notebook 05.
+- Kept catalog schema v1 and existing retrieval APIs unchanged.
+
+Live Overpass requests, actual OSM record completeness, and extraction quality on independently annotated real data have not yet been evaluated.
+
 ## 0.2.0 — Text ingestion
 
 - Added versioned local source-batch parsing and normalized source hashes.

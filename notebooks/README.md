@@ -9,6 +9,7 @@ The notebooks provide a linear introduction to the installed package:
 | `02_lexical_retrieval.ipynb` | BM25, weighted overlap, and filters |
 | `03_retrieval_evaluation.ipynb` | Query judgments, metrics, and retrieval failures |
 | `04_structured_ingestion.ipynb` | Source records, quoted extraction evidence, catalog admission |
+| `05_osm_sources_and_evaluation.ipynb` | OSM-format import, duplicate review, and extraction metrics |
 
 ```bash
 python -m pip install -e ".[dev,notebooks]"

@@ -1,0 +1,81 @@
+{
+  "version": 0.6,
+  "generator": "Savoroute synthetic fixture; NOT OpenStreetMap data",
+  "elements": [
+    {
+      "type": "node",
+      "id": 900000001,
+      "lat": 42.35,
+      "lon": -71.06,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Juniper Table",
+        "addr:city": "Exampleton",
+        "addr:street": "Harbor Lane",
+        "addr:housenumber": "12",
+        "cuisine": "italian;pizza"
+      }
+    },
+    {
+      "type": "way",
+      "id": 900000002,
+      "center": {
+        "lat": 42.35001,
+        "lon": -71.06001
+      },
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Juniper Table",
+        "addr:city": "Exampleton",
+        "addr:street": "Harbor Lane",
+        "addr:housenumber": "12",
+        "cuisine": "italian"
+      }
+    },
+    {
+      "type": "node",
+      "id": 900000003,
+      "lat": 42.355,
+      "lon": -71.06,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Coastal Bowl",
+        "addr:city": "Exampleton",
+        "cuisine": "regional;salad"
+      }
+    },
+    {
+      "type": "node",
+      "id": 900000004,
+      "lat": 42.36,
+      "lon": -71.05,
+      "tags": {
+        "amenity": "restaurant"
+      }
+    },
+    {
+      "type": "node",
+      "id": 900000005,
+      "lat": 42.361,
+      "lon": -71.05,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Morning Corner"
+      }
+    },
+    {
+      "type": "node",
+      "id": 900000006,
+      "lat": 42.4,
+      "lon": -71.07,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Juniper Table",
+        "addr:city": "Otherburg",
+        "addr:street": "Hill Street",
+        "cuisine": "regional"
+      }
+    }
+  ],
+  "savoroute_fixture": true
+}

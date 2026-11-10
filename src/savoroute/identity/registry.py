@@ -178,7 +178,7 @@ def bootstrap_osm_registry(catalog: Catalog, report: Any) -> EntityRegistry:
         if not isinstance(item_id, str):
             raise IngestionError("OSM report item ID must be a string")
         expected_id = "i_" + hashlib.sha256(
-            f"osm:{source_ref}".encode("utf-8")
+            f"osm:{source_ref}".encode()
         ).hexdigest()[:20]
         if item_id != expected_id:
             raise IngestionError("OSM report source key and item ID disagree")

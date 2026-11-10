@@ -12,6 +12,12 @@ from pathlib import Path
 from savoroute.data.catalog import CatalogError, load_catalog
 from savoroute.evaluation.extraction import AnnotationError, evaluate_extraction, load_gold
 from savoroute.evaluation.retrieval import BenchmarkError, evaluate_search, load_benchmark
+from savoroute.identity.registry import (
+    bootstrap_osm_registry,
+    link_source,
+    load_registry,
+    write_registry,
+)
 from savoroute.ingestion.extraction import LabeledTextExtractor, ModelTextExtractor
 from savoroute.ingestion.osm import (
     fetch_overpass,
@@ -19,17 +25,11 @@ from savoroute.ingestion.osm import (
     write_osm_import,
     write_overpass_snapshot,
 )
-from savoroute.identity.registry import (
-    bootstrap_osm_registry,
-    link_source,
-    load_registry,
-    write_registry,
-)
 from savoroute.ingestion.sources import IngestionError, parse_source_batch
-from savoroute.services.osm_sync import sync_osm_snapshot, write_osm_sync
 from savoroute.retrieval.lexical import SearchFilters
 from savoroute.services.discovery import DiscoveryService
 from savoroute.services.ingestion import ingest_sources, write_ingestion
+from savoroute.services.osm_sync import sync_osm_snapshot, write_osm_sync
 
 
 def build_parser() -> argparse.ArgumentParser:

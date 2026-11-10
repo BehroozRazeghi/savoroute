@@ -6,7 +6,8 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | --- | --- | --- |
 | 0 · Foundation | Canonical catalog, lexical retrieval, evaluation, CLI, notebooks 00–03 | Complete |
 | 1a · Text ingestion | Source-batch validation, labeled extraction, model extraction protocol, field evidence, catalog admission, notebook 04 | Complete; live model calls unverified |
-| 1b · Source acquisition | Licensed datasets, supported source adapters, duplicate entity handling, source policy, extraction quality assessment | Next |
+| 1b · Source acquisition | Bounded OSM snapshot acquisition, direct tag mapping, duplicate review, extraction comparison harness, notebook 05 | Implemented offline; live fetch unverified |
+| 1c · Real-data validation | Independently annotated real records, source updates, cross-source identity decisions, coverage/error analysis | Next |
 | 2 · Multimodal data | Permitted image ingestion, captions, text/image embeddings, reproducible indexes | Planned |
 | 3 · Retrieval | Vector search, deterministic filters, item-level fusion, evaluation | Planned |
 | 4 · Recommendations | Preference constraints, retrieved evidence, grounded recommendations | Planned |
@@ -15,9 +16,11 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 
 ## Completed ingestion work
 
-Stage 1a reads a bounded local source batch, extracts supported catalog fields, attaches exact text quotations, and verifies every extracted value. It derives a stable item ID from the source ID, checks admission against catalog schema v1, and writes canonical catalog and provenance JSON files. OpenAI Responses and Ollama adapters implement the existing text-generation protocol. Network integrations have not been validated with provider credentials.
+Stage 1a reads a bounded local source batch, extracts supported catalog fields, attaches exact text quotations, and checks that each extracted value occurs within its quoted source span. It derives a stable item ID from the source ID, checks admission against catalog schema v1, and writes canonical catalog and provenance JSON files. OpenAI Responses and Ollama adapters implement the existing text-generation protocol. Network integrations have not been validated with provider credentials.
 
-Stage 1b will establish rights-aware acquisition of non-synthetic source records, separate entity identity from source identity, and measure extraction failures on a held-out, human-annotated set. This must precede any claims about real-world extraction quality. Entity resolution and review decisions should not be delegated to the language model without verification.
+Stage 1b provides a bounded Overpass client, an OSM JSON importer, and a review queue for possible duplicate establishments. Catalog IDs are currently source-derived, so they are not yet independent entity identities. Field-level evaluation compares text-extraction provenance against reference labels. The included synthetic labels do not measure out-of-sample extraction quality.
+
+Stage 1c will add independently annotated real records, an explicit cross-source entity identity policy, snapshot update semantics, and coverage/error analysis. The source licensing terms will be reviewed before redistributing derived datasets.
 
 ## Application scope
 

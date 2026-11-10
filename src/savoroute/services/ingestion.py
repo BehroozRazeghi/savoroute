@@ -3,9 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
-import os
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -14,6 +11,7 @@ from savoroute.data.catalog import catalog_to_dict, parse_catalog
 from savoroute.domain.models import Catalog
 from savoroute.ingestion.extraction import ExtractedItem, Extractor
 from savoroute.ingestion.sources import IngestionError, SourceBatch
+from savoroute.services.storage import json_text, write_json_pair
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,7 +28,7 @@ class IngestionResult:
             "source_dataset": self.source_dataset,
             "source_synthetic": self.source_synthetic,
             "catalog_sha256": hashlib.sha256(
-                _json_text(catalog_to_dict(self.catalog)).encode("utf-8")
+                json_text(catalog_to_dict(self.catalog)).encode("utf-8")
             ).hexdigest(),
             "records": [record.provenance() for record in self.records],
         }
@@ -61,41 +59,12 @@ def ingest_sources(
     return IngestionResult(merged, tuple(records), batch.dataset_name, batch.synthetic)
 
 
-def _json_text(payload: dict[str, Any]) -> str:
-    return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=False) + "\n"
-
-
-def _write_json(path: Path, payload: dict[str, Any]) -> None:
-    """Replace an output file only after a complete JSON document is written."""
-    data = _json_text(payload)
-    fd, temporary = tempfile.mkstemp(prefix=".savoroute-", suffix=".tmp", dir=path.parent)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            handle.write(data)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
-
-
 def write_ingestion(
     result: IngestionResult, *, catalog_path: str | Path,
     provenance_path: str | Path, overwrite: bool = False,
 ) -> None:
-    """Write validated canonical data and its lineage to separate JSON files.
-
-    Writes are individually atomic, not transactional across both files.
-    """
-    paths = (Path(catalog_path), Path(provenance_path))
-    if paths[0].resolve() == paths[1].resolve():
-        raise IngestionError("catalog and provenance paths must be distinct")
-    if any(path.exists() for path in paths) and not overwrite:
-        raise IngestionError("output already exists; choose new paths or pass --overwrite")
-    for path in paths:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        if path.is_dir():
-            raise IngestionError(f"output path is a directory: {path}")
-    _write_json(paths[0], catalog_to_dict(result.catalog))
-    _write_json(paths[1], result.provenance())
+    """Persist the catalog and provenance. Files are individually atomic."""
+    write_json_pair(
+        catalog_to_dict(result.catalog), result.provenance(),
+        catalog_path=catalog_path, report_path=provenance_path, overwrite=overwrite,
+    )

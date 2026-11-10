@@ -10,8 +10,15 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from savoroute.data.catalog import CatalogError, load_catalog
+from savoroute.evaluation.extraction import AnnotationError, evaluate_extraction, load_gold
 from savoroute.evaluation.retrieval import BenchmarkError, evaluate_search, load_benchmark
 from savoroute.ingestion.extraction import LabeledTextExtractor, ModelTextExtractor
+from savoroute.ingestion.osm import (
+    fetch_overpass,
+    import_osm_snapshot,
+    write_osm_import,
+    write_overpass_snapshot,
+)
 from savoroute.ingestion.sources import IngestionError, parse_source_batch
 from savoroute.retrieval.lexical import SearchFilters
 from savoroute.services.discovery import DiscoveryService
@@ -61,6 +68,25 @@ def build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("--model", help="required when provider is openai or ollama")
     ingest.add_argument("--ollama-url", default="http://127.0.0.1:11434")
     ingest.add_argument("--overwrite", action="store_true")
+    osm = commands.add_parser("osm", help="bounded OpenStreetMap data acquisition and import")
+    osm_commands = osm.add_subparsers(dest="osm_command", required=True)
+    fetch = osm_commands.add_parser("fetch", help="download a small Overpass JSON snapshot")
+    fetch.add_argument("--bbox", nargs=4, type=float, metavar=("S", "W", "N", "E"), required=True)
+    fetch.add_argument("--contact", required=True, help="email contact in User-Agent")
+    fetch.add_argument("--output", required=True)
+    import_cmd = osm_commands.add_parser("import", help="map local Overpass JSON into a catalog")
+    import_cmd.add_argument("--input", required=True, help="local Overpass JSON snapshot")
+    import_cmd.add_argument("--catalog", help="append to this canonical catalog")
+    import_cmd.add_argument("--dataset", default="osm-restaurants")
+    import_cmd.add_argument("--synthetic-fixture", action="store_true",
+                            help="only for generated test fixtures, never actual OSM data")
+    import_cmd.add_argument("--output", required=True)
+    import_cmd.add_argument("--report", required=True)
+    import_cmd.add_argument("--overwrite", action="store_true")
+    extraction_eval = commands.add_parser("evaluate-extraction", help="compare field extraction with gold annotations")
+    extraction_eval.add_argument("--gold", required=True)
+    extraction_eval.add_argument("--predictions", required=True, help="schema-v1 ingestion provenance JSON")
+    extraction_eval.add_argument("--json", action="store_true")
     return parser
 
 
@@ -103,6 +129,40 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if args.command == "ingest":
             _run_ingest(args)
+            return 0
+        if args.command == "osm":
+            if args.osm_command == "fetch":
+                payload = fetch_overpass(tuple(args.bbox), contact=args.contact)
+                write_overpass_snapshot(payload, args.output)
+                print(f"Saved {len(payload['elements'])} OSM elements: {args.output}")
+                return 0
+            payload = json.loads(Path(args.input).read_text(encoding="utf-8"))
+            base = load_catalog(args.catalog) if args.catalog else None
+            result = import_osm_snapshot(
+                payload, base_catalog=base, dataset_name=args.dataset,
+                synthetic_fixture=args.synthetic_fixture,
+            )
+            write_osm_import(result, catalog_path=args.output, report_path=args.report,
+                             overwrite=args.overwrite)
+            statuses = Counter(row.status for row in result.decisions)
+            print(f"OSM import: {dict(sorted(statuses.items()))}; "
+                  f"catalog items={len(result.catalog.items)}")
+            print(f"Catalog: {args.output}\nReport: {args.report}")
+            return 0
+        if args.command == "evaluate-extraction":
+            gold = load_gold(args.gold)
+            predictions = json.loads(Path(args.predictions).read_text(encoding="utf-8"))
+            summary = evaluate_extraction(gold, predictions)
+            if args.json:
+                print(json.dumps(summary.as_dict(), indent=2))
+            else:
+                f1 = summary.micro.f1
+                value = f"{f1:.3f}" if f1 is not None else "N/A"
+                print(f"Gold records={summary.gold_records}; predicted={summary.predicted_records}; "
+                      f"exact records={summary.exact_records}; micro F1={value}")
+                for field, score in summary.fields.items():
+                    print(f"{field}: TP={score.true_positive} FP={score.false_positive} "
+                          f"FN={score.false_negative}")
             return 0
         catalog = load_catalog(args.catalog)
         service = DiscoveryService(catalog)
@@ -159,7 +219,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                       f"(positive={summary.positive_queries}, "
                       f"empty={summary.empty_queries})")
         return 0
-    except (CatalogError, BenchmarkError, IngestionError, ValueError, OSError,
+    except (CatalogError, BenchmarkError, IngestionError, AnnotationError, ValueError, OSError,
             RuntimeError, json.JSONDecodeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2

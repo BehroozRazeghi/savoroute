@@ -4,7 +4,7 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.2.0` adds validated text ingestion to the offline retrieval baseline. The existing demo includes six fictional restaurants and six recipes, metadata filtering, two lexical rankers, and 16 synthetic evaluation queries. Text extraction can run offline on labeled records or through an explicitly selected OpenAI/Ollama text-generation adapter. Image processing, vector indexes, agents, MCP services, and applications are not implemented.
+Version `0.3.0` adds an OSM snapshot importer, bounded optional source fetch, duplicate-review decisions, and extraction evaluation to the existing text-ingestion and retrieval baseline. The existing demo includes six fictional restaurants and six recipes, metadata filtering, two lexical rankers, and 16 synthetic evaluation queries. Text extraction can run offline on labeled records or through an explicitly selected OpenAI/Ollama text-generation adapter. The OSM adapter maps structured tags; live fetches have not been exercised in CI. Image processing, vector indexes, agents, MCP services, and applications are not implemented.
 
 ## Installation
 
@@ -22,6 +22,11 @@ savoroute validate
 savoroute evaluate --method both --at-k 5
 savoroute ingest --sources data/sample/ingestion_sources.json \
   --output data/generated/catalog.json --provenance data/generated/evidence.json
+savoroute osm import --input data/sample/osm_overpass_fixture.json \
+  --synthetic-fixture --output data/generated/osm_demo.json \
+  --report data/generated/osm_report.json
+savoroute evaluate-extraction --gold data/sample/extraction_gold.json \
+  --predictions data/generated/evidence.json --json
 python -m pytest
 jupyter lab
 ```
@@ -43,8 +48,9 @@ savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 | [02 — Lexical retrieval](notebooks/02_lexical_retrieval.ipynb) | Compare weighted token overlap and BM25; apply metadata filters |
 | [03 — Retrieval evaluation](notebooks/03_retrieval_evaluation.ipynb) | Calculate Recall@k, MRR@k, nDCG@k, and the empty-result rate |
 | [04 — Structured ingestion](notebooks/04_structured_ingestion.ipynb) | Validate source records, extract fields, audit literal evidence spans, and admit items |
+| [05 — OSM sources and evaluation](notebooks/05_osm_sources_and_evaluation.ipynb) | Import a synthetic Overpass-format snapshot, review duplicate candidates, and compute field metrics |
 
-All five notebooks run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All six notebooks run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
 
 ## Python API
 
@@ -74,8 +80,8 @@ savoroute/
 │   ├── domain/          # immutable catalog records
 │   ├── data/            # JSON parsing, validation and resource loading
 │   ├── retrieval/       # tokenization, filters, overlap and BM25
-│   ├── evaluation/      # query judgments and ranking metrics
-│   ├── ingestion/       # source records, extraction and evidence validation
+│   ├── evaluation/      # retrieval and extraction metrics
+│   ├── ingestion/       # text extraction, evidence checks, OSM import
 │   ├── providers/       # capability interfaces; OpenAI/Ollama text adapters
 │   ├── services/        # discovery and ingestion use cases
 │   ├── resources/       # packaged synthetic fixtures
@@ -92,10 +98,10 @@ The catalog uses stable `item_id` identifiers for recipes and restaurants. Optio
 
 ## Development
 
-The implementation sequence is recorded in [docs/roadmap.md](docs/roadmap.md): rights-aware source acquisition, image/text embeddings, indexed retrieval, grounded recommendations, MCP and HTTP interfaces, then a responsive web application. Current text ingestion is documented in [docs/ingestion.md](docs/ingestion.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
+The implementation sequence is recorded in [docs/roadmap.md](docs/roadmap.md): completed initial rights-aware source acquisition, image/text embeddings, indexed retrieval, grounded recommendations, MCP and HTTP interfaces, then a responsive web application. Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
 
 Technical notes: [text ingestion](docs/ingestion.md) · [architecture](docs/architecture.md) · [catalog contract](docs/data-contract.md) · [provider interfaces](docs/provider-strategy.md) · [evaluation](docs/evaluation.md) · [design history](docs/comparison.md).
 
-The examples are fictional and contain no live listings, verified dietary information, restaurant availability, or real user data. Original course materials and external assets are not redistributed. The MIT license covers this repository's original source and documentation, not third-party content.
+The committed sample records are fictional and contain no live listings, verified dietary information, restaurant availability, or real user data. The optional fetch command can retrieve real OSM records; it is not run by the tests. Original course materials and external assets are not redistributed. The MIT license covers this repository's original source and documentation, not third-party content.
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes and [CONTRIBUTING.md](CONTRIBUTING.md) for development checks and contribution scope.

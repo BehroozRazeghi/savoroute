@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "savoroute"
-version = "0.3.0"
-description = "Food catalog ingestion, OSM import, evidence validation, and retrieval evaluation"
+version = "0.4.0"
+description = "Food catalog ingestion, source reconciliation, and retrieval evaluation"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

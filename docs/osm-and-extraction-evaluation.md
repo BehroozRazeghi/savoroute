@@ -23,7 +23,7 @@ savoroute osm import \
 savoroute validate --catalog data/generated/osm_catalog.json
 ```
 
-The `data/raw/` and `data/generated/` directories are excluded by `.gitignore`. For an additional snapshot, supply the first catalog with `--catalog` and write to new output paths. Repeated source identities are reported as already imported. Updates and deletions of previously imported OSM records are **not** implemented.
+The `data/raw/` and `data/generated/` directories are excluded by `.gitignore`. For an additional snapshot, the original `osm import` path can still append new records; repeated source keys are reported as already imported. The newer `osm sync` workflow supports controlled field updates through an explicit source registry. See [source identity and updates](entity-identity-and-updates.md). Missing records are never interpreted as deletions.
 
 ## Duplicate handling
 
@@ -78,6 +78,6 @@ References: [OSM copyright](https://www.openstreetmap.org/copyright), [restauran
 
 - The source adapter supports restaurants only; recipes remain in the text-ingestion path.
 - `description` is an adapter-generated record label, not a restaurant-provided description.
-- The canonical catalog does not yet store coordinates separately; they remain in provenance. Spatial search and data updates require a later schema revision.
-- Review suggestions cover exact normalized name/location and near-identical named establishments; they do not perform cross-provider entity linking.
+- The canonical catalog does not yet store coordinates separately; coordinates remain in provenance and the source registry. Spatial search still requires additional work.
+- The original importer only generates duplicate review candidates. Cross-provider source bindings and controlled OSM updates are provided by the separate registry and sync workflow.
 - The offline tests mock Overpass; network reliability, data completeness, and extraction accuracy on real data remain unmeasured.

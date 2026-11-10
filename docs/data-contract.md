@@ -47,6 +47,6 @@ An optional `media` list contains `media_id`, `item_id`, `kind`, `uri`, `source`
 
 ### Provenance
 
-The fields `source` and `source_url` are record-level labels. The catalog does not store collection timestamps, extraction evidence, licenses, or update history. Text ingestion now writes source identifiers, collection timestamps, content hashes, and quoted evidence into a separate provenance file (`docs/ingestion.md`). License policy, history, and multi-source entity resolution remain unimplemented.
+The fields `source` and `source_url` are record-level labels. The catalog does not store collection timestamps, extraction evidence, licenses, or update history. Text ingestion now writes source identifiers, collection timestamps, content hashes, and quoted evidence into a separate provenance file (`docs/ingestion.md`). A separate source registry now records manual cross-provider identity links and last source-managed item hashes; the catalog schema does not contain these fields. Automated cross-provider entity resolution, durable history, and license-policy enforcement remain unimplemented. See [source identity and updates](entity-identity-and-updates.md).
 
 `synthetic: true` identifies the demonstration dataset. Its restaurants, recipes, prices and tags are fictional. A dietary tag is not evidence of ingredient completeness, allergen safety or nutritional suitability. The catalog contains no live venue information or booking inventory.

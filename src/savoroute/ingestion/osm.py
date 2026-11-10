@@ -109,7 +109,7 @@ def fetch_overpass(bbox: tuple[float, float, float, float], *, contact: str) -> 
     request = Request(
         OVERPASS_ENDPOINT, data=data, method="POST",
         headers={
-            "User-Agent": f"Savoroute/0.3.0 (contact: {contact})",
+            "User-Agent": f"Savoroute/0.4.0 (contact: {contact})",
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
             "Accept": "application/json",
         },
@@ -125,11 +125,11 @@ def fetch_overpass(bbox: tuple[float, float, float, float], *, contact: str) -> 
         payload = json.loads(raw)
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise IngestionError("Overpass returned invalid JSON") from exc
-    _elements(payload)
+    parse_osm_elements(payload)
     return payload
 
 
-def _elements(payload: Any) -> list[Any]:
+def parse_osm_elements(payload: Any) -> list[Any]:
     if not isinstance(payload, dict) or not isinstance(payload.get("elements"), list):
         raise IngestionError("Overpass snapshot requires an elements array")
     if len(payload["elements"]) > MAX_ELEMENTS:
@@ -160,7 +160,7 @@ def _match_key(text: str) -> str:
     return " ".join(re.findall(r"[\w]+", text.casefold()))
 
 
-def _candidate(raw: Any) -> tuple[OsmCandidate | None, str, str]:
+def parse_osm_candidate(raw: Any) -> tuple[OsmCandidate | None, str, str]:
     if not isinstance(raw, dict):
         return None, "unknown", "element is not an object"
     kind, object_id = raw.get("type"), raw.get("id")
@@ -221,7 +221,7 @@ def import_osm_snapshot(
     No approximate matches are merged automatically. A source snapshot is not
     interpreted as verified menus, dietary suitability, opening hours, or prices.
     """
-    rows = _elements(payload)
+    rows = parse_osm_elements(payload)
     fixture_marker = payload.get("savoroute_fixture") is True
     if synthetic_fixture != fixture_marker:
         raise IngestionError(
@@ -239,7 +239,7 @@ def import_osm_snapshot(
     decisions: list[OsmDecision] = []
     refs: set[str] = set()
     for raw in rows:
-        candidate, ref, reason = _candidate(raw)
+        candidate, ref, reason = parse_osm_candidate(raw)
         if ref != "unknown":
             if ref in refs:
                 raise IngestionError(f"duplicate OSM element identity {ref}")

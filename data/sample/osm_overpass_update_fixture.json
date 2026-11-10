@@ -1,0 +1,51 @@
+{
+  "version": 0.6,
+  "generator": "Savoroute synthetic update fixture; NOT OpenStreetMap data",
+  "savoroute_fixture": true,
+  "elements": [
+    {
+      "type": "node",
+      "id": 900000001,
+      "lat": 42.35,
+      "lon": -71.06,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Juniper Table",
+        "addr:city": "Exampleton",
+        "addr:street": "Harbor Lane",
+        "addr:housenumber": "12",
+        "cuisine": "italian;pizza;mediterranean"
+      }
+    },
+    {
+      "type": "way",
+      "id": 900000002,
+      "center": {
+        "lat": 42.35001,
+        "lon": -71.06001
+      },
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Juniper Table",
+        "addr:city": "Exampleton",
+        "addr:street": "Harbor Lane",
+        "addr:housenumber": "12",
+        "cuisine": "italian"
+      }
+    },
+    {
+      "type": "node",
+      "id": 900000007,
+      "lat": 42.362,
+      "lon": -71.052,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Pasta Grove",
+        "addr:city": "Exampleton",
+        "addr:street": "Elm Lane",
+        "addr:housenumber": "18",
+        "cuisine": "italian"
+      }
+    }
+  ]
+}

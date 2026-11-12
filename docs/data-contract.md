@@ -43,7 +43,7 @@ The full demo contains 12 records; this example illustrates the format, not the 
 
 ### Media fields
 
-An optional `media` list contains `media_id`, `item_id`, `kind`, `uri`, `source`, and optional `caption`. `kind` is currently `image`. Media IDs must be unique, and `item_id` must reference an item in the same catalog. The parser validates nonempty URI text but does not open files, verify image formats, or check usage rights. The distributed sample has no media assets.
+An optional `media` list contains `media_id`, `item_id`, `kind`, `uri`, `source`, and optional `caption`. `kind` is currently `image`. Media IDs must be unique, and `item_id` must reference an item in the same catalog. The parser validates nonempty URI text but does not open files, verify image formats, or check usage rights. The distributed sample has no media assets. The local media exporter added in v0.6.0 writes portable relative image URIs under `assets/`, and creates a separate provenance report with declared rights and input/output hashes. The canonical catalog parser itself does not validate source-image rights or asset bytes; see [image ingestion](media-ingestion.md).
 
 ### Provenance
 

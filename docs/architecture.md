@@ -14,7 +14,7 @@ JSON demo fixtures ──> catalog loader ──> immutable Catalog, CatalogItem
 
 `src/savoroute/domain` defines the records. `data/catalog.py` parses the catalog and checks types, keys, IDs and media references. `retrieval/lexical.py` applies exact metadata filters and ranks eligible items. `evaluation/retrieval.py` runs catalog-bound relevance judgments. `services/discovery.py` exposes the search operation; the CLI also calls the catalog loader and evaluator directly. Provider protocols are defined; text-generation implementations are described below.
 
-The retrieval demo uses a bundled JSON fixture. No SQL database, embedding index, image loader, HTTP server, MCP server, or application client is implemented.
+The lexical retrieval demo uses a bundled JSON fixture. The media ingestion stage, described below, adds a local image loader. No SQL database, embedding index, HTTP server, MCP server, or application client is implemented.
 
 ## Data and retrieval
 
@@ -84,3 +84,7 @@ local JSON source batch
 ## Source reconciliation (`0.4.0`)
 
 `identity/registry.py` maps provider source keys to existing catalog items without changing catalog schema v1. `services/osm_sync.py` admits new records, updates uniquely bound OSM-owned records, and records decisions for ambiguous cases. A digest of the last source-managed item prevents unreviewed overwrites of external catalog edits. Records absent from bounded snapshots are retained. The notebook and CLI use the same reconciliation functions. See [identity and updates](entity-identity-and-updates.md).
+
+## Local media ingestion (`0.6.0`)
+
+`media/ingestion.py` reads a versioned local manifest, checks catalog item associations and declared rights metadata, decodes bounded image inputs, and exports RGB PNG assets. The output includes a catalog using relative media paths and an explicit provenance file. The export is created as a new directory so an existing catalog is not modified. The optional CLIP adapter implements the joint image/text embedding protocol without introducing a dependency on an embedding model into the ingestion path. No persistent vector index or semantic ranker is included. See [image ingestion](media-ingestion.md).

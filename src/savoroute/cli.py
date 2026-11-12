@@ -28,6 +28,11 @@ from savoroute.ingestion.osm import (
     write_overpass_snapshot,
 )
 from savoroute.ingestion.sources import IngestionError, parse_source_batch
+from savoroute.media.ingestion import (
+    MediaIngestionError,
+    prepare_image_batch,
+    write_image_batch,
+)
 from savoroute.retrieval.lexical import SearchFilters
 from savoroute.services.discovery import DiscoveryService
 from savoroute.services.ingestion import ingest_sources, write_ingestion
@@ -129,6 +134,15 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--max-records", type=int, default=80)
     prepare.add_argument("--max-pairs", type=int, default=200)
 
+    media = commands.add_parser("media", help="local image ingestion")
+    media_commands = media.add_subparsers(dest="media_command", required=True)
+    media_ingest = media_commands.add_parser(
+        "ingest", help="validate and normalize a local image manifest"
+    )
+    media_ingest.add_argument("--manifest", required=True, help="versioned JSON image manifest")
+    media_ingest.add_argument("--catalog", help="catalog without existing media; default: demo")
+    media_ingest.add_argument("--output-dir", required=True, help="new self-contained output directory")
+
     extraction_eval = commands.add_parser("evaluate-extraction", help="compare field extraction with gold annotations")
     extraction_eval.add_argument("--gold", required=True)
     extraction_eval.add_argument("--predictions", required=True, help="schema-v1 ingestion provenance JSON")
@@ -175,6 +189,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         if args.command == "ingest":
             _run_ingest(args)
+            return 0
+        if args.command == "media":
+            catalog = load_catalog(args.catalog)
+            batch = prepare_image_batch(args.manifest, catalog)
+            destination = write_image_batch(batch, args.output_dir)
+            print(f"Imported {len(batch.images)} images; catalog media={len(batch.catalog.media)}")
+            print(f"Catalog: {destination / 'catalog.json'}")
+            print(f"Provenance: {destination / 'provenance.json'}")
             return 0
         if args.command == "identity":
             if args.identity_command == "evaluate":
@@ -316,7 +338,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                       f"(positive={summary.positive_queries}, "
                       f"empty={summary.empty_queries})")
         return 0
-    except (CatalogError, BenchmarkError, IngestionError, AnnotationError, ValueError, OSError,
+    except (CatalogError, BenchmarkError, IngestionError, MediaIngestionError,
+            AnnotationError, ValueError, OSError,
             RuntimeError, json.JSONDecodeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2

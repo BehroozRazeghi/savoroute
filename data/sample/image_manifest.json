@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "dataset": {
+    "name": "fictional-food-illustrations",
+    "synthetic": true
+  },
+  "assets": [
+    {
+      "media_id": "image_p001",
+      "item_id": "p001",
+      "path": "media/orange-noodles.png",
+      "source": "savoroute-demo",
+      "rights_basis": "owned",
+      "license": "MIT",
+      "attribution": "Savoroute contributors",
+      "caption": "Stylized illustration of a noodle bowl, not a food photograph"
+    },
+    {
+      "media_id": "image_p002",
+      "item_id": "p002",
+      "path": "media/mushroom-pasta.png",
+      "source": "savoroute-demo",
+      "rights_basis": "owned",
+      "license": "MIT",
+      "attribution": "Savoroute contributors",
+      "caption": "Stylized illustration of mushroom pasta, not a food photograph"
+    }
+  ]
+}

@@ -9,8 +9,9 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 1b · Source acquisition | Bounded OSM snapshot acquisition, direct tag mapping, duplicate review, extraction comparison harness, notebook 05 | Implemented offline; live fetch unverified |
 | 1c · Source identity and updates | Registry, explicit source links, idempotent OSM updates, conflict review, notebook 06 | Implemented offline |
 | 1d · Versioning and identity evaluation | Element-version ordering, annotation worksheet, pairwise candidate benchmark, notebook 07 | Implemented offline; independent real-data evaluation pending |
-| 2 · Multimodal data | Permitted image ingestion, captions, text/image embeddings, reproducible indexes | Planned |
-| 3 · Retrieval | Vector search, deterministic filters, item-level fusion, evaluation | Planned |
+| 2a · Local media | Bounded image ingestion, normalized storage, hashes, source/rights metadata, notebook 08; optional joint CLIP adapter | Implemented offline; real model inference unverified |
+| 2b · Multimodal embeddings | Model execution, vector serialization, model/version compatibility, embedding benchmarks | Planned |
+| 3 · Retrieval | Vector indexing/search, deterministic filters, item-level fusion, evaluation | Planned |
 | 4 · Recommendations | Preference constraints, retrieved evidence, grounded recommendations | Planned |
 | 5 · Interfaces | Versioned HTTP API, MCP tools, responsive web application | Planned |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
@@ -28,3 +29,7 @@ Stage 1d adds OSM metadata-aware reconciliation and pairwise evaluation of the s
 ## Application scope
 
 The intended web application uses the same catalog, retrieval, and recommendation services as the notebooks and CLI. Its first flows are search, filtering, and item detail. Image search and guided recommendations follow the corresponding package implementations. The native mobile client has no assigned framework or development milestone.
+
+## Local image processing
+
+Stage 2a validates explicit local file references and exports normalized RGB PNG assets with source and output SHA-256 hashes. Output `catalog.json` uses relative asset URIs and retains catalog schema v1. `provenance.json` records declared source rights; it does not verify permissions. The current command exports a new directory from a catalog without pre-existing media. Image discovery and external fetching are separate concerns. See [image ingestion](media-ingestion.md).

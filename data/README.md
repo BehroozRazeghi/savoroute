@@ -25,3 +25,5 @@ Local inputs and generated artifacts may be placed under `data/raw/`, `data/proc
 `sample/relevance_challenge_v1.json` contains 42 curated **fictional** item-level judgments across literal, paraphrase, multi-answer, and no-match query groups. It is not independent real-world validation. See `docs/relevance-annotation.md`.
 
 `sample/relevance_query_set_v1.json` defines fictional, unlabeled development/test queries for notebook 12 and the exhaustive annotation workflow. No reviewed real-world judgments are bundled.
+
+Real-data study snapshots and reviewer results belong under `data/generated/` (git-ignored). The study protocol is documented in [real-data evaluation](../docs/real-data-evaluation.md). No independent human judgments are bundled.

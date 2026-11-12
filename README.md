@@ -4,7 +4,9 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.10.0` adds a strict, two-reviewer relevance-annotation workflow with separate review sheets and deterministic, source-grounded recommendations. Workbooks are catalog-fingerprint bound and cannot be exported with missing labels or unresolved disagreements. Recommendations combine the existing retrieval sources with explicit metadata filters and inspectable source evidence. The JSON/SQLite vector backends and optional FAISS HNSW backend are unchanged. No independently reviewed real-world relevance dataset, live restaurant verification, or HTTP/MCP service is included.
+Version `0.10.0` added a strict, two-reviewer relevance-annotation workflow with separate review sheets and deterministic, source-grounded recommendations. Workbooks are catalog-fingerprint bound and cannot be exported with missing labels or unresolved disagreements. Recommendations combine the existing retrieval sources with explicit metadata filters and inspectable source evidence. The JSON/SQLite vector backends and optional FAISS HNSW backend are unchanged. No independently reviewed real-world relevance dataset, live restaurant verification, or HTTP/MCP service is included.
+
+Version `0.11.0` adds a frozen OpenStreetMap evaluation-study bundle with immutable source and query snapshots, blinded review materials, integrity verification, and evaluation against a completed adjudicated workbook. No human-annotated real-world benchmark is distributed with the repository. See [real-data evaluation](docs/real-data-evaluation.md).
 
 ## Installation
 

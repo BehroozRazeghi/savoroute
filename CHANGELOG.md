@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0 — Reproducible real-data study workflow
+
+- Freeze a bounded OSM source snapshot, deterministically derived catalog, query set, and separate reviewer templates in a checksummed bundle.
+- Publish reviewer-facing source references without relevance labels or retrieval scores; reject repeated normalized queries across study splits.
+- Add study verification, a completion-gated lexical baseline report, CLI commands, notebook 13, and regression tests.
+- Record the source license and declared selection/query protocols; preserve the existing catalog schema and review workflow.
+
+The repository does not supply independently reviewed real-world judgments. Collection protocols, review independence, data authenticity, and external correctness cannot be verified by the package.
+
+
 ## 0.10.0 — Relevance review and grounded recommendations
 
 - Add exhaustive versioned query–item review worksheets with separate reviewer sheets, explicit merge/adjudication, and catalog fingerprints.

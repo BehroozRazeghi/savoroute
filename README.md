@@ -4,7 +4,7 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.6.0` adds bounded local-image ingestion, image provenance, and an optional joint text/image CLIP adapter. The implementation includes a fictional catalog, source reconciliation, lexical search, and retrieval/evaluation tests. The image pipeline operates offline; CLIP requires separately installed model dependencies and cached weights. Real CLIP inference and image search are not exercised in CI. No vector index, semantic ranking, web application, or MCP server is implemented.
+Version `0.7.0` adds a versioned joint text/image vector index with exact cosine search, model and catalog compatibility checks, and labeled cross-modal retrieval evaluation. The default demonstrations remain offline. Actual CLIP inference requires optional dependencies and locally cached model weights (or explicit permission to download). CI verifies the embedding contract with a test double, not pretrained weights. This is a small-scale JSON index; there is no hosted vector database, web interface, or MCP server.
 
 ## Installation
 
@@ -30,6 +30,13 @@ savoroute evaluate-extraction --gold data/sample/extraction_gold.json \
 savoroute identity evaluate --benchmark data/sample/identity_pairs_fixture.json --json
 savoroute media ingest --manifest data/sample/image_manifest.json \
   --output-dir data/generated/media-demo
+# Optional real CLIP run (requires: pip install -e ".[multimodal]")
+# Model weights must already be cached unless --allow-download is specified.
+# savoroute vectors build --catalog data/generated/media-demo/catalog.json \
+#   --output data/generated/vectors.json --revision <model-commit-hash>
+# savoroute vectors search --index data/generated/vectors.json \
+#   --catalog data/generated/media-demo/catalog.json --text "mushroom pasta" \
+#   --target image --revision <same-model-commit-hash>
 python -m pytest
 jupyter lab
 ```
@@ -55,8 +62,15 @@ savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 | [06 — Source identity and updates](notebooks/06_source_identity_and_updates.ipynb) | Bootstrap source bindings, reconcile updates, review conflicts, and check idempotency |
 | [07 — Identity candidate evaluation](notebooks/07_identity_benchmark_evaluation.ipynb) | Inspect pairwise review metrics, source-version ordering, and an unlabeled annotation worksheet |
 | [08 — Image ingestion](notebooks/08_image_ingestion.ipynb) | Validate local image assets, normalize PNGs, inspect hashes, and isolate optional CLIP inference |
+| [09 — Multimodal vector index](notebooks/09_multimodal_vector_index.ipynb) | Build an exact cosine index, search text/image vectors, and evaluate labeled cross-modal queries |
 
-All eight notebooks run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All ten notebooks (00–09) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+
+## Multimodal vectors
+
+The optional CLIP adapter encodes both text and local images into a shared vector space. The index stores normalized vectors in JSON with stable `text:<item_id>` and `image:<media_id>` IDs, model identity, content hashes, and a catalog fingerprint. An index is rejected if it is queried with an incompatible model or a modified catalog. Exact cosine search supports modality and item-kind filters; item-level max pooling is available with `--unique-items`.
+
+The [vector indexing guide](docs/vector-index.md) documents input requirements, CLI commands, benchmarks, reproducibility constraints, and the distinctions from the IBM course exercises. Inference and retrieval quality using real model weights have not yet been measured.
 
 ## Python API
 
@@ -85,7 +99,7 @@ savoroute/
 ├── src/savoroute/
 │   ├── domain/          # immutable catalog records
 │   ├── data/            # JSON parsing, validation and resource loading
-│   ├── retrieval/       # tokenization, filters, overlap and BM25
+│   ├── retrieval/       # lexical ranking and exact cosine vector search
 │   ├── evaluation/      # retrieval and extraction metrics
 │   ├── ingestion/       # text extraction, evidence checks, OSM import
 │   ├── media/           # local image validation and normalized exports
@@ -106,7 +120,7 @@ The catalog uses stable `item_id` identifiers for recipes and restaurants. Media
 
 ## Development
 
-The [development roadmap](docs/roadmap.md) separates the implemented ingestion, media handling, and lexical retrieval foundation from planned indexed retrieval, recommendation services, MCP and HTTP interfaces, and web application. Image ingestion is documented in [docs/media-ingestion.md](docs/media-ingestion.md). Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
+The [development roadmap](docs/roadmap.md) separates the implemented ingestion, media handling, lexical retrieval, and exact vector-index foundation from planned large-scale indexing, recommendation services, MCP and HTTP interfaces, and web application. Image ingestion is documented in [docs/media-ingestion.md](docs/media-ingestion.md). Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
 
 Source identities are stored separately from the version-1 catalog. `osm sync` updates OSM-owned records when the source binding and previous catalog state are unambiguous; proposed cross-source matches are review-only. The implementation does not delete entries absent from a bounded snapshot. See [source identity and updates](docs/entity-identity-and-updates.md) and [identity candidate evaluation](docs/identity-benchmark.md).
 

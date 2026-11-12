@@ -14,7 +14,7 @@ JSON demo fixtures ──> catalog loader ──> immutable Catalog, CatalogItem
 
 `src/savoroute/domain` defines the records. `data/catalog.py` parses the catalog and checks types, keys, IDs and media references. `retrieval/lexical.py` applies exact metadata filters and ranks eligible items. `evaluation/retrieval.py` runs catalog-bound relevance judgments. `services/discovery.py` exposes the search operation; the CLI also calls the catalog loader and evaluator directly. Provider protocols are defined; text-generation implementations are described below.
 
-The lexical retrieval demo uses a bundled JSON fixture. The media ingestion stage, described below, adds a local image loader. No SQL database, embedding index, HTTP server, MCP server, or application client is implemented.
+The lexical demo uses bundled fictional JSON records. The local-media pipeline and the bounded exact vector index are separate modules. No SQL database, HTTP server, MCP server, or application client is implemented.
 
 ## Data and retrieval
 
@@ -51,7 +51,7 @@ licensed sources / submitted data
        optional native client
 ```
 
-The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. SQLite is the initial candidate for persistent canonical records; index storage will be selected after the embedding and retrieval experiments. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-index fusion will operate on canonical item IDs, not on uncalibrated raw similarity scores.
+The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. SQLite is a candidate for persistent canonical records. Stage 2b introduces a small JSON-based exact cosine index; a scalable approximate-search backend is a later decision. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-index fusion will operate on canonical item IDs, not on uncalibrated raw similarity scores.
 
 The API and MCP interfaces will call shared application services. Model credentials and data access policy will remain server-side. A responsive web client is the first application target; a native mobile client is not yet scoped.
 
@@ -87,4 +87,10 @@ local JSON source batch
 
 ## Local media ingestion (`0.6.0`)
 
-`media/ingestion.py` reads a versioned local manifest, checks catalog item associations and declared rights metadata, decodes bounded image inputs, and exports RGB PNG assets. The output includes a catalog using relative media paths and an explicit provenance file. The export is created as a new directory so an existing catalog is not modified. The optional CLIP adapter implements the joint image/text embedding protocol without introducing a dependency on an embedding model into the ingestion path. No persistent vector index or semantic ranker is included. See [image ingestion](media-ingestion.md).
+`media/ingestion.py` reads a versioned local manifest, checks catalog item associations and declared rights metadata, decodes bounded image inputs, and exports RGB PNG assets. The output includes a catalog using relative media paths and an explicit provenance file. The export is created as a new directory so an existing catalog is not modified. The optional CLIP adapter implements the joint image/text embedding protocol without making an embedding-model dependency part of ingestion. See [image ingestion](media-ingestion.md).
+
+## Joint embeddings and exact search (`0.7.0`)
+
+`retrieval/vector.py` builds and validates a versioned JSON index of text records (`text:<item_id>`) and local image records (`image:<media_id>`). It uses a single `JointTextImageEmbedder` with one declared embedding-space identity, unit-normalizes vectors, and records an input SHA-256 digest for each record. The CLI verifies both catalog consistency and indexed image hashes before searching. Queries are ranked by exact cosine similarity; filters and item-level deduplication are explicit.
+
+`evaluation/multimodal.py` evaluates labeled text-to-image and image-to-image queries. The provided synthetic benchmark contains image self-matches and is intended only for interface validation. Real model inference, independent judgments, larger-scale indexing and item-level multimodal fusion have not been verified or implemented. See [vector index](vector-index.md).

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "savoroute"
-version = "0.6.0"
-description = "Food catalog ingestion, image assets, source reconciliation, and retrieval evaluation"
+version = "0.7.0"
+description = "Food catalog ingestion, multimodal vector search, and retrieval evaluation"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

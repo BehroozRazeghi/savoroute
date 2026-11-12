@@ -13,6 +13,7 @@ The notebooks provide a linear introduction to the installed package:
 | `06_source_identity_and_updates.ipynb` | Source registry, controlled updates, conflict review, and replay behavior |
 | `07_identity_benchmark_evaluation.ipynb` | Version-aware OSM updates, pairwise review metrics and annotation preparation |
 | `08_image_ingestion.ipynb` | Local image normalization, source hashes and optional joint CLIP interface |
+| `09_multimodal_vector_index.ipynb` | Persist normalized vectors, perform cross-modal search, evaluate labeled cases, optionally run CLIP |
 
 ```bash
 python -m pip install -e ".[dev,notebooks]"

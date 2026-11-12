@@ -4,7 +4,7 @@
 
 `sample/ingestion_sources.json` contains two fictional labeled source excerpts for notebook 04 and the ingestion CLI. The catalog parser validates the version-1 JSON format and verifies media-to-item references. The sample has no media attachments. The notebooks and offline tests do not download source files; the optional `savoroute osm fetch` command does.
 
-Local ingestion data and generated artifacts will live under `data/raw/`, `data/processed/` and `data/indexes/` when those pipelines are implemented. Those paths are ignored by Git. Ingestion writes validated catalog and evidence JSON to user-selected paths; the examples use ignored `data/generated/`.
+Local inputs and generated artifacts may be placed under `data/raw/`, `data/processed/`, and `data/indexes/`. Those paths are ignored by Git. Ingestion writes validated catalog and evidence JSON to user-selected paths; the examples use ignored `data/generated/`.
 
 [Catalog fields and provenance](../docs/data-contract.md)
 
@@ -17,3 +17,7 @@ Local ingestion data and generated artifacts will live under `data/raw/`, `data/
 ## Image fixtures
 
 `image_manifest.json` references two original stylized images under `media/`. They are explicitly fictional, licensed with this repository's original code, and are not photos of restaurants or recipes. `savoroute media ingest` produces a new catalog plus PNG assets and provenance in a user-specified output directory. See [media ingestion](../docs/media-ingestion.md).
+
+## Multimodal retrieval fixture
+
+`multimodal_queries_fixture.json` contains two fictional text-to-image judgments and two image self-match cases. The labels are for smoke tests, not independently annotated evaluations. `savoroute vectors build` operates on the media-export catalog created by `savoroute media ingest`; the original `sample/catalog.json` has no media records. The vector index is written to a user-supplied path and is not checked into source control. See [vector index](../docs/vector-index.md).

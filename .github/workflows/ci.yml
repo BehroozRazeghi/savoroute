@@ -21,7 +21,7 @@ jobs:
           node-version: "22"
       - name: Web interface contract tests
         run: |
-          node --check src/savoroute/web/static/app.js
+          node --input-type=module --check < src/savoroute/web/static/app.js
           node --check src/savoroute/web/static/api.mjs
           node --test tests/web/*.test.mjs
       - name: Notebook smoke tests

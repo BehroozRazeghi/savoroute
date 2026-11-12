@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "catalog_digest": "6c988be25e288d02d6989f2d3cb31ac842953e869efa6a4026254783a48598e0",
+  "claims": [
+    {
+      "claim_id": "sample_menu",
+      "item_id": "r001",
+      "kind": "menu_url",
+      "value": "https://example.org/fictional-menu",
+      "source_url": "https://example.org/fictional-restaurant",
+      "observed_on": "2026-11-12",
+      "license": null,
+      "attribution": null
+    },
+    {
+      "claim_id": "sample_cuisine",
+      "item_id": "r001",
+      "kind": "cuisine",
+      "value": "Japanese",
+      "source_url": "https://example.org/fictional-restaurant",
+      "observed_on": "2026-11-12",
+      "license": null,
+      "attribution": null
+    }
+  ]
+}

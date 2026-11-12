@@ -10,3 +10,11 @@
 @media(max-width:730px){.shell{width:min(100% - 36px,600px)}.topbar{min-height:70px;gap:12px;flex-wrap:wrap;padding:12px 0}.brand{font-size:23px}.main-nav{order:3;width:100%;justify-content:space-between;gap:10px}.access-control{margin-left:auto}.hero{grid-template-columns:1fr;padding-block:47px 20px;min-height:auto;gap:8px}.hero h1{font-size:clamp(47px,11vw,65px);letter-spacing:-2.4px}.hero-art{min-height:270px;transform:scale(.76);margin:-26px 0 -28px}.dataset-strip{flex-wrap:wrap;gap:8px 18px;margin-bottom:56px}.dataset-subtle{margin-left:0}.section-heading{display:block}.section-heading>p{margin:13px 0 0;max-width:500px}.discovery-layout{grid-template-columns:1fr}.discovery-form{padding:21px}.results-area{margin-top:13px}.results-head h3{font-size:22px}.catalog-band{padding-block:50px}.catalog-grid{grid-template-columns:1fr}.catalog-card{min-height:175px}.assurance{grid-template-columns:58px minmax(0,1fr);gap:16px;padding-block:55px}.assurance-mark{height:58px;width:58px;font-size:34px}.assurance h2{font-size:23px}.assurance>.outline-button{grid-column:2;justify-self:start}.footer-row{flex-wrap:wrap}.footer-row>span:nth-child(2){width:100%;order:3}}
 @media(max-width:400px){.hero-features{gap:9px}.hero-art{margin-left:-25px}.catalog-actions{align-items:flex-start;flex-direction:column}.results-head{align-items:flex-start;flex-direction:column}.source-label{max-width:135px}.dialog-list{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;scroll-behavior:auto!important;transition-duration:.001ms!important}}
+
+/* Reviewable third-party references; links open only when the user chooses. */
+.reviewed-panel {margin-top: 1.25rem; padding: 1rem; border: 1px solid #e0e5de; border-radius: 14px; background: #fafbf7;}
+.reviewed-panel h3 {margin: 0 0 .8rem; font-size: 1rem;}
+.reviewed-entry {display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; margin: .6rem 0; padding-bottom: .7rem; border-bottom: 1px solid #e8ede4;}
+.reviewed-entry strong {width: 100%; font-size: .875rem;}
+.reviewed-entry small {color: #546157;}
+.reviewed-entry p {margin: 0;}

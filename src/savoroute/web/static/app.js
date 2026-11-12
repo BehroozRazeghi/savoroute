@@ -265,6 +265,41 @@ async function openDetail(id, context) {
       addSourceLink(p, item);
       nodes.dialogContent.append(p);
     }
+    // Reviewed evidence is a separate, optional sidecar. Its claims never
+    // mutate item fields or turn dietary information into a safety guarantee.
+    try {
+      const evidence = await requestJson(`/v1/items/${encodeURIComponent(id)}/evidence`, {key: state.key});
+      if (evidence.reviewed_claims.length) {
+        const panel = element('section', 'reviewed-panel');
+        panel.append(element('h3', '', 'Reviewed source references'));
+        for (const claim of evidence.reviewed_claims) {
+          const entry = element('div', 'reviewed-entry');
+          const labels = {menu_url: 'Menu reference', image_url: 'Licensed image reference',
+            cuisine: 'Cuisine evidence', descriptive_note: 'Source note'};
+          entry.append(element('strong', '', labels[claim.kind] || 'Source reference'));
+          if (claim.kind === 'menu_url' || claim.kind === 'image_url') {
+            const url = safeSourceUrl(claim.value);
+            if (url) {
+              const link = element('a', 'source-link', claim.kind === 'menu_url' ? 'View menu source ↗' : 'View image at source ↗');
+              link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+              entry.append(link);
+            }
+          } else entry.append(element('p', '', claim.value));
+          entry.append(element('small', '', `Recorded ${claim.observed_on} · Reviewed reference, not live verification`));
+          const source = safeSourceUrl(claim.source_url);
+          if (source) {
+            const citation = element('a', 'source-link', 'Evidence source ↗');
+            citation.href = source; citation.target = '_blank'; citation.rel = 'noopener noreferrer';
+            entry.append(citation);
+          }
+          if (claim.license) entry.append(element('small', '', `Image credit: ${claim.attribution} · ${claim.license}`));
+          panel.append(entry);
+        }
+        nodes.dialogContent.append(panel);
+      }
+    } catch {
+      nodes.dialogContent.append(element('p', 'dialog-disclaimer', 'Reviewed source references are unavailable.'));
+    }
     nodes.dialogContent.append(element('p', 'dialog-disclaimer', 'This is a saved catalog record, not live restaurant information. Hours, availability, current pricing and allergen safety are not verified.'));
   } catch (error) { showError(nodes.dialogContent, error); }
 }

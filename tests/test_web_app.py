@@ -62,7 +62,7 @@ def test_frontend_uses_existing_api_with_real_server_auth_boundaries():
         headers = {"X-API-Key": "secret-for-tests"}
         meta = client.get("/v1/meta", headers=headers).json()
         assert meta["catalog_items"] == len(load_catalog().items)
-        assert meta["package_version"] == "0.14.0"
+        assert meta["package_version"] == "0.15.0"
         assert client.get("/v1/items", headers=headers).status_code == 200
         result = client.post(
             "/v1/recommend",
@@ -96,6 +96,6 @@ def test_web_cli_uses_exact_same_configured_http_server(monkeypatch):
     monkeypatch.setattr("savoroute.api.server.serve", lambda **kwargs: received.append(kwargs))
     assert main(["web", "serve", "--catalog", "my-catalog.json", "--port", "8123"]) == 0
     assert received == [{
-        "catalog": "my-catalog.json", "index": None, "host": "127.0.0.1",
+        "catalog": "my-catalog.json", "index": None, "evidence": None, "host": "127.0.0.1",
         "port": 8123, "api_key_env": "SAVOROUTE_API_KEY",
     }]

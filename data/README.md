@@ -23,3 +23,5 @@ Local inputs and generated artifacts may be placed under `data/raw/`, `data/proc
 `multimodal_queries_fixture.json` contains two fictional text-to-image judgments and two image self-match cases. The labels are for smoke tests, not independently annotated evaluations. `savoroute vectors build` operates on the media-export catalog created by `savoroute media ingest`; the original `sample/catalog.json` has no media records. The vector index is written to a user-supplied path and is not checked into source control. See [vector index](../docs/vector-index.md).
 
 `sample/relevance_challenge_v1.json` contains 42 curated **fictional** item-level judgments across literal, paraphrase, multi-answer, and no-match query groups. It is not independent real-world validation. See `docs/relevance-annotation.md`.
+
+`sample/relevance_query_set_v1.json` defines fictional, unlabeled development/test queries for notebook 12 and the exhaustive annotation workflow. No reviewed real-world judgments are bundled.

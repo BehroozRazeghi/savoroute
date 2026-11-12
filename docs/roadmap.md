@@ -13,7 +13,7 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 2b · Multimodal embeddings | Versioned JSON vector index, exact cosine search, optional CLIP execution, labeled cross-modal evaluation, notebook 09 | Implemented; real-model inference and real-world evaluation unverified |
 | 3a · Item-level retrieval | Weighted BM25/text-vector/image-vector rank fusion, item deduplication, hard metadata filters, item-level benchmark, notebook 10 | Implemented offline; pretrained quality not established |
 | 3b · Persistent retrieval | SQLite vector bundles, optional FAISS HNSW, synthetic latency and 42-query challenge, notebook 11 | Implemented; real-data labeling and FAISS runtime validation pending |
-| 4 · Recommendations | Preference constraints, retrieved evidence, grounded recommendations | Planned |
+| 4 · Recommendations | Binary relevance annotation workflow and deterministic catalog-grounded recommendations; notebook 12 | Implemented offline; independent real-world annotation pending |
 | 5 · Interfaces | Versioned HTTP API, MCP tools, responsive web application | Planned |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
 

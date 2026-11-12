@@ -1,0 +1,29 @@
+{
+  "query_set_version": 1,
+  "queries": [
+    {
+      "case_id": "dev-tofu",
+      "query": "spicy tofu noodles",
+      "filters": {"kind": "recipe"},
+      "split": "development"
+    },
+    {
+      "case_id": "dev-pasta",
+      "query": "mushroom pasta",
+      "filters": {"kind": "recipe"},
+      "split": "development"
+    },
+    {
+      "case_id": "test-salad",
+      "query": "lemon chickpea salad",
+      "filters": {"kind": "recipe"},
+      "split": "test"
+    },
+    {
+      "case_id": "test-none",
+      "query": "nonexistent purple mooncake",
+      "filters": {"kind": "recipe"},
+      "split": "test"
+    }
+  ]
+}

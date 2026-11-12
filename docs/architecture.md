@@ -51,7 +51,7 @@ licensed sources / submitted data
        optional native client
 ```
 
-The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. The canonical catalog remains JSON-backed. Stage 2b introduced a bounded JSON-based exact cosine index; stage 3a added item-level fusion. Stage 3b adds immutable SQLite vector bundles and an optional FAISS HNSW approximate-search implementation, retaining the JSON index as a reference. Larger-scale lexical indexing and independent real-world evaluation remain future work. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-source fusion operates on canonical item IDs and rank positions rather than uncalibrated raw similarity scores.
+The diagram includes implemented ingestion, retrieval, and recommendation components, alongside planned application interfaces. The canonical catalog remains JSON-backed. Stage 2b introduced a bounded JSON-based exact cosine index; stage 3a added item-level fusion. Stage 3b adds immutable SQLite vector bundles and an optional FAISS HNSW approximate-search implementation, retaining the JSON index as a reference. Larger-scale lexical indexing and independent real-world evaluation remain future work. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-source fusion operates on canonical item IDs and rank positions rather than uncalibrated raw similarity scores.
 
 The API and MCP interfaces will call shared application services. Model credentials and data access policy will remain server-side. A responsive web client is the first application target; a native mobile client is not yet scoped.
 
@@ -98,3 +98,9 @@ local JSON source batch
 ## Persistent vector retrieval (`0.9.0`)
 
 `retrieval/dense.py` stores source IDs, metadata, and float32 embeddings in an immutable SQLite bundle. Optional FAISS HNSW uses ordinals mapped back through SQLite; the same `search_fused()` service accepts JSON or dense backends. Backend latency and exact-agreement experiments are implemented in `evaluation/dense.py`. The SQLite exact scan remains linear, and FAISS inference/latency require validation on a machine with the optional dependency installed. See [persistent vector retrieval](dense-index.md) and [relevance annotation](relevance-annotation.md).
+
+## Relevance review and recommendation service (`0.10.0`)
+
+`evaluation/annotations.py` constructs bounded exhaustive query–item workbooks against a frozen catalog fingerprint, prepares separate reviewer sheets and validates explicit merge/adjudication decisions, and exports development/test judgments plus an audit. The code does not infer relevance labels or verify the independence of human reviewers. See [relevance workflow](relevance-workflow.md).
+
+`services/recommendation.py` reranks the canonical items returned by `retrieval/fusion.py`, after deterministic hard filters, using a bounded multiplier for catalog-backed soft preferences. `DiscoveryService.recommend()` and the CLI invoke the same implementation. The returned explanation, source fields and retrieval ranks are deterministic; no external LLM call is used. Restaurant hours, prices, ingredient completeness, and allergen safety are not verified. See [grounded recommendations](grounded-recommendations.md).

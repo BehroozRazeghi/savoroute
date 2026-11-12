@@ -25,3 +25,5 @@ The examples use bundled fictional data. Notebook execution requires no model do
 
 
 - **11_dense_backend_and_benchmarks.ipynb**: persistent SQLite vectors, exact agreement, RRF integration, and deterministic latency measurement.
+
+- `12_review_and_recommend.ipynb` — exhaustive annotation worksheets, mock review/adjudication, and catalog-backed recommendations.

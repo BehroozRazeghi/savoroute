@@ -40,4 +40,8 @@ python scripts/run_offline_baselines.py --output outputs/phase0-metrics.json
 
 The relevance labels were constructed for the small fictional catalog; they are not independent judgments. One relevant item per positive query makes Recall@k effectively a hit indicator in this fixture. Paraphrased queries expose lexical failures but do not establish a representative semantic-search benchmark. No-match tests measure whether the system returns an empty list, not whether a confidence threshold is calibrated.
 
-Subsequent evaluations will require licensed data, independently labeled queries, explicit train/evaluation separation where applicable, filter-specific cases, multilingual coverage, and latency/resource measurements. Multimodal retrieval will be evaluated by canonical item ID with separate text, image, and fused retrieval results.
+Real-world evaluation requires licensed data, independently labeled queries, explicit train/evaluation separation where applicable, filter-specific cases, multilingual coverage, and latency/resource measurements. The new multimodal benchmark evaluates image-record rankings; future item-level fusion benchmarks will evaluate canonical item IDs.
+
+## Joint text/image vectors (`0.7.0`)
+
+Normalized vectors from one shared embedding space are scored by cosine similarity. `evaluation/multimodal.py` computes binary Recall@k, MRR@k and nDCG@k over explicitly labeled image-record IDs. Its synthetic four-case fixture includes two text-to-image queries and two image self-retrieval checks; the latter do not measure generalization, and the test-double results do not establish model quality. Actual CLIP inference is optional and has not been measured in CI. See [vector indexing](vector-index.md).

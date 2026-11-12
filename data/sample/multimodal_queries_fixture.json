@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "name": "fictional-image-smoke-benchmark-v1",
+  "dataset_name": "savoroute-fictional-demo-v1",
+  "synthetic": true,
+  "cases": [
+    {
+      "case_id": "orange-text",
+      "query_type": "text",
+      "query": "orange noodles",
+      "relevant_record_ids": ["image:image_p001"],
+      "exclude_record_ids": [],
+      "self_match": false
+    },
+    {
+      "case_id": "mushroom-text",
+      "query_type": "text",
+      "query": "mushroom pasta",
+      "relevant_record_ids": ["image:image_p002"],
+      "exclude_record_ids": [],
+      "self_match": false
+    },
+    {
+      "case_id": "orange-image-self",
+      "query_type": "image",
+      "query": "media/orange-noodles.png",
+      "relevant_record_ids": ["image:image_p001"],
+      "exclude_record_ids": [],
+      "self_match": true
+    },
+    {
+      "case_id": "mushroom-image-self",
+      "query_type": "image",
+      "query": "media/mushroom-pasta.png",
+      "relevant_record_ids": ["image:image_p002"],
+      "exclude_record_ids": [],
+      "self_match": true
+    }
+  ]
+}

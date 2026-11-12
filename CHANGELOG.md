@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.0 — Joint text/image retrieval
+
+- Add a versioned JSON vector index for catalog text and local image assets.
+- Implement exact cosine search, modality filtering, item-kind filtering, and optional item deduplication.
+- Validate model identity, vector dimensions, record references, and catalog fingerprints.
+- Add labeled text-to-image and image-to-image evaluation and notebook 09.
+- Keep CLIP inference optional and offline tests independent of model downloads.
+
+
+## 0.6.0 — Local image ingestion
+
+- Add a versioned manifest for locally supplied images, with item references and declared source-rights metadata.
+- Validate image bytes and bounded image dimensions; normalize EXIF orientation and RGB PNG output.
+- Export a self-contained catalog, image assets and provenance as a new directory, with input and output hashes.
+- Add an optional Sentence Transformers CLIP adapter for joint text/image embeddings, without loading models during import.
+- Add notebook 08, original fictional illustration fixtures, CLI ingestion and regression tests.
+
+Model inference, rights clearance against third-party sources, persistent embedding indexes, and live media retrieval are not verified or implemented in this release.
+
 ## 0.5.0 — OSM version ordering and identity candidate evaluation
 
 - Record OSM element versions, timestamps, and source hashes in import reports and registry schema v2. Previous registry and import report versions remain readable.

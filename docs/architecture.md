@@ -14,7 +14,7 @@ JSON demo fixtures ──> catalog loader ──> immutable Catalog, CatalogItem
 
 `src/savoroute/domain` defines the records. `data/catalog.py` parses the catalog and checks types, keys, IDs and media references. `retrieval/lexical.py` applies exact metadata filters and ranks eligible items. `evaluation/retrieval.py` runs catalog-bound relevance judgments. `services/discovery.py` exposes the search operation; the CLI also calls the catalog loader and evaluator directly. Provider protocols are defined; text-generation implementations are described below.
 
-The lexical demo uses bundled fictional JSON records. The local-media pipeline and the bounded exact vector index are separate modules. No SQL database, HTTP server, MCP server, or application client is implemented.
+The lexical demo uses bundled fictional JSON records. The local-media pipeline, exact vector index, and item-level RRF implementation are separate modules. No SQL database, HTTP server, MCP server, or application client is implemented.
 
 ## Data and retrieval
 
@@ -51,7 +51,7 @@ licensed sources / submitted data
        optional native client
 ```
 
-The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. SQLite is a candidate for persistent canonical records. Stage 2b introduces a small JSON-based exact cosine index; a scalable approximate-search backend is a later decision. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-index fusion will operate on canonical item IDs, not on uncalibrated raw similarity scores.
+The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. SQLite is a candidate for persistent canonical records. Stage 2b introduced a small JSON-based exact cosine index. Stage 3a adds canonical item-level fusion of BM25 and separate text/image vector rankings. A scalable approximate-search backend remains a later decision. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-source fusion operates on canonical item IDs and rank positions rather than uncalibrated raw similarity scores.
 
 The API and MCP interfaces will call shared application services. Model credentials and data access policy will remain server-side. A responsive web client is the first application target; a native mobile client is not yet scoped.
 

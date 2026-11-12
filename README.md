@@ -4,7 +4,7 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.7.0` adds a versioned joint text/image vector index with exact cosine search, model and catalog compatibility checks, and labeled cross-modal retrieval evaluation. The default demonstrations remain offline. Actual CLIP inference requires optional dependencies and locally cached model weights (or explicit permission to download). CI verifies the embedding contract with a test double, not pretrained weights. This is a small-scale JSON index; there is no hosted vector database, web interface, or MCP server.
+Version `0.8.0` adds item-level ranking across BM25, text-vector, and image-vector results using weighted reciprocal rank fusion. It preserves the v0.7.0 exact cosine index and its model/catalog compatibility checks. The default demonstrations remain offline. Actual CLIP inference requires optional dependencies and locally cached model weights (or explicit permission to download). CI verifies the embedding contract with a test double, not pretrained weights. This is a small-scale JSON index; there is no hosted vector database, web interface, or MCP server.
 
 ## Installation
 
@@ -19,6 +19,8 @@ savoroute demo
 savoroute search "spicy tofu noodles" --kind recipe
 savoroute search "vegan" --kind recipe --diet vegan --json
 savoroute validate
+savoroute rank search "mushroom pasta" --kind recipe --json
+savoroute rank evaluate --json
 savoroute evaluate --method both --at-k 5
 savoroute ingest --sources data/sample/ingestion_sources.json \
   --output data/generated/catalog.json --provenance data/generated/evidence.json
@@ -63,14 +65,19 @@ savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 | [07 — Identity candidate evaluation](notebooks/07_identity_benchmark_evaluation.ipynb) | Inspect pairwise review metrics, source-version ordering, and an unlabeled annotation worksheet |
 | [08 — Image ingestion](notebooks/08_image_ingestion.ipynb) | Validate local image assets, normalize PNGs, inspect hashes, and isolate optional CLIP inference |
 | [09 — Multimodal vector index](notebooks/09_multimodal_vector_index.ipynb) | Build an exact cosine index, search text/image vectors, and evaluate labeled cross-modal queries |
+| [10 — Item-level rank fusion](notebooks/10_item_level_fusion.ipynb) | Combine BM25 and per-item vector rankings through RRF; evaluate item-level results |
 
-All ten notebooks (00–09) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All eleven notebooks (00–10) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
 
 ## Multimodal vectors
 
 The optional CLIP adapter encodes both text and local images into a shared vector space. The index stores normalized vectors in JSON with stable `text:<item_id>` and `image:<media_id>` IDs, model identity, content hashes, and a catalog fingerprint. An index is rejected if it is queried with an incompatible model or a modified catalog. Exact cosine search supports modality and item-kind filters; item-level max pooling is available with `--unique-items`.
 
 The [vector indexing guide](docs/vector-index.md) documents input requirements, CLI commands, benchmarks, reproducibility constraints, and the distinctions from the IBM course exercises. Inference and retrieval quality using real model weights have not yet been measured.
+
+## Item-level retrieval
+
+`search_fused()` combines BM25, text-vector, and image-vector rankings into one list of catalog items. It uses reciprocal rank fusion rather than mixing native BM25 and cosine scores. Ranking evidence retains the input record ID, rank and native score from each source. Multiple images for the same catalog item count once within the image source. Hard metadata filters apply to all sources. The CLI exposes `savoroute rank search` and `savoroute rank evaluate` (lexical-only without an index, hybrid when an index is supplied). RRF scores are not relevance probabilities and there is no calibrated rejection threshold. See [rank fusion](docs/rank-fusion.md).
 
 ## Python API
 
@@ -99,7 +106,7 @@ savoroute/
 ├── src/savoroute/
 │   ├── domain/          # immutable catalog records
 │   ├── data/            # JSON parsing, validation and resource loading
-│   ├── retrieval/       # lexical ranking and exact cosine vector search
+│   ├── retrieval/       # BM25, exact cosine search and item-level RRF
 │   ├── evaluation/      # retrieval and extraction metrics
 │   ├── ingestion/       # text extraction, evidence checks, OSM import
 │   ├── media/           # local image validation and normalized exports

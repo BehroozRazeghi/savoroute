@@ -14,6 +14,7 @@ The notebooks provide a linear introduction to the installed package:
 | `07_identity_benchmark_evaluation.ipynb` | Version-aware OSM updates, pairwise review metrics and annotation preparation |
 | `08_image_ingestion.ipynb` | Local image normalization, source hashes and optional joint CLIP interface |
 | `09_multimodal_vector_index.ipynb` | Persist normalized vectors, perform cross-modal search, evaluate labeled cases, optionally run CLIP |
+| `10_item_level_fusion.ipynb` | Combine BM25 and per-item text/image rankings, inspect evidence, and evaluate RRF |
 
 ```bash
 python -m pip install -e ".[dev,notebooks]"

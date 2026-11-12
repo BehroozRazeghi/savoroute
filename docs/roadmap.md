@@ -11,7 +11,8 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 1d · Versioning and identity evaluation | Element-version ordering, annotation worksheet, pairwise candidate benchmark, notebook 07 | Implemented offline; independent real-data evaluation pending |
 | 2a · Local media | Bounded image ingestion, normalized storage, hashes, source/rights metadata, notebook 08; optional joint CLIP adapter | Implemented offline; real model inference unverified |
 | 2b · Multimodal embeddings | Versioned JSON vector index, exact cosine search, optional CLIP execution, labeled cross-modal evaluation, notebook 09 | Implemented; real-model inference and real-world evaluation unverified |
-| 3 · Retrieval | Scalable storage, multimodal item-level fusion, richer retrieval filters and benchmark evaluation | Planned |
+| 3a · Item-level retrieval | Weighted BM25/text-vector/image-vector rank fusion, item deduplication, hard metadata filters, item-level benchmark, notebook 10 | Implemented offline; pretrained quality not established |
+| 3b · Larger-scale retrieval | Vector database adapter, indexing benchmarks, more representative relevance judgments | Planned |
 | 4 · Recommendations | Preference constraints, retrieved evidence, grounded recommendations | Planned |
 | 5 · Interfaces | Versioned HTTP API, MCP tools, responsive web application | Planned |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |

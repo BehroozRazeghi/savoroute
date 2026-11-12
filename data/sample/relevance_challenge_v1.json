@@ -1,0 +1,402 @@
+{
+  "benchmark_version": 1,
+  "queries": [
+    {
+      "case_id": "literal-01",
+      "query": "spicy tofu noodles",
+      "relevant_item_ids": [
+        "p001"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "literal-02",
+      "query": "creamy mushroom pasta",
+      "relevant_item_ids": [
+        "p002"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "literal-03",
+      "query": "lemon chickpea salad",
+      "relevant_item_ids": [
+        "p003"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "literal-04",
+      "query": "ginger vegetable curry",
+      "relevant_item_ids": [
+        "p004"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "literal-05",
+      "query": "roasted salmon asparagus",
+      "relevant_item_ids": [
+        "p005"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "literal-06",
+      "query": "black bean tacos",
+      "relevant_item_ids": [
+        "p006"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "literal-07",
+      "query": "Japanese spicy ramen",
+      "relevant_item_ids": [
+        "r001"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "literal-08",
+      "query": "Mediterranean hummus dinner",
+      "relevant_item_ids": [
+        "r002"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "literal-09",
+      "query": "Italian mushroom pasta",
+      "relevant_item_ids": [
+        "r003"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "literal-10",
+      "query": "plant based grain bowls",
+      "relevant_item_ids": [
+        "r004"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "literal-11",
+      "query": "Indian lentil street food",
+      "relevant_item_ids": [
+        "r005"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "literal-12",
+      "query": "coastal seafood menu",
+      "relevant_item_ids": [
+        "r006"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "paraphrase-01",
+      "query": "hot soybean curd dinner",
+      "relevant_item_ids": [
+        "p001"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "paraphrase-02",
+      "query": "weekday creamy fungi dish",
+      "relevant_item_ids": [
+        "p002"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "paraphrase-03",
+      "query": "fresh citrus legumes bowl",
+      "relevant_item_ids": [
+        "p003"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "paraphrase-04",
+      "query": "spiced legume stew with rice",
+      "relevant_item_ids": [
+        "p004"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "paraphrase-05",
+      "query": "oven cooked fish and green vegetables",
+      "relevant_item_ids": [
+        "p005"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "paraphrase-06",
+      "query": "Mexican legumes in folded tortillas",
+      "relevant_item_ids": [
+        "p006"
+      ],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "paraphrase-07",
+      "query": "warm Japanese soup counter",
+      "relevant_item_ids": [
+        "r001"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "paraphrase-08",
+      "query": "shared plant friendly eastern Mediterranean plates",
+      "relevant_item_ids": [
+        "r002"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "paraphrase-09",
+      "query": "quiet date evening with handmade noodles",
+      "relevant_item_ids": [
+        "r003"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "paraphrase-10",
+      "query": "seasonal vegan lunch bowls",
+      "relevant_item_ids": [
+        "r004"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "paraphrase-11",
+      "query": "South Asian spicy lentil plates",
+      "relevant_item_ids": [
+        "r005"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "paraphrase-12",
+      "query": "fish and potatoes near harbor",
+      "relevant_item_ids": [
+        "r006"
+      ],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "multi-01",
+      "query": "mushroom pasta",
+      "relevant_item_ids": [
+        "r003",
+        "p002"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-02",
+      "query": "spicy noodles",
+      "relevant_item_ids": [
+        "p001",
+        "r001"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-03",
+      "query": "vegetable curry and lentils",
+      "relevant_item_ids": [
+        "p004",
+        "r005"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-04",
+      "query": "chickpeas and herb salad",
+      "relevant_item_ids": [
+        "r002",
+        "p003"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-05",
+      "query": "plant based lunches",
+      "relevant_item_ids": [
+        "r004",
+        "p003",
+        "p006"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-06",
+      "query": "salmon seafood potatoes",
+      "relevant_item_ids": [
+        "p005",
+        "r006"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-07",
+      "query": "Japanese noodles vegetarian",
+      "relevant_item_ids": [
+        "r001",
+        "p001"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-08",
+      "query": "Mediterranean chickpea lunch",
+      "relevant_item_ids": [
+        "p003",
+        "r002"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-09",
+      "query": "herb and garlic Italian pasta",
+      "relevant_item_ids": [
+        "p002",
+        "r003"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "multi-10",
+      "query": "vegan legumes and greens",
+      "relevant_item_ids": [
+        "p003",
+        "p004",
+        "p006",
+        "r004"
+      ],
+      "filters": {}
+    },
+    {
+      "case_id": "negative-01",
+      "query": "interplanetary meteor astronomy",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "negative-02",
+      "query": "quantum transistor sandwich",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "negative-03",
+      "query": "volcanic observatory telescope",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "negative-04",
+      "query": "enzyme reactor blueprints",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "negative-05",
+      "query": "space elevator control module",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "negative-06",
+      "query": "subatomic magnetic resonance",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "restaurant"
+      }
+    },
+    {
+      "case_id": "negative-07",
+      "query": "silicon lithography cleanroom",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "recipe"
+      }
+    },
+    {
+      "case_id": "negative-08",
+      "query": "lunar habitat antenna design",
+      "relevant_item_ids": [],
+      "filters": {
+        "kind": "restaurant"
+      }
+    }
+  ]
+}

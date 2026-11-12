@@ -10,6 +10,7 @@ from pathlib import Path
 from savoroute.domain.models import Catalog
 from savoroute.evaluation.retrieval import BenchmarkError, QueryEvaluation, QueryJudgment
 from savoroute.providers.contracts import JointTextImageEmbedder
+from savoroute.retrieval.dense import DenseIndex, validate_dense_catalog
 from savoroute.retrieval.fusion import FusionWeights, search_fused
 from savoroute.retrieval.lexical import filter_catalog
 from savoroute.retrieval.vector import VectorIndex, validate_catalog
@@ -45,7 +46,7 @@ def evaluate_fusion(
     catalog: Catalog,
     judgments: Iterable[QueryJudgment],
     *,
-    index: VectorIndex | None = None,
+    index: VectorIndex | DenseIndex | None = None,
     encoder: JointTextImageEmbedder | None = None,
     catalog_dir: Path | None = None,
     weights: FusionWeights | None = None,
@@ -60,7 +61,10 @@ def evaluate_fusion(
         raise BenchmarkError("benchmark cases must be nonempty with unique IDs")
     item_ids = {item.item_id for item in catalog.items}
     if index is not None:
-        validate_catalog(index, catalog, catalog_dir=catalog_dir)
+        if isinstance(index, DenseIndex):
+            validate_dense_catalog(index, catalog, catalog_dir=catalog_dir)
+        else:
+            validate_catalog(index, catalog, catalog_dir=catalog_dir)
     results: list[QueryEvaluation] = []
     for case in cases:
         unknown = case.relevant_item_ids - item_ids

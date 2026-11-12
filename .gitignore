@@ -25,6 +25,7 @@ htmlcov/
 *.npy
 *.npz
 *.safetensors
+*.faiss
 *.bin
 .cache/
 data/raw/

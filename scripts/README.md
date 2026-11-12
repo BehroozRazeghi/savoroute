@@ -8,3 +8,5 @@ python scripts/run_offline_baselines.py --at-k 3 --output outputs/phase0-metrics
 ```
 
 The output is JSON. `outputs/` is excluded from version control. See [evaluation](../docs/evaluation.md) for metric definitions and limitations.
+
+`python scripts/evaluate_challenge.py` reports the lexical-only RRF baseline separately for each fictional challenge-query group. No model download is required.

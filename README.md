@@ -4,7 +4,7 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.8.0` adds item-level ranking across BM25, text-vector, and image-vector results using weighted reciprocal rank fusion. It preserves the v0.7.0 exact cosine index and its model/catalog compatibility checks. The default demonstrations remain offline. Actual CLIP inference requires optional dependencies and locally cached model weights (or explicit permission to download). CI verifies the embedding contract with a test double, not pretrained weights. This is a small-scale JSON index; there is no hosted vector database, web interface, or MCP server.
+Version `0.9.0` adds immutable SQLite vector bundles and an optional FAISS HNSW search path. The v0.7 JSON exact index remains the reference. Both backends feed the v0.8 item-level RRF service through the same Python API. A deterministic synthetic latency harness and a 42-query fictional challenge benchmark support comparison without downloading models. The FAISS runtime and performance have not been verified in CI. An independently labeled real-world dataset and an HTTP/MCP service are not included.
 
 ## Installation
 
@@ -21,6 +21,8 @@ savoroute search "vegan" --kind recipe --diet vegan --json
 savoroute validate
 savoroute rank search "mushroom pasta" --kind recipe --json
 savoroute rank evaluate --json
+savoroute rank evaluate --benchmark data/sample/relevance_challenge_v1.json --json
+savoroute backend benchmark --engine sqlite --records 1000 --dimension 32 --queries 20
 savoroute evaluate --method both --at-k 5
 savoroute ingest --sources data/sample/ingestion_sources.json \
   --output data/generated/catalog.json --provenance data/generated/evidence.json
@@ -66,14 +68,19 @@ savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 | [08 — Image ingestion](notebooks/08_image_ingestion.ipynb) | Validate local image assets, normalize PNGs, inspect hashes, and isolate optional CLIP inference |
 | [09 — Multimodal vector index](notebooks/09_multimodal_vector_index.ipynb) | Build an exact cosine index, search text/image vectors, and evaluate labeled cross-modal queries |
 | [10 — Item-level rank fusion](notebooks/10_item_level_fusion.ipynb) | Combine BM25 and per-item vector rankings through RRF; evaluate item-level results |
+| [11 — Persistent vectors and benchmarks](notebooks/11_dense_backend_and_benchmarks.ipynb) | Convert exact vectors to SQLite, check agreement, evaluate RRF, and measure local latency |
 
-All eleven notebooks (00–10) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All twelve notebooks (00–11) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
 
 ## Multimodal vectors
 
 The optional CLIP adapter encodes both text and local images into a shared vector space. The index stores normalized vectors in JSON with stable `text:<item_id>` and `image:<media_id>` IDs, model identity, content hashes, and a catalog fingerprint. An index is rejected if it is queried with an incompatible model or a modified catalog. Exact cosine search supports modality and item-kind filters; item-level max pooling is available with `--unique-items`.
 
 The [vector indexing guide](docs/vector-index.md) documents input requirements, CLI commands, benchmarks, reproducibility constraints, and the distinctions from the IBM course exercises. Inference and retrieval quality using real model weights have not yet been measured.
+
+## Persistent vector backends
+
+`backend build` converts the JSON reference index into an immutable SQLite bundle. `backend search` queries the bundle by a precomputed vector; `rank search --index <bundle-directory>` reuses the same fusion service with an optional model encoder. The `.[ann]` extra enables FAISS HNSW, whose recall and latency require measurement on the target machine. Larger streaming vector sets use the Python `write_dense_index` API; the JSON conversion command remains limited by the JSON format's record cap. The local SQLite exact engine is still O(Nd). See [persistent vector retrieval](docs/dense-index.md) and [relevance annotations](docs/relevance-annotation.md).
 
 ## Item-level retrieval
 
@@ -106,7 +113,7 @@ savoroute/
 ├── src/savoroute/
 │   ├── domain/          # immutable catalog records
 │   ├── data/            # JSON parsing, validation and resource loading
-│   ├── retrieval/       # BM25, exact cosine search and item-level RRF
+│   ├── retrieval/       # BM25, exact/ANN vector search, SQLite and RRF
 │   ├── evaluation/      # retrieval and extraction metrics
 │   ├── ingestion/       # text extraction, evidence checks, OSM import
 │   ├── media/           # local image validation and normalized exports
@@ -127,7 +134,7 @@ The catalog uses stable `item_id` identifiers for recipes and restaurants. Media
 
 ## Development
 
-The [development roadmap](docs/roadmap.md) separates the implemented ingestion, media handling, lexical retrieval, and exact vector-index foundation from planned large-scale indexing, recommendation services, MCP and HTTP interfaces, and web application. Image ingestion is documented in [docs/media-ingestion.md](docs/media-ingestion.md). Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
+The [development roadmap](docs/roadmap.md) separates the implemented ingestion, media handling, lexical retrieval, and exact vector-index foundation from persistent local indexing, planned recommendation services, MCP and HTTP interfaces, and web application. Image ingestion is documented in [docs/media-ingestion.md](docs/media-ingestion.md). Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
 
 Source identities are stored separately from the version-1 catalog. `osm sync` updates OSM-owned records when the source binding and previous catalog state are unambiguous; proposed cross-source matches are review-only. The implementation does not delete entries absent from a bounded snapshot. See [source identity and updates](docs/entity-identity-and-updates.md) and [identity candidate evaluation](docs/identity-benchmark.md).
 

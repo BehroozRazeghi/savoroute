@@ -16,6 +16,12 @@ from typing import Literal
 
 from savoroute.domain.models import Catalog, CatalogItem
 from savoroute.providers.contracts import JointTextImageEmbedder
+from savoroute.retrieval.dense import (
+    DenseIndex,
+    dense_modalities,
+    search_dense,
+    validate_dense_catalog,
+)
 from savoroute.retrieval.lexical import SearchFilters, filter_catalog, search_catalog
 from savoroute.retrieval.vector import (
     VectorIndex,
@@ -134,7 +140,7 @@ def search_fused(
     catalog: Catalog,
     query: str,
     *,
-    index: VectorIndex | None = None,
+    index: VectorIndex | DenseIndex | None = None,
     encoder: JointTextImageEmbedder | None = None,
     query_vector: Sequence[float] | None = None,
     catalog_dir: Path | None = None,
@@ -164,7 +170,10 @@ def search_fused(
     if index is not None and encoder is not None and query_vector is not None:
         raise ValueError("pass either an encoder or a query_vector, not both")
     if index is not None:
-        validate_catalog(index, catalog, catalog_dir=catalog_dir)
+        if isinstance(index, DenseIndex):
+            validate_dense_catalog(index, catalog, catalog_dir=catalog_dir)
+        else:
+            validate_catalog(index, catalog, catalog_dir=catalog_dir)
 
     if not query.strip():
         return ()
@@ -178,7 +187,8 @@ def search_fused(
                             for hit in lexical]
 
     if index is not None:
-        available = {row.modality for row in index.records}
+        available = (dense_modalities(index) if isinstance(index, DenseIndex)
+                     else {row.modality for row in index.records})
         needs_vectors = ((selected_weights.text > 0 and "text" in available)
                          or (selected_weights.image > 0 and "image" in available))
         if needs_vectors:
@@ -192,13 +202,19 @@ def search_fused(
                 if len(embedded) != 1:
                     raise VectorIndexError("query encoder returned an unexpected vector count")
                 query_vector = embedded[0]
-            excluded = frozenset(row.record_id for row in index.records
-                                 if row.item_id not in allowed)
+            excluded = (frozenset() if isinstance(index, DenseIndex)
+                        else frozenset(row.record_id for row in index.records
+                                       if row.item_id not in allowed))
             for modality in ("text", "image"):
                 if selected_weights.for_source(modality) <= 0 or modality not in available:
                     continue
-                hits = search_vectors(index, query_vector, target=modality, k=pool_size,
-                                      catalog=catalog, exclude=excluded, unique_items=True)
+                if isinstance(index, DenseIndex):
+                    hits = search_dense(index, query_vector, target=modality, k=pool_size,
+                                        catalog=catalog, allowed_item_ids=allowed,
+                                        unique_items=True)
+                else:
+                    hits = search_vectors(index, query_vector, target=modality, k=pool_size,
+                                          catalog=catalog, exclude=excluded, unique_items=True)
                 rankings[modality] = [(hit.item_id, hit.record_id, hit.score) for hit in hits]
 
     if not rankings:

@@ -411,7 +411,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     except (CatalogError, BenchmarkError, IngestionError, MediaIngestionError,
             AnnotationError, VectorIndexError, ValueError, OSError,
-            AnnotationError, ValueError, OSError,
             RuntimeError, json.JSONDecodeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2

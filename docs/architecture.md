@@ -126,3 +126,8 @@ adapters both end in `DiscoveryService` and its established retrieval/ranking
 implementations. Catalog and compatible index are fixed and validated at
 server creation; MCP callers cannot select files or network endpoints.
 See [ADR 0009](adr/0009-local-mcp-adapter.md).
+
+
+### Browser presentation layer (v0.14.0)
+
+The browser serves bundled static HTML, CSS and JavaScript from the FastAPI process. Client calls use only same-origin `/v1` endpoints; no catalog mutation, recommendation heuristics or LLM logic is implemented in JavaScript. FastAPI owns the catalog snapshot, API authentication, input validation and retrieval services. The UI provides disclosure of retrieval evidence and missing metadata and does not infer current opening hours, prices, availability or safety. See [web app guide](web-app.md) and [ADR 0010](adr/0010-packaged-first-party-ui.md).

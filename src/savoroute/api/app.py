@@ -13,8 +13,9 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, Security
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import APIKeyHeader
+from fastapi.staticfiles import StaticFiles
 
 from savoroute import __version__
 from savoroute.api.contracts import (
@@ -292,4 +293,28 @@ def create_app(
         return result.as_dict()
 
     app.include_router(router)
+
+    # Same-origin, packaged static interface. Only the existing /v1 routes
+    # access catalog data; this page does not introduce another data API.
+    static_dir = Path(__file__).resolve().parents[1] / "web" / "static"
+
+    @app.get("/", include_in_schema=False)
+    def web_home() -> FileResponse:
+        return FileResponse(
+            static_dir / "index.html",
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Referrer-Policy": "no-referrer",
+                "X-Frame-Options": "DENY",
+                "Content-Security-Policy": (
+                    "default-src 'none'; script-src 'self'; style-src 'self'; "
+                    "img-src 'self' data:; connect-src 'self'; "
+                    "base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+                ),
+            },
+        )
+
+    app.mount("/assets", StaticFiles(directory=static_dir), name="web-assets")
     return app

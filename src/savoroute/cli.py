@@ -94,6 +94,18 @@ def build_parser() -> argparse.ArgumentParser:
     api_serve.add_argument("--port", type=int, default=8000)
     api_serve.add_argument("--api-key-env", default="SAVOROUTE_API_KEY")
 
+    web = commands.add_parser("web", help="run the local web app over the HTTP API")
+    web_commands = web.add_subparsers(dest="web_command", required=True)
+    web_serve = web_commands.add_parser("serve", help="start the packaged browser interface")
+    for name, flags in (
+        ("catalog", {"help": "explicit catalog JSON; default: fictional demo"}),
+        ("index", {"help": "optional matching vector index"}),
+        ("host", {"default": "127.0.0.1"}),
+        ("port", {"type": int, "default": 8000}),
+        ("api-key-env", {"default": "SAVOROUTE_API_KEY"}),
+    ):
+        web_serve.add_argument(f"--{name}", **flags)
+
     mcp = commands.add_parser("mcp", help="serve read-only MCP tools over local stdio")
     mcp_commands = mcp.add_subparsers(dest="mcp_command", required=True)
     mcp_serve = mcp_commands.add_parser("serve", help="start the local MCP stdio server")
@@ -475,7 +487,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             serve_stdio(catalog=args.catalog, index=args.index)
             return 0
-        if args.command == "api":
+        if args.command in {"api", "web"}:
             from savoroute.api.server import serve
 
             serve(catalog=args.catalog, index=args.index, host=args.host,

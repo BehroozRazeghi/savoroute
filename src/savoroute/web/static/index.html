@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Explore catalog-backed recipes and restaurants, with transparent source evidence.">
+  <title>Savoroute — Find something worth savoring</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="module" src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#discover">Skip to search</a>
+  <header class="site-header">
+    <div class="shell topbar">
+      <a href="#top" class="brand" aria-label="Savoroute home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>savoroute<span class="brand-dot">.</span></span>
+      </a>
+      <nav aria-label="Main navigation" class="main-nav">
+        <a href="#discover">Discover</a>
+        <a href="#catalog">Catalog</a>
+        <a href="/docs" target="_blank" rel="noopener noreferrer">API docs <span aria-hidden="true">↗</span></a>
+      </nav>
+      <details class="access-control" id="access-control">
+        <summary title="Configure an optional API key"><span class="connection-dot" aria-hidden="true"></span>Access</summary>
+        <form id="access-form" class="access-form">
+          <label for="access-key">API key (if configured)</label>
+          <input id="access-key" type="password" autocomplete="off" placeholder="X-API-Key" maxlength="256">
+          <p>Held in this page's memory only. Not saved or added to the URL.</p>
+          <button class="small-button" type="submit">Apply key</button>
+          <button class="small-button secondary" id="clear-access-key" type="button">Clear</button>
+        </form>
+      </details>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero shell" aria-labelledby="hero-heading">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> A BETTER WAY TO DISCOVER FOOD</p>
+        <h1 id="hero-heading">A little hungry.<br><span>A lot curious.</span></h1>
+        <p class="hero-lead">Find restaurants and recipes through real catalog records—not invented answers. Explore the details, discover what fits, and know where every suggestion comes from.</p>
+        <div class="hero-features" aria-label="What makes Savoroute different">
+          <span><span class="mini-check" aria-hidden="true">✓</span> Evidence-led</span>
+          <span><span class="mini-check" aria-hidden="true">✓</span> Preference-aware</span>
+          <span><span class="mini-check" aria-hidden="true">✓</span> No made-up listings</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+        <div class="art-label art-label-a">GOOD FOOD <span>↗</span></div>
+        <div class="art-plate"><div class="plate-rim"><span class="noodle noodle-1"></span><span class="noodle noodle-2"></span><span class="noodle noodle-3"></span><span class="tomato tomato-1"></span><span class="tomato tomato-2"></span><span class="leaf leaf-1"></span><span class="leaf leaf-2"></span><span class="leaf leaf-3"></span><span class="sesame s1"></span><span class="sesame s2"></span><span class="sesame s3"></span></div></div>
+        <div class="art-label art-label-b"><span class="star">✳</span> THE GOOD STUFF</div>
+      </div>
+    </section>
+
+    <section class="shell dataset-strip" aria-label="Active dataset">
+      <div class="dataset-intro"><span class="pulse-dot" aria-hidden="true"></span><span id="dataset-label">Connecting to catalog…</span></div>
+      <div class="dataset-facts" id="dataset-facts">Catalog-backed discovery</div>
+      <span class="dataset-subtle">Saved records · not live availability</span>
+    </section>
+
+    <section class="shell discover-section" id="discover" aria-labelledby="discover-title">
+      <div class="section-heading"><div><p class="eyebrow">DISCOVER</p><h2 id="discover-title">What sounds good today?</h2></div><p>Choose your preferences and let the catalog guide you.</p></div>
+      <div class="discovery-layout">
+        <form id="discovery-form" class="discovery-form" novalidate>
+          <div class="field-group">
+            <label for="search-query">What are you craving?</label>
+            <div class="search-input-wrap"><span aria-hidden="true">⌕</span><input id="search-query" name="query" type="search" placeholder="e.g. spicy noodles, Italian dinner…" maxlength="500" required autocomplete="off"></div>
+          </div>
+          <fieldset class="mode-switch"><legend>Discovery mode</legend>
+            <label><input type="radio" name="mode" value="recommend" checked><span>Recommend</span></label>
+            <label><input type="radio" name="mode" value="search"><span>Search</span></label>
+          </fieldset>
+          <div class="form-divider"></div>
+          <div class="form-heading"><h3>Make it yours</h3><span>FILTERS</span></div>
+          <div class="field-group"><label for="filter-kind">I'm looking for</label><select id="filter-kind"><option value="">Restaurants & recipes</option><option value="restaurant">Restaurants</option><option value="recipe">Recipes</option></select></div>
+          <div class="field-group"><label for="filter-cuisine">Cuisine <span class="optional">optional</span></label><input id="filter-cuisine" type="text" placeholder="e.g. Japanese" maxlength="120"></div>
+          <div class="field-group"><label for="filter-location">Location <span class="optional">optional</span></label><input id="filter-location" type="text" placeholder="e.g. Boston" maxlength="120"></div>
+          <div class="field-group"><label for="filter-diet">Required dietary tags <span class="optional">optional</span></label><input id="filter-diet" type="text" placeholder="e.g. vegan, vegetarian" maxlength="500"><p class="hint">Comma-separated. Catalog tags, not allergy guarantees.</p></div>
+          <div class="field-group"><label for="filter-price">Maximum price tier</label><select id="filter-price"><option value="">Any / unknown</option><option value="1">1 — Budget</option><option value="2">2 — Moderate</option><option value="3">3 — Higher</option><option value="4">4 — Premium</option></select><p class="hint">Records without a tier may not satisfy a price filter.</p></div>
+          <div id="preference-fields" class="preference-fields">
+            <div class="form-divider"></div>
+            <div class="form-heading"><h3>Nice to have</h3><span>PREFERENCES</span></div>
+            <div class="field-group"><label for="prefer-cuisine">Preferred cuisines</label><input id="prefer-cuisine" type="text" placeholder="e.g. Japanese, Thai" maxlength="500"></div>
+            <div class="field-group"><label for="prefer-diet">Preferred dietary tags</label><input id="prefer-diet" type="text" placeholder="e.g. vegetarian" maxlength="500"></div>
+            <div class="field-group range-group"><label for="preference-strength">Preference emphasis <output id="strength-label" for="preference-strength">0.25</output></label><input id="preference-strength" type="range" min="0" max="1" step="0.05" value="0.25"></div>
+            <div class="exclude-note" id="exclusion-status" hidden></div>
+            <button type="button" id="clear-exclusions" class="text-button" hidden>Reset hidden items</button>
+          </div>
+          <button class="primary-button" id="search-submit" type="submit">Find my matches <span aria-hidden="true">↗</span></button>
+          <button class="reset-button" id="reset-filters" type="button">Reset preferences</button>
+        </form>
+
+        <div class="results-area" aria-labelledby="results-heading">
+          <div class="results-head"><div><span class="eyebrow">YOUR DISCOVERIES</span><h3 id="results-heading">Thoughtful picks, backed by data.</h3></div><span class="result-count" id="result-count">Ready when you are</span></div>
+          <p class="status-line" id="results-status" role="status" aria-live="polite">Enter a craving, then select Find my matches.</p>
+          <div id="results-list" class="result-list" aria-busy="false">
+            <div class="empty-illustration" aria-hidden="true">✳</div>
+            <div class="empty-state"><h4>Your next discovery starts here.</h4><p>Try a dish, a cuisine, or a kind of place. Savoroute will show the matching catalog evidence.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="catalog-band" id="catalog" aria-labelledby="catalog-title">
+      <div class="shell catalog-shell">
+        <div class="section-heading"><div><p class="eyebrow">THE COLLECTION</p><h2 id="catalog-title">Explore the catalog.</h2></div><p>Browse the records directly. No generated entries, no hidden assumptions.</p></div>
+        <div class="catalog-actions"><span id="catalog-summary">Loading records…</span><button class="outline-button" type="button" id="apply-catalog-filters">Use selected filters <span aria-hidden="true">↗</span></button></div>
+        <p class="status-line" id="catalog-status" role="status" aria-live="polite"></p>
+        <div class="catalog-grid" id="catalog-list" aria-busy="false"></div>
+        <div class="pagination"><button type="button" class="outline-button" id="catalog-prev" disabled>← Previous</button><span id="catalog-page-label">—</span><button type="button" class="outline-button" id="catalog-next" disabled>Next →</button></div>
+      </div>
+    </section>
+
+    <section class="shell assurance" aria-labelledby="assurance-heading"><div class="assurance-mark" aria-hidden="true">✳</div><div><p class="eyebrow">A NOTE ON TRANSPARENCY</p><h2 id="assurance-heading">Good recommendations show their work.</h2><p>Every result has an underlying catalog record and source. Retrieval scores are not probabilities, and saved records can be incomplete or outdated. Availability, opening hours, pricing and allergen safety are not verified.</p></div><a href="/docs" target="_blank" rel="noopener noreferrer" class="outline-button">Explore the API ↗</a></section>
+  </main>
+
+  <footer class="site-footer"><div class="shell footer-row"><span class="brand footer-brand">savoroute<span class="brand-dot">.</span></span><span>Catalog-first food discovery. Made to be checked.</span><span id="footer-version">HTTP API v1</span></div></footer>
+
+  <dialog id="item-dialog" class="item-dialog" aria-labelledby="dialog-title"><div class="dialog-top"><span class="eyebrow">CATALOG RECORD</span><button type="button" id="close-dialog" class="close-dialog" aria-label="Close record details">✕</button></div><div id="dialog-content"></div></dialog>
+</body>
+</html>

@@ -94,6 +94,12 @@ def build_parser() -> argparse.ArgumentParser:
     api_serve.add_argument("--port", type=int, default=8000)
     api_serve.add_argument("--api-key-env", default="SAVOROUTE_API_KEY")
 
+    mcp = commands.add_parser("mcp", help="serve read-only MCP tools over local stdio")
+    mcp_commands = mcp.add_subparsers(dest="mcp_command", required=True)
+    mcp_serve = mcp_commands.add_parser("serve", help="start the local MCP stdio server")
+    mcp_serve.add_argument("--catalog", help="explicit catalog JSON; default: fictional demo")
+    mcp_serve.add_argument("--index", help="optional matching JSON/SQLite/FAISS vector index")
+
     demo = commands.add_parser("demo", help="run two fictional catalog searches")
     demo.add_argument("--catalog", help="optional JSON catalog override")
 
@@ -464,6 +470,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.command == "mcp":
+            from savoroute.mcp.server import serve_stdio
+
+            serve_stdio(catalog=args.catalog, index=args.index)
+            return 0
         if args.command == "api":
             from savoroute.api.server import serve
 

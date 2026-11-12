@@ -36,3 +36,13 @@ The intended web application uses the same catalog, retrieval, and recommendatio
 ## Local image processing
 
 Stage 2a validates explicit local file references and exports normalized RGB PNG assets with source and output SHA-256 hashes. Output `catalog.json` uses relative asset URIs and retains catalog schema v1. `provenance.json` records declared source rights; it does not verify permissions. The current command exports a new directory from a catalog without pre-existing media. Image discovery and external fetching are separate concerns. See [image ingestion](media-ingestion.md).
+
+## v0.13.0 — Local MCP adapter (implemented)
+
+Six read-only, stdio-only MCP tools reuse HTTP v1's in-process services,
+validation, error handling, provenance, and preference constraints. Remote
+MCP/Streamable HTTP deployment is not part of this milestone. See
+[local MCP design](mcp-server.md) and [ADR 0009](adr/0009-local-mcp-adapter.md).
+
+Next: a deliberate user-facing web experience, deployment/security design,
+and independently reviewed real-world relevance measurements.

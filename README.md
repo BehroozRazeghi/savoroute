@@ -1,8 +1,8 @@
 # Savoroute
 
-**Food discovery and recommendation · Python · Jupyter · CLI · HTTP API**
+**Food discovery and recommendation · Python · Jupyter · CLI · HTTP API · MCP**
 
-Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI and the optional versioned HTTP API use the same library. MCP tools and a web application are planned, not yet implemented.
+Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI, optional versioned HTTP API, and local read-only MCP tools use the same library. A consumer web application is planned, not yet implemented.
 
 Version `0.10.0` added a strict, two-reviewer relevance-annotation workflow with separate review sheets and deterministic, source-grounded recommendations. Workbooks are catalog-fingerprint bound and cannot be exported with missing labels or unresolved disagreements. Recommendations combine the existing retrieval sources with explicit metadata filters and inspectable source evidence. The JSON/SQLite vector backends and optional FAISS HNSW backend are unchanged. No independently reviewed real-world relevance dataset or live restaurant verification is included.
 
@@ -12,6 +12,8 @@ Version `0.12.0` adds an opt-in, read-only `/v1` HTTP API for catalog browsing,
 search, item-level ranking, and evidence-backed recommendations. The server loads
 an operator-chosen catalog and optional trusted index; request clients cannot
 select file paths or trigger model downloads. See [HTTP API v1](docs/http-api.md).
+
+Version `0.13.0` adds six read-only MCP tools over local stdio using the official MCP Python SDK v2. Their results and limits come from the existing versioned HTTP contracts, executed in-process without a web listener. This is intended for trusted local agent hosts, not a publicly deployed MCP service. See [MCP server](docs/mcp-server.md).
 
 ## Installation
 
@@ -65,6 +67,16 @@ savoroute validate --catalog data/sample/catalog.json
 savoroute search "pasta" --catalog data/sample/catalog.json --kind restaurant
 savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 ```
+
+## Optional MCP tools (local stdio)
+
+```bash
+python -m pip install -e ".[mcp]"
+savoroute mcp serve  # host launches process and speaks MCP on stdin/stdout
+savoroute mcp serve --catalog data/generated/real-pilot/catalog.json
+```
+
+The command stays quiet while waiting for an MCP client. See the [local MCP guide](docs/mcp-server.md) for the six tools, host configuration, security boundaries, and validation steps.
 
 ## Optional HTTP API
 

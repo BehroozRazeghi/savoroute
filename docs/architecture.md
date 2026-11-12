@@ -115,3 +115,14 @@ delegate to `DiscoveryService` without changing score or evidence semantics.
 key is required on non-loopback binding. This does not replace TLS, rate limits,
 privacy policy or operational safeguards for public hosting. See [HTTP API v1](http-api.md)
 and [ADR 0008](adr/0008-http-adapter-with-shared-services.md).
+
+## Local MCP adapter (v0.13.0)
+
+The optional MCP Python SDK v2 server runs on **stdio**, with six fixed
+read-only tools. Calls pass through `CatalogBridge`, which invokes the
+versioned FastAPI application using `httpx.ASGITransport` in the same process.
+This shares the HTTP validation and serialization logic; the HTTP and MCP
+adapters both end in `DiscoveryService` and its established retrieval/ranking
+implementations. Catalog and compatible index are fixed and validated at
+server creation; MCP callers cannot select files or network endpoints.
+See [ADR 0009](adr/0009-local-mcp-adapter.md).

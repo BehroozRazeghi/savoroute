@@ -27,7 +27,7 @@ def test_liveness_metadata_and_versioned_schema(client):
     assert client.get("/healthz").json() == {"status": "ok", "api_version": "v1"}
     metadata = client.get("/v1/meta")
     assert metadata.status_code == 200
-    assert metadata.json()["package_version"] == "0.12.0"
+    assert metadata.json()["package_version"] == "0.13.0"
     assert metadata.json()["catalog_synthetic"] is True
     assert metadata.json()["catalog_items"] == 12
     assert metadata.json()["index_backend"] == "none"

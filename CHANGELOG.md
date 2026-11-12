@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.13.0 — Local read-only MCP tools
+
+- Add six read-only MCP tools for catalog metadata, item browsing, item details, search, rank fusion, and grounded recommendations.
+- Target the official MCP Python SDK v2 and local stdio transport. All tool calls reuse the existing versioned FastAPI contracts through an in-process ASGI bridge, without outbound requests or a second ranking implementation.
+- Keep catalog/index selection operator-controlled at startup; preserve validation, source attribution, item-level evidence, and ranking limitations.
+- Add the optional `mcp` extra, protocol and bridge tests, Notebook 15, a technical guide, and ADR 0009.
+
+The MCP server exposes no ingestion, writes, file/URL access, model downloads, or public HTTP listener. Tests on fictional catalogs do not establish real-world relevance or restaurant safety.
+
 ## 0.12.0 — Versioned read-only HTTP API
 
 - Expose `/v1` metadata, catalog browsing, item details, search, RRF ranking, and grounded recommendations through the existing `DiscoveryService`.

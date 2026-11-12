@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "dataset": {
+    "name": "fictional-identity-pairs-v1",
+    "synthetic": true,
+    "annotation_provenance": "Author-defined fictional labels for regression tests; not independent real-world annotation"
+  },
+  "records": [
+    {
+      "record_id": "r1",
+      "name": "Juniper Table",
+      "address": "12 Harbor Lane, Exampleton",
+      "latitude": 42.35,
+      "longitude": -71.06
+    },
+    {
+      "record_id": "r2",
+      "name": "JUNIPER TABLE",
+      "address": "12 Harbor Lane, Exampleton",
+      "latitude": 42.35002,
+      "longitude": -71.06002
+    },
+    {
+      "record_id": "r3",
+      "name": "Juniper Table",
+      "address": "12 Harbor Lane, Exampleton",
+      "latitude": 42.35001,
+      "longitude": -71.06001
+    },
+    {
+      "record_id": "r4",
+      "name": "Coastal Bowl",
+      "address": "4 Ocean Drive, Exampleton",
+      "latitude": 42.355,
+      "longitude": -71.06
+    },
+    {
+      "record_id": "r5",
+      "name": "Coastal Bowls",
+      "address": "4 Ocean Drive, Exampleton",
+      "latitude": 42.35501,
+      "longitude": -71.06001
+    },
+    {
+      "record_id": "r6",
+      "name": "Juniper Table",
+      "address": "18 Hill Street, Otherburg",
+      "latitude": 42.4,
+      "longitude": -71.07
+    },
+    {
+      "record_id": "r7",
+      "name": "Pasta Grove",
+      "address": "18 Elm Lane, Exampleton",
+      "latitude": 42.362,
+      "longitude": -71.052
+    },
+    {
+      "record_id": "r8",
+      "name": "Pasta Grove",
+      "address": "22 Elm Lane, Exampleton",
+      "latitude": 42.3621,
+      "longitude": -71.0521
+    }
+  ],
+  "pairs": [
+    {
+      "left_id": "r1",
+      "right_id": "r2",
+      "same_entity": true
+    },
+    {
+      "left_id": "r1",
+      "right_id": "r3",
+      "same_entity": false
+    },
+    {
+      "left_id": "r2",
+      "right_id": "r3",
+      "same_entity": false
+    },
+    {
+      "left_id": "r4",
+      "right_id": "r5",
+      "same_entity": true
+    },
+    {
+      "left_id": "r7",
+      "right_id": "r8",
+      "same_entity": false
+    },
+    {
+      "left_id": "r1",
+      "right_id": "r6",
+      "same_entity": false
+    },
+    {
+      "left_id": "r2",
+      "right_id": "r6",
+      "same_entity": false
+    },
+    {
+      "left_id": "r3",
+      "right_id": "r6",
+      "same_entity": false
+    },
+    {
+      "left_id": "r2",
+      "right_id": "r4",
+      "same_entity": false
+    },
+    {
+      "left_id": "r4",
+      "right_id": "r7",
+      "same_entity": false
+    },
+    {
+      "left_id": "r4",
+      "right_id": "r8",
+      "same_entity": false
+    },
+    {
+      "left_id": "r5",
+      "right_id": "r8",
+      "same_entity": false
+    },
+    {
+      "left_id": "r6",
+      "right_id": "r7",
+      "same_entity": false
+    },
+    {
+      "left_id": "r1",
+      "right_id": "r4",
+      "same_entity": false
+    }
+  ]
+}

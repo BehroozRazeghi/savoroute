@@ -93,7 +93,7 @@ def test_bbox_limits_and_query():
     with pytest.raises(IngestionError, match="span"):
         validate_bbox((42.3, -71.2, 43.0, -71.1))
     query = overpass_query((42.3, -71.2, 42.31, -71.19))
-    assert "nwr" in query and "out center;" in query
+    assert "nwr" in query and "out center meta;" in query
     assert "42.3000000,-71.2000000,42.3100000,-71.1900000" in query
 
 

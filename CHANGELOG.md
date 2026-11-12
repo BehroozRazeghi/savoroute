@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 — OSM version ordering and identity candidate evaluation
+
+- Record OSM element versions, timestamps, and source hashes in import reports and registry schema v2. Previous registry and import report versions remain readable.
+- Reject stale source versions, inconsistent same-version content, and non-increasing edit timestamps when a version baseline exists.
+- Share the candidate-review rule between OSM synchronization and annotated-pair evaluation.
+- Add an unlabeled OSM annotation worksheet, a fictional benchmark, CLI commands, notebook 07, and regression tests.
+
+No independently annotated real-world identity dataset or matching-accuracy estimate is included.
+
 ## 0.4.0 — Source identity and controlled updates
 
 - Added a versioned source registry with explicit source-to-item bindings.

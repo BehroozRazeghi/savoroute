@@ -8,17 +8,20 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
-import re
-import unicodedata
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
 from savoroute.data.catalog import catalog_to_dict, parse_catalog
 from savoroute.domain.models import Catalog, CatalogItem
+from savoroute.identity.matching import MatchRecord, is_review_candidate
+from savoroute.identity.osm_versions import validate_osm_metadata
 from savoroute.identity.registry import EntityRegistry, SourceBinding, item_digest
-from savoroute.ingestion.osm import OsmCandidate, parse_osm_candidate, parse_osm_elements
+from savoroute.ingestion.osm import (
+    OsmCandidate,
+    parse_osm_candidate,
+    parse_osm_elements,
+)
 from savoroute.ingestion.sources import IngestionError
 from savoroute.services.storage import json_text, write_json_group
 
@@ -29,45 +32,26 @@ def _fingerprint(value: Any) -> str:
     ).encode("utf-8")).hexdigest()
 
 
-def _normalized(value: str | None) -> str:
-    return " ".join(re.findall(r"\w+", unicodedata.normalize(
-        "NFKC", value or "",
-    ).casefold()))
-
-
-def _distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    # Haversine distance on a sphere; used to generate review candidates only.
-    rlat1, rlat2 = math.radians(lat1), math.radians(lat2)
-    dlat, dlon = rlat2 - rlat1, math.radians(lon2 - lon1)
-    h = (math.sin(dlat / 2) ** 2 +
-         math.cos(rlat1) * math.cos(rlat2) * math.sin(dlon / 2) ** 2)
-    return 2 * 6_371_000 * math.asin(min(1.0, math.sqrt(h)))
-
-
 def _review_candidates(item: CatalogItem, candidate: OsmCandidate,
                        catalog: Catalog, registry: EntityRegistry,
                        exclude_id: str | None = None) -> tuple[str, ...]:
     """Conservative blocking; matches are suggestions, never identity decisions."""
     candidates: list[str] = []
-    name = _normalized(item.title)
-    address = _normalized(item.location)
-    if not name:
-        return ()
+    proposed = MatchRecord(item.title, item.location, candidate.lat, candidate.lon)
     for old in catalog.items:
-        if old.item_id == exclude_id or old.kind != "restaurant" or _normalized(old.title) != name:
+        if old.item_id == exclude_id or old.kind != "restaurant":
             continue
-        if address and _normalized(old.location) == address:
+        bindings = registry.bindings_for(old.item_id)
+        if not bindings:
+            bindings_to_check = (None,)
+        else:
+            bindings_to_check = bindings
+        if any(is_review_candidate(proposed, MatchRecord(
+            old.title, old.location,
+            binding.latitude if binding else None,
+            binding.longitude if binding else None,
+        )) for binding in bindings_to_check):
             candidates.append(old.item_id)
-            continue
-        if candidate.lat is None or candidate.lon is None:
-            continue
-        for binding in registry.bindings_for(old.item_id):
-            if binding.latitude is None or binding.longitude is None:
-                continue
-            if _distance_m(candidate.lat, candidate.lon,
-                           binding.latitude, binding.longitude) <= 75:
-                candidates.append(old.item_id)
-                break
     return tuple(sorted(set(candidates)))
 
 
@@ -150,6 +134,11 @@ def sync_osm_snapshot(payload: Any, *, base_catalog: Catalog,
             decisions.append(SyncDecision(ref, status, reason, prior.item_id if prior else None))
             continue
         value = _materialize(candidate, synthetic_fixture)
+        try:
+            version, timestamp = validate_osm_metadata(raw.get("version"), raw.get("timestamp"))
+        except IngestionError as exc:
+            decisions.append(SyncDecision(ref, "review", str(exc), prior.item_id if prior else None))
+            continue
         sha = _fingerprint(raw)
         # Candidate blocking reads the working catalog, not only the original state.
         current = Catalog(1, base_catalog.dataset_name, base_catalog.synthetic,
@@ -159,6 +148,21 @@ def sync_osm_snapshot(payload: Any, *, base_catalog: Catalog,
                                           value.item_id))
             continue
         if prior is not None:
+            # A known version cannot be overwritten by unversioned or older metadata.
+            if prior.source_version is not None:
+                if version is None:
+                    decisions.append(SyncDecision(ref, "review", "source version missing", prior.item_id))
+                    continue
+                if version < prior.source_version:
+                    decisions.append(SyncDecision(ref, "review", "stale source version", prior.item_id))
+                    continue
+                if version == prior.source_version and prior.source_sha256 != sha:
+                    decisions.append(SyncDecision(ref, "review", "same source version has different content", prior.item_id))
+                    continue
+                if version > prior.source_version and prior.source_timestamp is not None:
+                    if timestamp <= prior.source_timestamp:
+                        decisions.append(SyncDecision(ref, "review", "newer version has non-increasing timestamp", prior.item_id))
+                        continue
             existing = items[prior.item_id]
             if prior.item_sha256 is None or prior.item_sha256 != item_digest(existing):
                 decisions.append(SyncDecision(
@@ -185,6 +189,7 @@ def sync_osm_snapshot(payload: Any, *, base_catalog: Catalog,
             items[prior.item_id] = proposed
             working = working.put(SourceBinding(
                 "osm", ref, prior.item_id, sha, item_digest(proposed), candidate.lat, candidate.lon,
+                version, timestamp,
             ), current)
             changed = proposed != existing
             decisions.append(SyncDecision(ref, "updated" if changed else "unchanged",
@@ -202,6 +207,7 @@ def sync_osm_snapshot(payload: Any, *, base_catalog: Catalog,
                            tuple(items[item_id] for item_id in order), base_catalog.media)
         working = working.put(SourceBinding(
             "osm", ref, value.item_id, sha, item_digest(value), candidate.lat, candidate.lon,
+            version, timestamp,
         ), expanded)
         decisions.append(SyncDecision(ref, "admitted", "new source identity", value.item_id))
 

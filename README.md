@@ -4,7 +4,7 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.4.0` adds source identity bookkeeping and controlled updates to the existing OSM importer and extraction-evaluation baseline. The existing demo includes six fictional restaurants and six recipes, metadata filtering, two lexical rankers, and 16 synthetic evaluation queries. Text extraction can run offline on labeled records or through an explicitly selected OpenAI/Ollama text-generation adapter. The OSM adapter maps structured tags; live fetches have not been exercised in CI. Image processing, vector indexes, agents, MCP services, and applications are not implemented.
+Version `0.5.0` adds OSM element-version tracking and evaluation of duplicate-review candidates against explicitly annotated record pairs. The repository includes a fictional food catalog, text ingestion, OSM import and reconciliation, BM25/overlap search, and retrieval/extraction evaluation. Live model and OSM requests have not been exercised in CI. Image processing, vector search, AI agents, MCP, and application interfaces are not implemented. No real-world entity-matching accuracy is claimed.
 
 ## Installation
 
@@ -27,6 +27,7 @@ savoroute osm import --input data/sample/osm_overpass_fixture.json \
   --report data/generated/osm_report.json
 savoroute evaluate-extraction --gold data/sample/extraction_gold.json \
   --predictions data/generated/evidence.json --json
+savoroute identity evaluate --benchmark data/sample/identity_pairs_fixture.json --json
 python -m pytest
 jupyter lab
 ```
@@ -50,8 +51,9 @@ savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 | [04 — Structured ingestion](notebooks/04_structured_ingestion.ipynb) | Validate source records, extract fields, audit literal evidence spans, and admit items |
 | [05 — OSM sources and evaluation](notebooks/05_osm_sources_and_evaluation.ipynb) | Import a synthetic Overpass-format snapshot, review duplicate candidates, and compute field metrics |
 | [06 — Source identity and updates](notebooks/06_source_identity_and_updates.ipynb) | Bootstrap source bindings, reconcile updates, review conflicts, and check idempotency |
+| [07 — Identity candidate evaluation](notebooks/07_identity_benchmark_evaluation.ipynb) | Inspect pairwise review metrics, source-version ordering, and an unlabeled annotation worksheet |
 
-All seven notebooks run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All eight notebooks run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
 
 ## Python API
 
@@ -102,9 +104,11 @@ The catalog uses stable `item_id` identifiers for recipes and restaurants. Optio
 
 The [development roadmap](docs/roadmap.md) separates the implemented ingestion and lexical retrieval foundation from the planned image/text embeddings, indexed retrieval, recommendation services, MCP and HTTP interfaces, and web application. Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
 
-Source identities are stored separately from the version-1 catalog. `osm sync` updates OSM-owned records when the source binding and previous catalog state are unambiguous; proposed cross-source matches are review-only. The implementation does not delete entries absent from a bounded snapshot. See [source identity and updates](docs/entity-identity-and-updates.md).
+Source identities are stored separately from the version-1 catalog. `osm sync` updates OSM-owned records when the source binding and previous catalog state are unambiguous; proposed cross-source matches are review-only. The implementation does not delete entries absent from a bounded snapshot. See [source identity and updates](docs/entity-identity-and-updates.md) and [identity candidate evaluation](docs/identity-benchmark.md).
 
 Technical notes: [text ingestion](docs/ingestion.md) · [architecture](docs/architecture.md) · [catalog contract](docs/data-contract.md) · [provider interfaces](docs/provider-strategy.md) · [evaluation](docs/evaluation.md) · [design history](docs/comparison.md).
+
+The annotated identity fixture is synthetic; its error rates cannot be generalized to real sources. The `identity prepare-osm` command generates an unlabeled worksheet from a saved Overpass snapshot for independent manual review.
 
 The committed sample records are fictional and contain no live listings, verified dietary information, restaurant availability, or real user data. The optional fetch command can retrieve real OSM records; it is not run by the tests. Original course materials and external assets are not redistributed. The MIT license covers this repository's original source and documentation, not third-party content.
 

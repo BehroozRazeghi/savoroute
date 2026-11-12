@@ -15,7 +15,8 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 3b · Persistent retrieval | SQLite vector bundles, optional FAISS HNSW, synthetic latency and 42-query challenge, notebook 11 | Implemented; real-data labeling and FAISS runtime validation pending |
 | 4 · Recommendations | Binary relevance annotation workflow and deterministic catalog-grounded recommendations; notebook 12 | Implemented offline; independent real-world annotation pending |
 | 4b · Real-data study preparation | Frozen OSM provenance, split checks, reviewer references, baseline reports; notebook 13 | Implemented; independent real annotation outstanding |
-| 5 · Interfaces | Versioned HTTP API, MCP tools, responsive web application | Planned |
+| 5a · HTTP interface | Versioned read-only API, catalog browsing, shared discovery/recommendations, OpenAPI, notebook 14 | Implemented locally; production hardening outstanding |
+| 5b · Agent and web interfaces | MCP tools, responsive web application | Planned |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
 
 ## Completed ingestion work

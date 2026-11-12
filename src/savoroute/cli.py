@@ -85,6 +85,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     commands = parser.add_subparsers(dest="command", required=True)
 
+    api = commands.add_parser("api", help="serve the optional read-only HTTP API")
+    api_commands = api.add_subparsers(dest="api_command", required=True)
+    api_serve = api_commands.add_parser("serve", help="start the local HTTP server")
+    api_serve.add_argument("--catalog", help="explicit catalog JSON; default: fictional demo")
+    api_serve.add_argument("--index", help="optional matching JSON/SQLite/FAISS index")
+    api_serve.add_argument("--host", default="127.0.0.1")
+    api_serve.add_argument("--port", type=int, default=8000)
+    api_serve.add_argument("--api-key-env", default="SAVOROUTE_API_KEY")
+
     demo = commands.add_parser("demo", help="run two fictional catalog searches")
     demo.add_argument("--catalog", help="optional JSON catalog override")
 
@@ -455,6 +464,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.command == "api":
+            from savoroute.api.server import serve
+
+            serve(catalog=args.catalog, index=args.index, host=args.host,
+                  port=args.port, api_key_env=args.api_key_env)
+            return 0
         if args.command == "ingest":
             _run_ingest(args)
             return 0

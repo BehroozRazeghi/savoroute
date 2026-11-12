@@ -11,7 +11,9 @@ from pathlib import Path
 
 from savoroute.data.catalog import CatalogError, load_catalog
 from savoroute.evaluation.extraction import AnnotationError, evaluate_extraction, load_gold
+from savoroute.evaluation.identity import evaluate_identity_candidates, load_identity_benchmark
 from savoroute.evaluation.retrieval import BenchmarkError, evaluate_search, load_benchmark
+from savoroute.identity.annotations import prepare_osm_annotations
 from savoroute.identity.registry import (
     bootstrap_osm_registry,
     link_source,
@@ -30,6 +32,7 @@ from savoroute.retrieval.lexical import SearchFilters
 from savoroute.services.discovery import DiscoveryService
 from savoroute.services.ingestion import ingest_sources, write_ingestion
 from savoroute.services.osm_sync import sync_osm_snapshot, write_osm_sync
+from savoroute.services.storage import write_json_file
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -113,6 +116,18 @@ def build_parser() -> argparse.ArgumentParser:
     link.add_argument("--source-ref", required=True)
     link.add_argument("--item-id", required=True)
     link.add_argument("--output", required=True)
+    identity_eval = identity_commands.add_parser(
+        "evaluate", help="evaluate duplicate-review candidates on labeled record pairs"
+    )
+    identity_eval.add_argument("--benchmark", required=True)
+    identity_eval.add_argument("--json", action="store_true")
+    prepare = identity_commands.add_parser(
+        "prepare-osm", help="create an unlabeled manual review worksheet from saved OSM JSON"
+    )
+    prepare.add_argument("--input", required=True)
+    prepare.add_argument("--output", required=True)
+    prepare.add_argument("--max-records", type=int, default=80)
+    prepare.add_argument("--max-pairs", type=int, default=200)
 
     extraction_eval = commands.add_parser("evaluate-extraction", help="compare field extraction with gold annotations")
     extraction_eval.add_argument("--gold", required=True)
@@ -162,6 +177,29 @@ def main(argv: Sequence[str] | None = None) -> int:
             _run_ingest(args)
             return 0
         if args.command == "identity":
+            if args.identity_command == "evaluate":
+                result = evaluate_identity_candidates(load_identity_benchmark(args.benchmark))
+                if args.json:
+                    print(json.dumps(result.as_dict(), indent=2))
+                else:
+                    def show(value: float | None) -> str:
+                        return "N/A" if value is None else f"{value:.3f}"
+                    print(f"Pairs={result.pairs} TP={result.true_positive} "
+                          f"FP={result.false_positive} FN={result.false_negative} "
+                          f"TN={result.true_negative}")
+                    print(f"Precision={show(result.precision)} Recall={show(result.recall)} "
+                          f"F1={show(result.f1)} Review rate={show(result.review_rate)}")
+                    print("Synthetic labels; not a real-world accuracy estimate." if result.synthetic
+                          else "Metrics apply only to annotated pairs in this benchmark.")
+                return 0
+            if args.identity_command == "prepare-osm":
+                source = json.loads(Path(args.input).read_text(encoding="utf-8"))
+                worksheet = prepare_osm_annotations(
+                    source, max_records=args.max_records, max_pairs=args.max_pairs,
+                )
+                write_json_file(worksheet, args.output)
+                print(f"Prepared {len(worksheet['pairs'])} unlabeled pairs: {args.output}")
+                return 0
             catalog = load_catalog(args.catalog)
             if args.identity_command == "bootstrap-osm":
                 report = json.loads(Path(args.report).read_text(encoding="utf-8"))

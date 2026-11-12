@@ -11,3 +11,5 @@ Local ingestion data and generated artifacts will live under `data/raw/`, `data/
 `osm_overpass_fixture.json` is synthetic and has no connection to real OSM element IDs. `extraction_gold.json` contains reference fields from the fictional labeled ingestion sources. See [OSM and extraction evaluation](../docs/osm-and-extraction-evaluation.md).
 
 - `osm_overpass_update_fixture.json`: synthetic incremental snapshot used by notebook 06 and source-sync tests.
+
+`identity_pairs_fixture.json` contains manually assigned fictional pair labels, including expected candidate-generation failures. The `_versioned.json` OSM fixtures provide fictional element edit versions and timestamps for notebook 07 and regression tests. They are not extracts of OpenStreetMap. See [identity benchmark protocol](../docs/identity-benchmark.md).

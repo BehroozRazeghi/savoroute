@@ -18,6 +18,7 @@ from typing import Any
 
 from savoroute.data.catalog import catalog_to_dict
 from savoroute.domain.models import Catalog, CatalogItem
+from savoroute.identity.osm_versions import validate_osm_metadata
 from savoroute.ingestion.sources import IngestionError
 from savoroute.services.storage import json_text, write_json_file
 
@@ -64,6 +65,8 @@ class SourceBinding:
     item_sha256: str | None = None
     latitude: float | None = None
     longitude: float | None = None
+    source_version: int | None = None
+    source_timestamp: str | None = None
 
     def __post_init__(self) -> None:
         _source_key(self.provider, self.source_ref)
@@ -79,6 +82,10 @@ class SourceBinding:
         ):
             raise IngestionError("binding.item_sha256 must be a lowercase SHA-256 digest")
         _coordinates(self.latitude, self.longitude)
+        if self.provider == "osm":
+            validate_osm_metadata(self.source_version, self.source_timestamp)
+        elif self.source_version is not None or self.source_timestamp is not None:
+            raise IngestionError("source version metadata is supported only for OSM bindings")
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -89,6 +96,8 @@ class SourceBinding:
             "item_sha256": self.item_sha256,
             "latitude": self.latitude,
             "longitude": self.longitude,
+            "source_version": self.source_version,
+            "source_timestamp": self.source_timestamp,
         }
 
 
@@ -119,22 +128,25 @@ class EntityRegistry:
         )))
 
     def as_dict(self) -> dict[str, Any]:
-        return {"registry_schema_version": 1,
+        return {"registry_schema_version": 2,
                 "bindings": [binding.as_dict() for binding in self.bindings]}
 
 
 def parse_registry(payload: Any, catalog: Catalog) -> EntityRegistry:
     if not isinstance(payload, dict) or set(payload) != {"registry_schema_version", "bindings"}:
         raise IngestionError("registry must contain only registry_schema_version and bindings")
-    if type(payload["registry_schema_version"]) is not int or payload["registry_schema_version"] != 1:
-        raise IngestionError("registry_schema_version must be 1")
+    version = payload["registry_schema_version"]
+    if type(version) is not int or version not in (1, 2):
+        raise IngestionError("registry_schema_version must be 1 or 2")
     if not isinstance(payload["bindings"], list):
         raise IngestionError("registry.bindings must be an array")
     registry = EntityRegistry()
+    fields = {"provider", "source_ref", "item_id", "source_sha256",
+              "item_sha256", "latitude", "longitude"}
+    if version == 2:
+        fields |= {"source_version", "source_timestamp"}
     for i, row in enumerate(payload["bindings"]):
-        if not isinstance(row, dict) or set(row) != {
-            "provider", "source_ref", "item_id", "source_sha256", "item_sha256", "latitude", "longitude"
-        }:
+        if not isinstance(row, dict) or set(row) != fields:
             raise IngestionError(f"invalid binding fields at index {i}")
         binding = SourceBinding(**row)
         if registry.lookup(binding.provider, binding.source_ref) is not None:
@@ -156,8 +168,8 @@ def bootstrap_osm_registry(catalog: Catalog, report: Any) -> EntityRegistry:
     The report digest must match the supplied catalog, preventing a stale
     provenance report from silently binding source IDs to the wrong catalog.
     """
-    if not isinstance(report, dict) or report.get("osm_import_schema_version") != 1:
-        raise IngestionError("bootstrap requires an OSM import report (schema v1)")
+    if not isinstance(report, dict) or report.get("osm_import_schema_version") not in (1, 2):
+        raise IngestionError("bootstrap requires an OSM import report (schema v1 or v2)")
     digest = hashlib.sha256(json_text(catalog_to_dict(catalog)).encode("utf-8")).hexdigest()
     if report.get("catalog_sha256") != digest:
         raise IngestionError("OSM report catalog digest does not match input catalog")
@@ -196,6 +208,9 @@ def bootstrap_osm_registry(catalog: Catalog, report: Any) -> EntityRegistry:
             provider="osm", source_ref=source_ref, item_id=item_id,
             item_sha256=item_digest(item),
             latitude=source.get("latitude"), longitude=source.get("longitude"),
+            source_sha256=source.get("source_sha256") if report["osm_import_schema_version"] == 2 else None,
+            source_version=source.get("source_version") if report["osm_import_schema_version"] == 2 else None,
+            source_timestamp=source.get("source_timestamp") if report["osm_import_schema_version"] == 2 else None,
         )
         if registry.lookup(binding.provider, binding.source_ref) is not None:
             raise IngestionError("duplicate OSM source identity in report")

@@ -9,11 +9,11 @@ The source registry is stored separately from catalog schema v1. Existing search
 
 ## Sync rules
 
-An OSM source key can update an existing item when the binding is unambiguous, the catalog item is OSM-owned, and its fields match the last recorded source-managed digest. Updated fields come from the latest supplied snapshot. A repeated snapshot yields `unchanged` decisions and identical catalog/registry content.
+An OSM source key can update an existing item when the binding is unambiguous, the catalog item is OSM-owned, and its fields match the last recorded source-managed digest. Updated fields come from the latest supplied snapshot. A repeated snapshot yields `unchanged` decisions and identical catalog/registry content. OSM import reports (schema v2) carry the element's version, UTC timestamp, and content hash; the source registry (schema v2) retains them across updates. Older report and registry schema v1 files remain readable.
 
 Records with incomplete source fields, conflicting identity candidates, or out-of-band catalog edits receive `review` decisions without changing the catalog. New source keys with no review candidates are admitted. Name and address normalization, plus a 75 m coordinate check for already bound records, generate review candidates; they do not establish identity automatically.
 
-A bounded snapshot is not a complete register. Absence from a later snapshot never deletes a catalog item. OSM object versions and snapshot ordering are not yet enforced; processing an older snapshot after a newer one can roll back source-managed fields. Use retained, dated snapshot files and apply them in chronological order.
+A bounded snapshot is not a complete register. Absence from a later snapshot never deletes a catalog item. When a binding has a known OSM version, an older incoming version, a missing version, or different content at the same version is sent for review. Increasing versions must also have increasing UTC timestamps. Registries imported from v1 contain no version baseline; their first versioned synchronization establishes one. Legacy unversioned inputs remain supported for compatibility, but cannot offer rollback protection. Bounded snapshots still cannot establish deletion.
 
 ## CLI workflow (synthetic fixtures)
 
@@ -74,6 +74,6 @@ Each output file is written through an atomic rename. Writing catalog, registry,
 
 ## Scope and outstanding validation
 
-This milestone provides deterministic source identity bookkeeping and manual association. It is not a probabilistic cross-provider entity resolver. The duplicate-candidate rule may miss businesses with name variations or incomplete address data and may propose unrelated businesses with matching names. No entity-resolution precision/recall has been measured on independently annotated real pairs.
+This milestone provides deterministic source identity bookkeeping and manual association. It is not a probabilistic cross-provider entity resolver. The duplicate-candidate rule may miss businesses with name variations or incomplete address data and may propose unrelated businesses with matching names. The [candidate evaluation harness](identity-benchmark.md) measures pairwise precision, recall, and review rate on annotated inputs. Its committed fixture is fictional; no independently annotated real-world performance has been measured.
 
 Before using the system on production data: add independently annotated match/nonmatch pairs, version-aware updates, a durable transactional store, and a procedure for resolving review decisions and recording reviewers. See [roadmap](roadmap.md).

@@ -19,6 +19,7 @@ from urllib.request import Request, urlopen
 
 from savoroute.data.catalog import catalog_to_dict, parse_catalog
 from savoroute.domain.models import Catalog, CatalogItem
+from savoroute.identity.osm_versions import validate_osm_metadata
 from savoroute.ingestion.sources import IngestionError
 from savoroute.services.storage import json_text, write_json_file, write_json_pair
 
@@ -66,7 +67,7 @@ class OsmImportResult:
 
     def report(self) -> dict[str, Any]:
         return {
-            "osm_import_schema_version": 1,
+            "osm_import_schema_version": 2,
             "catalog_schema_version": self.catalog.schema_version,
             "canonical_payload_sha256": self.canonical_payload_sha256,
             "catalog_sha256": hashlib.sha256(
@@ -95,7 +96,7 @@ def validate_bbox(values: tuple[float, float, float, float]) -> tuple[float, flo
 def overpass_query(bbox: tuple[float, float, float, float]) -> str:
     south, west, north, east = validate_bbox(bbox)
     coords = ",".join(f"{value:.7f}" for value in (south, west, north, east))
-    return f'[out:json][timeout:25];nwr["amenity"="restaurant"]({coords});out center;'
+    return f'[out:json][timeout:25];nwr["amenity"="restaurant"]({coords});out center meta;'
 
 
 def fetch_overpass(bbox: tuple[float, float, float, float], *, contact: str) -> dict[str, Any]:
@@ -109,7 +110,7 @@ def fetch_overpass(bbox: tuple[float, float, float, float], *, contact: str) -> 
     request = Request(
         OVERPASS_ENDPOINT, data=data, method="POST",
         headers={
-            "User-Agent": f"Savoroute/0.4.0 (contact: {contact})",
+            "User-Agent": f"Savoroute/0.5.0 (contact: {contact})",
             "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
             "Accept": "application/json",
         },
@@ -247,6 +248,7 @@ def import_osm_snapshot(
         if candidate is None:
             decisions.append(OsmDecision(ref, "skipped", reason))
             continue
+        version, timestamp = validate_osm_metadata(raw.get("version"), raw.get("timestamp"))
         item = candidate.item
         if item.item_id in existing_ids:
             decisions.append(OsmDecision(ref, "already_imported", "same source identity", item.item_id))
@@ -283,6 +285,10 @@ def import_osm_snapshot(
                 "name", "cuisine", "addr:full", "addr:street", "addr:housenumber", "addr:city"
             ) if key in candidate.raw_tags},
             "latitude": candidate.lat, "longitude": candidate.lon,
+            "source_version": version, "source_timestamp": timestamp,
+            "source_sha256": hashlib.sha256(json.dumps(
+                raw, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
+            ).encode("utf-8")).hexdigest(),
             "description_origin": "adapter-generated identifier of record type",
         })
         items.append(item)

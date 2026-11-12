@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.14.0 — Local-first web application
+
+- Package a responsive, accessible browser interface served from the same FastAPI process as HTTP v1. No Node build or external CDN is required for users.
+- Add restaurant/recipe browsing, server-side filters, lexical search, grounded recommendations, source/provenance links, evidence display, item details, exclusions, and pagination.
+- Preserve existing `DiscoveryService` ranking and API contracts. Client data access is same-origin and bounded; HTML escapes catalog content through DOM text nodes rather than injected markup.
+- Add an optional in-memory API key field, strict homepage Content Security Policy, browser and Python contract tests, Notebook 16, and a deployment guide.
+- Expose the same interface through `savoroute web serve` or `savoroute api serve`; neither command opens a public network listener by default.
+
+The UI uses saved catalog records, not verified menus, allergen safety, opening hours, pricing, or reservation availability. The existing frozen OSM relevance pilot remains unannotated. This is a local-first application milestone, not a production service launch.
+
+
 ## 0.13.0 — Local read-only MCP tools
 
 - Add six read-only MCP tools for catalog metadata, item browsing, item details, search, rank fusion, and grounded recommendations.

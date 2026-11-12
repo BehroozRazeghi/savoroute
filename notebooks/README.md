@@ -20,6 +20,7 @@ The notebooks follow the Savoroute implementation from data loading through retr
 | `13_real_data_study.ipynb` | Reproducible OSM study setup, integrity checks, and simulated review |
 | `14_http_api.ipynb` | Read-only FastAPI interface, request validation, and service parity |
 | `15_mcp_readonly_tools.ipynb` | Local read-only MCP tools and HTTP contract parity |
+| `16_web_app.ipynb` | Packaged browser interface, API parity, and provenance-backed results |
 
 ```bash
 python -m pip install -e ".[dev,notebooks]"

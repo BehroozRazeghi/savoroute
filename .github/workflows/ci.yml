@@ -16,6 +16,14 @@ jobs:
       - run: python -m pip install -e ".[api,mcp,dev,notebooks]"
       - run: python -m pytest
       - run: ruff check src tests scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Web interface contract tests
+        run: |
+          node --check src/savoroute/web/static/app.js
+          node --check src/savoroute/web/static/api.mjs
+          node --test tests/web/*.test.mjs
       - name: Notebook smoke tests
         run: |
           python - <<'PY'

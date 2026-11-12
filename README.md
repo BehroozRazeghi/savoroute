@@ -15,6 +15,17 @@ select file paths or trigger model downloads. See [HTTP API v1](docs/http-api.md
 
 Version `0.13.0` adds six read-only MCP tools over local stdio using the official MCP Python SDK v2. Their results and limits come from the existing versioned HTTP contracts, executed in-process without a web listener. This is intended for trusted local agent hosts, not a publicly deployed MCP service. See [MCP server](docs/mcp-server.md).
 
+**Version `0.14.0`** adds a responsive, local-first web app over the same HTTP v1 endpoints. Search the catalog, apply filters and preferences, browse saved restaurants/recipes, inspect sources and retrieval evidence, and view grounded recommendations. The browser never fabricates records or downloads models. [Web application guide](docs/web-app.md).
+
+```bash
+python -m pip install -e ".[api]"
+savoroute web serve --host 127.0.0.1 --port 8000
+# Visit http://127.0.0.1:8000/ for the web app or /docs for the API.
+# To use your imported OSM catalog:
+savoroute web serve --catalog data/generated/real-pilot/catalog.json --port 8001
+```
+
+
 ## Installation
 
 Python 3.11 or later is required. The default demo and labeled ingestion run without credentials, a GPU, or a database server.

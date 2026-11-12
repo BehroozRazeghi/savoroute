@@ -46,3 +46,13 @@ MCP/Streamable HTTP deployment is not part of this milestone. See
 
 Next: a deliberate user-facing web experience, deployment/security design,
 and independently reviewed real-world relevance measurements.
+
+
+## Milestone 4 — Local-first web app (v0.14.0)
+
+- Ship a browser application bundled in the Python wheel, sharing the existing HTTP v1 read-only API.
+- Include interactive query/filter controls, recommendation preferences, result evidence, provenance, catalog paging and item details, responsive layout and accessibility measures.
+- Preserve the already validated local stdio MCP boundary and versioned HTTP contracts.
+- Keep real-world annotation, deployed authentication, rate limits and live availability outside the scope of this release.
+
+Next: evaluate the OSM study with independent human labels, harden deployment only after product needs are clear, and expand the UI with validated data such as genuine photos or menus subject to rights and provenance.

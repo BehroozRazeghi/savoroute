@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "savoroute"
-version = "0.13.0"
-description = "Catalog-backed discovery, evaluation, HTTP and MCP recommendations"
+version = "0.14.0"
+description = "Catalog-backed discovery, grounded recommendations, HTTP, MCP and web UI"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -37,6 +37,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "savoroute.resources" = ["*.json"]
+"savoroute.web" = ["static/*.html", "static/*.css", "static/*.js", "static/*.mjs", "static/*.svg"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

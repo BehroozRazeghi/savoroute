@@ -1,12 +1,17 @@
 # Savoroute
 
-**Food discovery and recommendation · Python · Jupyter · CLI**
+**Food discovery and recommendation · Python · Jupyter · CLI · HTTP API**
 
-Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
+Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI and the optional versioned HTTP API use the same library. MCP tools and a web application are planned, not yet implemented.
 
-Version `0.10.0` added a strict, two-reviewer relevance-annotation workflow with separate review sheets and deterministic, source-grounded recommendations. Workbooks are catalog-fingerprint bound and cannot be exported with missing labels or unresolved disagreements. Recommendations combine the existing retrieval sources with explicit metadata filters and inspectable source evidence. The JSON/SQLite vector backends and optional FAISS HNSW backend are unchanged. No independently reviewed real-world relevance dataset, live restaurant verification, or HTTP/MCP service is included.
+Version `0.10.0` added a strict, two-reviewer relevance-annotation workflow with separate review sheets and deterministic, source-grounded recommendations. Workbooks are catalog-fingerprint bound and cannot be exported with missing labels or unresolved disagreements. Recommendations combine the existing retrieval sources with explicit metadata filters and inspectable source evidence. The JSON/SQLite vector backends and optional FAISS HNSW backend are unchanged. No independently reviewed real-world relevance dataset or live restaurant verification is included.
 
 Version `0.11.0` adds a frozen OpenStreetMap evaluation-study bundle with immutable source and query snapshots, blinded review materials, integrity verification, and evaluation against a completed adjudicated workbook. No human-annotated real-world benchmark is distributed with the repository. See [real-data evaluation](docs/real-data-evaluation.md).
+
+Version `0.12.0` adds an opt-in, read-only `/v1` HTTP API for catalog browsing,
+search, item-level ranking, and evidence-backed recommendations. The server loads
+an operator-chosen catalog and optional trusted index; request clients cannot
+select file paths or trigger model downloads. See [HTTP API v1](docs/http-api.md).
 
 ## Installation
 
@@ -61,6 +66,26 @@ savoroute search "pasta" --catalog data/sample/catalog.json --kind restaurant
 savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 ```
 
+## Optional HTTP API
+
+```bash
+python -m pip install -e ".[api]"
+savoroute api serve --host 127.0.0.1 --port 8000
+# Open http://127.0.0.1:8000/docs
+```
+
+To serve your previously collected OSM catalog, supply an explicit local path:
+
+```bash
+savoroute api serve --catalog data/generated/real-pilot/catalog.json
+```
+
+The default uses the bundled fictional catalog. For optional API-key authentication,
+set `SAVOROUTE_API_KEY` before launching. Non-loopback binding requires a key, but
+public deployment additionally requires TLS, request limits, rate limits and privacy
+controls. This is a local development server, not a production deployment.
+[HTTP contracts and examples](docs/http-api.md).
+
 ## Evaluation and recommendations
 
 Relevance workbooks are generated without labels and split into separate reviewer files. Completed reviews are merged, disagreements adjudicated, and all eligible query–item pairs finalized before development and test benchmarks can be exported. See [relevance workflow](docs/relevance-workflow.md).
@@ -84,8 +109,10 @@ Recommendations contain only catalog items and recorded metadata; the output inc
 | [10 — Item-level rank fusion](notebooks/10_item_level_fusion.ipynb) | Combine BM25 and per-item vector rankings through RRF; evaluate item-level results |
 | [11 — Persistent vectors and benchmarks](notebooks/11_dense_backend_and_benchmarks.ipynb) | Convert exact vectors to SQLite, check agreement, evaluate RRF, and measure local latency |
 | [12 — Relevance review and recommendations](notebooks/12_review_and_recommend.ipynb) | Prepare exhaustive review pairs, validate synthetic mock decisions, and inspect grounded recommendations |
+| [13 — Reproducible OSM studies](notebooks/13_real_data_study.ipynb) | Freeze and verify a study using a fictional OSM fixture |
+| [14 — Versioned HTTP API](notebooks/14_http_api.ipynb) | Exercise the API and OpenAPI contract in process, without network calls |
 
-All thirteen notebooks (00–12) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All fifteen notebooks (00–14) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
 
 ## Multimodal vectors
 

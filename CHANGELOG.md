@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.12.0 — Versioned read-only HTTP API
+
+- Expose `/v1` metadata, catalog browsing, item details, search, RRF ranking, and grounded recommendations through the existing `DiscoveryService`.
+- Add explicit bounded Pydantic request/response contracts, structured errors, generated OpenAPI, and optional API-key authentication.
+- Load and validate an operator-selected catalog and compatible JSON/SQLite/FAISS index at application construction; no client-specified file paths or downloads.
+- Add an opt-in local `savoroute api serve` command, notebook 14, contract/security regression tests, and an architecture decision record.
+
+The development server is not production-hardened. Vector requests need an explicitly configured index and compatible encoder or trusted client-provided embedding. Real-world relevance is not established by API tests.
+
 ## 0.11.0 — Reproducible real-data study workflow
 
 - Freeze a bounded OSM source snapshot, deterministically derived catalog, query set, and separate reviewer templates in a checksummed bundle.

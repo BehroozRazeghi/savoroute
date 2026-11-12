@@ -18,10 +18,11 @@ The notebooks follow the Savoroute implementation from data loading through retr
 | `11_dense_backend_and_benchmarks.ipynb` | SQLite/FAISS retrieval and synthetic latency benchmarks |
 | `12_review_and_recommend.ipynb` | Independent-review workflow and grounded recommendations |
 | `13_real_data_study.ipynb` | Reproducible OSM study setup, integrity checks, and simulated review |
+| `14_http_api.ipynb` | Read-only FastAPI interface, request validation, and service parity |
 
 ```bash
 python -m pip install -e ".[dev,notebooks]"
 jupyter lab
 ```
 
-The notebooks use fictional, local fixtures for CI and require no API keys or model downloads. Optional model-backed examples are described in their corresponding guides. **Notebook 13 demonstrates the mechanics with synthetic inputs; it does not contain independent human judgments or a real-world performance result.**
+The notebooks use fictional, local fixtures for CI and require no API keys or model downloads. Optional model-backed examples are described in their corresponding guides. **Notebooks 13–14 demonstrate infrastructure with synthetic inputs; they do not contain independent human judgments or a real-world performance result.**

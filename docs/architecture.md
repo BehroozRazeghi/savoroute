@@ -14,7 +14,7 @@ JSON demo fixtures ──> catalog loader ──> immutable Catalog, CatalogItem
 
 `src/savoroute/domain` defines the records. `data/catalog.py` parses the catalog and checks types, keys, IDs and media references. `retrieval/lexical.py` applies exact metadata filters and ranks eligible items. `evaluation/retrieval.py` runs catalog-bound relevance judgments. `services/discovery.py` exposes the search operation; the CLI also calls the catalog loader and evaluator directly. Provider protocols are defined; text-generation implementations are described below.
 
-The lexical demo uses bundled fictional JSON records. The local-media pipeline, exact JSON vector index, persistent SQLite vector store, and item-level RRF implementation are separate modules. The catalog remains JSON-backed; there is no HTTP server, MCP server, or application client.
+The lexical demo uses bundled fictional JSON records. The local-media pipeline, exact JSON vector index, persistent SQLite vector store, and item-level RRF implementation are separate modules. The catalog remains JSON-backed; a local, read-only HTTP adapter is implemented in v0.12.0, but there is no MCP server or application client.
 
 ## Data and retrieval
 
@@ -51,9 +51,9 @@ licensed sources / submitted data
        optional native client
 ```
 
-The diagram includes implemented ingestion, retrieval, and recommendation components, alongside planned application interfaces. The canonical catalog remains JSON-backed. Stage 2b introduced a bounded JSON-based exact cosine index; stage 3a added item-level fusion. Stage 3b adds immutable SQLite vector bundles and an optional FAISS HNSW approximate-search implementation, retaining the JSON index as a reference. Larger-scale lexical indexing and independent real-world evaluation remain future work. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-source fusion operates on canonical item IDs and rank positions rather than uncalibrated raw similarity scores.
+The diagram includes implemented ingestion, retrieval, recommendation, and HTTP components, alongside planned MCP and application interfaces. The canonical catalog remains JSON-backed. Stage 2b introduced a bounded JSON-based exact cosine index; stage 3a added item-level fusion. Stage 3b adds immutable SQLite vector bundles and an optional FAISS HNSW approximate-search implementation, retaining the JSON index as a reference. Larger-scale lexical indexing and independent real-world evaluation remain future work. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-source fusion operates on canonical item IDs and rank positions rather than uncalibrated raw similarity scores.
 
-The API and MCP interfaces will call shared application services. Model credentials and data access policy will remain server-side. A responsive web client is the first application target; a native mobile client is not yet scoped.
+The HTTP interface calls shared application services; the MCP interface is planned. Model credentials and data access policy will remain server-side. A responsive web client is the first application target; a native mobile client is not yet scoped.
 
 ## MCP compatibility
 
@@ -104,3 +104,14 @@ local JSON source batch
 `evaluation/annotations.py` constructs bounded exhaustive query–item workbooks against a frozen catalog fingerprint, prepares separate reviewer sheets and validates explicit merge/adjudication decisions, and exports development/test judgments plus an audit. The code does not infer relevance labels or verify the independence of human reviewers. See [relevance workflow](relevance-workflow.md).
 
 `services/recommendation.py` reranks the canonical items returned by `retrieval/fusion.py`, after deterministic hard filters, using a bounded multiplier for catalog-backed soft preferences. `DiscoveryService.recommend()` and the CLI invoke the same implementation. The returned explanation, source fields and retrieval ranks are deterministic; no external LLM call is used. Restaurant hours, prices, ingredient completeness, and allergen safety are not verified. See [grounded recommendations](grounded-recommendations.md).
+
+## Versioned HTTP interface (`0.12.0`)
+
+`api/app.py` exposes a `create_app()` factory using FastAPI and versioned Pydantic
+contracts. Catalog and optional trusted vector index are loaded at construction,
+not from request-controlled paths. All search, ranking and recommendation routes
+delegate to `DiscoveryService` without changing score or evidence semantics.
+`api/server.py` starts a loopback development listener by default; an optional API
+key is required on non-loopback binding. This does not replace TLS, rate limits,
+privacy policy or operational safeguards for public hosting. See [HTTP API v1](http-api.md)
+and [ADR 0008](adr/0008-http-adapter-with-shared-services.md).

@@ -2,6 +2,8 @@
 
 Savoroute uses a separate annotation workbook to collect binary query–item judgments. No component generates relevance labels automatically. The workbook contains both reviewer slots, an explicit final decision, the catalog fingerprint, and separate development and test query partitions. Export requires completed reviews for every eligible query–item pair.
 
+For a source-bound OpenStreetMap pilot, [freeze the source snapshot and query set](real-data-evaluation.md) before distributing reviewer sheets. The exported test split evaluates held-out queries on the same catalog, not unseen restaurants.
+
 ## Workflow
 
 1. Freeze a rights-cleared catalog snapshot and document its data sources, collection time, scope, missing fields, and source-license requirements. The catalog `synthetic` flag is descriptive metadata, not evidence of accuracy or annotation provenance.

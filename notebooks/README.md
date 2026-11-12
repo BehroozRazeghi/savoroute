@@ -1,29 +1,27 @@
 # Notebooks
 
-The notebooks provide a linear introduction to the installed package:
+The notebooks follow the Savoroute implementation from data loading through retrieval, evaluation, and recommendations. Every notebook calls the installed Python package rather than maintaining a second implementation.
 
-| File | Subject |
+| Notebook | Topic |
 | --- | --- |
-| `00_quickstart.ipynb` | Catalog objects and search output |
-| `01_catalog_and_provenance.ipynb` | Schema constraints and media foreign keys |
+| `00_quickstart.ipynb` | Catalog inspection and search |
+| `01_catalog_and_provenance.ipynb` | Schema validation and media references |
 | `02_lexical_retrieval.ipynb` | BM25, weighted overlap, and filters |
-| `03_retrieval_evaluation.ipynb` | Query judgments, metrics, and retrieval failures |
-| `04_structured_ingestion.ipynb` | Source records, quoted extraction evidence, catalog admission |
-| `05_osm_sources_and_evaluation.ipynb` | OSM-format import, duplicate review, and extraction metrics |
-| `06_source_identity_and_updates.ipynb` | Source registry, controlled updates, conflict review, and replay behavior |
-| `07_identity_benchmark_evaluation.ipynb` | Version-aware OSM updates, pairwise review metrics and annotation preparation |
-| `08_image_ingestion.ipynb` | Local image normalization, source hashes and optional joint CLIP interface |
-| `09_multimodal_vector_index.ipynb` | Persist normalized vectors, perform cross-modal search, evaluate labeled cases, optionally run CLIP |
-| `10_item_level_fusion.ipynb` | Combine BM25 and per-item text/image rankings, inspect evidence, and evaluate RRF |
+| `03_retrieval_evaluation.ipynb` | Query judgments and retrieval metrics |
+| `04_structured_ingestion.ipynb` | Text extraction with quoted evidence |
+| `05_osm_sources_and_evaluation.ipynb` | OSM import, duplicate review, and extraction metrics |
+| `06_source_identity_and_updates.ipynb` | Source registry and controlled updates |
+| `07_identity_benchmark_evaluation.ipynb` | Source versioning and entity-matching evaluation |
+| `08_image_ingestion.ipynb` | Image normalization and provenance |
+| `09_multimodal_vector_index.ipynb` | Joint embeddings and cross-modal retrieval |
+| `10_item_level_fusion.ipynb` | BM25 and text/image rank fusion |
+| `11_dense_backend_and_benchmarks.ipynb` | SQLite/FAISS retrieval and synthetic latency benchmarks |
+| `12_review_and_recommend.ipynb` | Independent-review workflow and grounded recommendations |
+| `13_real_data_study.ipynb` | Reproducible OSM study setup, integrity checks, and simulated review |
 
 ```bash
 python -m pip install -e ".[dev,notebooks]"
 jupyter lab
 ```
 
-The examples use bundled fictional data. Notebook execution requires no model download, remote service, or API key. Model-backed extraction is covered separately in the ingestion guide. Each notebook imports the production functions used by the library and CLI; algorithms are not maintained separately in notebook cells.
-
-
-- **11_dense_backend_and_benchmarks.ipynb**: persistent SQLite vectors, exact agreement, RRF integration, and deterministic latency measurement.
-
-- `12_review_and_recommend.ipynb` — exhaustive annotation worksheets, mock review/adjudication, and catalog-backed recommendations.
+The notebooks use fictional, local fixtures for CI and require no API keys or model downloads. Optional model-backed examples are described in their corresponding guides. **Notebook 13 demonstrates the mechanics with synthetic inputs; it does not contain independent human judgments or a real-world performance result.**

@@ -26,6 +26,12 @@ from savoroute.evaluation.fusion import evaluate_fusion
 from savoroute.evaluation.identity import evaluate_identity_candidates, load_identity_benchmark
 from savoroute.evaluation.multimodal import evaluate_multimodal, load_multimodal_benchmark
 from savoroute.evaluation.retrieval import BenchmarkError, evaluate_search, load_benchmark
+from savoroute.evaluation.study import (
+    evaluate_reviewed_study,
+    prepare_osm_study,
+    verify_osm_study,
+    write_study_report,
+)
 from savoroute.identity.annotations import prepare_osm_annotations
 from savoroute.identity.registry import (
     bootstrap_osm_registry,
@@ -287,6 +293,32 @@ def build_parser() -> argparse.ArgumentParser:
     judgment_merge.add_argument("--reviewer-b", required=True)
     judgment_merge.add_argument("--output", required=True)
 
+    study = commands.add_parser("study", help="freeze and evaluate OSM relevance studies")
+    study_commands = study.add_subparsers(dest="study_command", required=True)
+    study_prepare = study_commands.add_parser(
+        "prepare-osm", help="freeze source, catalog, queries, and blinded review sheets"
+    )
+    study_prepare.add_argument("--source", required=True, help="saved OSM snapshot JSON")
+    study_prepare.add_argument("--catalog", required=True, help="matching OSM-only catalog")
+    study_prepare.add_argument("--queries", required=True, help="researcher-written query set")
+    study_prepare.add_argument("--output-dir", required=True)
+    study_prepare.add_argument("--collected-at", required=True, help="source acquisition time (UTC)")
+    study_prepare.add_argument("--selection-protocol", required=True)
+    study_prepare.add_argument("--query-protocol", required=True)
+    study_prepare.add_argument("--max-pairs", type=int, default=20000)
+    study_prepare.add_argument(
+        "--synthetic-fixture", action="store_true", help="offline tutorial only"
+    )
+    study_verify = study_commands.add_parser("verify", help="verify all frozen study files")
+    study_verify.add_argument("--study-dir", required=True)
+    study_eval = study_commands.add_parser("evaluate", help="evaluate completed reviewed judgments")
+    study_eval.add_argument("--study-dir", required=True)
+    study_eval.add_argument("--workbook", required=True, help="merged and adjudicated workbook")
+    study_eval.add_argument("--split", choices=("development", "test"), default="development")
+    study_eval.add_argument("--allow-test", action="store_true")
+    study_eval.add_argument("--at-k", type=int, default=5)
+    study_eval.add_argument("--output", help="optional JSON report output, no overwrite")
+
     recommendation = commands.add_parser("recommend", help="catalog-grounded recommendations")
     recommendation.add_argument("query")
     recommendation.add_argument("--catalog", help="catalog JSON; required with --index")
@@ -428,6 +460,29 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if args.command == "rank":
             _run_rank(args)
+            return 0
+        if args.command == "study":
+            if args.study_command == "prepare-osm":
+                manifest = prepare_osm_study(
+                    source_path=args.source, catalog_path=args.catalog,
+                    queries_path=args.queries, output_dir=args.output_dir,
+                    collected_at=args.collected_at,
+                    selection_protocol=args.selection_protocol,
+                    query_protocol=args.query_protocol,
+                    max_pairs=args.max_pairs, allow_synthetic_fixture=args.synthetic_fixture,
+                )
+                print(f"Prepared {manifest['judgment_pairs']} unlabeled pairs: {args.output_dir}")
+            elif args.study_command == "verify":
+                manifest = verify_osm_study(args.study_dir)
+                print(f"Verified {manifest['items']} items and {manifest['queries']} queries")
+            else:
+                report = evaluate_reviewed_study(
+                    args.study_dir, args.workbook, split=args.split,
+                    at_k=args.at_k, allow_test=args.allow_test,
+                )
+                if args.output:
+                    write_study_report(report, args.output)
+                print(json.dumps(report, ensure_ascii=False, indent=2))
             return 0
         if args.command == "judgments":
             catalog = load_catalog(args.catalog)

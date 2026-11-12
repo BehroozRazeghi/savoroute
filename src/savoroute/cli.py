@@ -11,6 +11,7 @@ from pathlib import Path
 
 from savoroute.data.catalog import CatalogError, load_catalog
 from savoroute.evaluation.extraction import AnnotationError, evaluate_extraction, load_gold
+from savoroute.evaluation.fusion import evaluate_fusion
 from savoroute.evaluation.identity import evaluate_identity_candidates, load_identity_benchmark
 from savoroute.evaluation.multimodal import evaluate_multimodal, load_multimodal_benchmark
 from savoroute.evaluation.retrieval import BenchmarkError, evaluate_search, load_benchmark
@@ -34,6 +35,7 @@ from savoroute.media.ingestion import (
     prepare_image_batch,
     write_image_batch,
 )
+from savoroute.retrieval.fusion import FusionWeights, search_fused
 from savoroute.retrieval.lexical import SearchFilters
 from savoroute.retrieval.vector import (
     VectorIndexError,
@@ -179,6 +181,32 @@ def build_parser() -> argparse.ArgumentParser:
     vector_eval.add_argument("--benchmark", required=True)
     vector_eval.add_argument("--at-k", type=int, default=5)
 
+    rank = commands.add_parser("rank", help="item-level BM25 and vector rank fusion")
+    rank_commands = rank.add_subparsers(dest="rank_command", required=True)
+    rank_search = rank_commands.add_parser("search", help="rank canonical catalog items")
+    rank_eval = rank_commands.add_parser("evaluate", help="evaluate item-level fused rankings")
+    for sub in (rank_search, rank_eval):
+        sub.add_argument("--catalog", help="catalog JSON; required with --index")
+        sub.add_argument("--index", help="optional v0.7 vector index")
+        sub.add_argument("--model", default="sentence-transformers/clip-ViT-B-32")
+        sub.add_argument("--revision", help="model revision used to build the index")
+        sub.add_argument("--allow-download", action="store_true")
+        sub.add_argument("--pool-size", type=int, default=50)
+        sub.add_argument("--rrf-k", type=int, default=60)
+        sub.add_argument("--bm25-weight", type=float, default=1.0)
+        sub.add_argument("--text-weight", type=float, default=1.0)
+        sub.add_argument("--image-weight", type=float, default=1.0)
+        sub.add_argument("--json", action="store_true")
+    rank_search.add_argument("query")
+    rank_search.add_argument("--kind", choices=("restaurant", "recipe"))
+    rank_search.add_argument("--cuisine")
+    rank_search.add_argument("--location")
+    rank_search.add_argument("--diet", action="append", default=[])
+    rank_search.add_argument("--max-price-tier", type=int, choices=(1, 2, 3, 4))
+    rank_search.add_argument("--limit", type=int, default=5)
+    rank_eval.add_argument("--benchmark", default="data/sample/relevance_benchmark.json")
+    rank_eval.add_argument("--at-k", type=int, default=5)
+
     extraction_eval = commands.add_parser("evaluate-extraction", help="compare field extraction with gold annotations")
     extraction_eval.add_argument("--gold", required=True)
     extraction_eval.add_argument("--predictions", required=True, help="schema-v1 ingestion provenance JSON")
@@ -219,12 +247,70 @@ def _format_metric(value: float | None) -> str:
     return "N/A" if value is None else f"{value:.3f}"
 
 
+def _run_rank(args: argparse.Namespace) -> None:
+    if args.index and not args.catalog:
+        raise ValueError("--catalog is required with --index")
+    catalog = load_catalog(args.catalog)
+    weights = FusionWeights(args.bm25_weight, args.text_weight, args.image_weight)
+    index = load_vector_index(args.index) if args.index else None
+    directory = Path(args.catalog).resolve().parent if args.index else None
+    encoder = None
+    if index is not None:
+        validate_catalog(index, catalog, catalog_dir=directory)
+        needed = ((weights.text > 0 and any(r.modality == "text" for r in index.records))
+                  or (weights.image > 0 and any(r.modality == "image" for r in index.records)))
+        if needed:
+            from savoroute.providers.clip import ClipTextImageEmbedder
+
+            encoder = ClipTextImageEmbedder(
+                args.model, revision=args.revision, local_files_only=not args.allow_download,
+            )
+    if args.rank_command == "search":
+        filters = SearchFilters(
+            kind=args.kind, cuisine=args.cuisine, location=args.location,
+            max_price_tier=args.max_price_tier, dietary_tags=tuple(args.diet),
+        )
+        hits = search_fused(
+            catalog, args.query, index=index, encoder=encoder, catalog_dir=directory,
+            filters=filters, weights=weights, rrf_k=args.rrf_k,
+            pool_size=args.pool_size, limit=args.limit,
+        )
+        if args.json:
+            print(json.dumps([hit.as_dict() for hit in hits], indent=2))
+        elif not hits:
+            print("No matches.")
+        else:
+            for rank, hit in enumerate(hits, start=1):
+                sources = ", ".join(row.source for row in hit.evidence)
+                print(f"{rank}. {hit.item.title} [{hit.item.kind}] "
+                      f"id={hit.item.item_id} rrf={hit.score:.6f} sources={sources}")
+        return
+    cases = load_benchmark(args.benchmark)
+    summary = evaluate_fusion(
+        catalog, cases, index=index, encoder=encoder, catalog_dir=directory,
+        weights=weights, rrf_k=args.rrf_k, pool_size=args.pool_size, at_k=args.at_k,
+    )
+    if args.json:
+        print(json.dumps(summary.as_dict(), indent=2))
+    else:
+        print(f"RRF @ {summary.k}: Recall={_format_metric(summary.recall_at_k)} "
+              f"MRR={_format_metric(summary.mrr_at_k)} "
+              f"nDCG={_format_metric(summary.ndcg_at_k)} "
+              f"Correct-empty={_format_metric(summary.correct_empty_rate)} "
+              f"(positive={summary.positive_queries}, empty={summary.empty_queries})")
+        print("Metrics apply only to supplied judgments; vector scores have no "
+              "calibrated rejection threshold.")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
         if args.command == "ingest":
             _run_ingest(args)
+            return 0
+        if args.command == "rank":
+            _run_rank(args)
             return 0
         if args.command == "vectors":
             from savoroute.providers.clip import ClipTextImageEmbedder

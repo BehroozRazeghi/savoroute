@@ -40,8 +40,12 @@ python scripts/run_offline_baselines.py --output outputs/phase0-metrics.json
 
 The relevance labels were constructed for the small fictional catalog; they are not independent judgments. One relevant item per positive query makes Recall@k effectively a hit indicator in this fixture. Paraphrased queries expose lexical failures but do not establish a representative semantic-search benchmark. No-match tests measure whether the system returns an empty list, not whether a confidence threshold is calibrated.
 
-Real-world evaluation requires licensed data, independently labeled queries, explicit train/evaluation separation where applicable, filter-specific cases, multilingual coverage, and latency/resource measurements. The new multimodal benchmark evaluates image-record rankings; future item-level fusion benchmarks will evaluate canonical item IDs.
+Real-world evaluation requires licensed data, independently labeled queries, explicit train/evaluation separation where applicable, filter-specific cases, multilingual coverage, and latency/resource measurements. The new multimodal benchmark evaluates image-record rankings; item-level fusion evaluation uses the existing synthetic relevance judgments for canonical item IDs.
 
 ## Joint text/image vectors (`0.7.0`)
 
 Normalized vectors from one shared embedding space are scored by cosine similarity. `evaluation/multimodal.py` computes binary Recall@k, MRR@k and nDCG@k over explicitly labeled image-record IDs. Its synthetic four-case fixture includes two text-to-image queries and two image self-retrieval checks; the latter do not measure generalization, and the test-double results do not establish model quality. Actual CLIP inference is optional and has not been measured in CI. See [vector indexing](vector-index.md).
+
+## Item-level rank fusion (`0.8.0`)
+
+`evaluation/fusion.py` computes the same item-level metrics as the lexical benchmark over the fused result list. Source ranks, not BM25 and cosine scores, are combined; see [rank fusion](rank-fusion.md) for the weighting formula, item deduplication, and filter rules. The evaluation is restricted to the fictional catalog. Vector nearest-neighbor search always returns candidates in a nonempty pool, and no calibrated confidence threshold or reliable no-match detection is included.

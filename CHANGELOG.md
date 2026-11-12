@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0 — Item-level rank fusion
+
+- Fuse catalog-backed BM25, text-vector, and image-vector rankings using weighted reciprocal rank fusion.
+- Collapse multiple media hits to one item before candidate-pool truncation; retain per-source ranks and record IDs.
+- Apply existing metadata filters across every source, with deterministic ranking and no mixed score scales.
+- Add item-level evaluation using the existing relevance benchmark, CLI search/evaluation commands, and notebook 10.
+
+RRF scores are not calibrated probabilities. The fictional benchmark and deterministic test encoder do not establish real-world retrieval quality. The JSON vector index remains intended for small catalogs.
+
 ## 0.7.0 — Joint text/image retrieval
 
 - Add a versioned JSON vector index for catalog text and local image assets.

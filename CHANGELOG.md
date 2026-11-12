@@ -7,7 +7,7 @@
 - Validate model identity, vector dimensions, record references, and catalog fingerprints.
 - Add labeled text-to-image and image-to-image evaluation and notebook 09.
 - Keep CLIP inference optional and offline tests independent of model downloads.
-
+"accept both changees "?
 
 ## 0.6.0 — Local image ingestion
 

@@ -12,6 +12,8 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 2a · Local media | Bounded image ingestion, normalized storage, hashes, source/rights metadata, notebook 08; optional joint CLIP adapter | Implemented offline; real model inference unverified |
 | 2b · Multimodal embeddings | Versioned JSON vector index, exact cosine search, optional CLIP execution, labeled cross-modal evaluation, notebook 09 | Implemented; real-model inference and real-world evaluation unverified |
 | 3 · Retrieval | Scalable storage, multimodal item-level fusion, richer retrieval filters and benchmark evaluation | Planned |
+| 2b · Multimodal embeddings | Model execution, vector serialization, model/version compatibility, embedding benchmarks | Planned |
+| 3 · Retrieval | Vector indexing/search, deterministic filters, item-level fusion, evaluation | Planned |
 | 4 · Recommendations | Preference constraints, retrieved evidence, grounded recommendations | Planned |
 | 5 · Interfaces | Versioned HTTP API, MCP tools, responsive web application | Planned |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |

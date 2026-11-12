@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.15.0 — Reviewer-approved catalog references
+
+- Introduce catalog-digest-bound evidence proposals and explicit per-claim reviews.
+- Publish separate menu, image and cuisine references only after documented approval.
+- Expose approved references through a read-only item evidence endpoint and web detail view.
+- Keep canonical catalog, retrieval and recommendation scores unchanged.
+- Document evidence limitations and borrowed review-workflow lessons from Palate.
+- Correct the CI ES-module syntax check for `app.js`.
+
+
 ## 0.14.0 — Local-first web application
 
 - Package a responsive, accessible browser interface served from the same FastAPI process as HTTP v1. No Node build or external CDN is required for users.

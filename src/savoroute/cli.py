@@ -90,6 +90,7 @@ def build_parser() -> argparse.ArgumentParser:
     api_serve = api_commands.add_parser("serve", help="start the local HTTP server")
     api_serve.add_argument("--catalog", help="explicit catalog JSON; default: fictional demo")
     api_serve.add_argument("--index", help="optional matching JSON/SQLite/FAISS index")
+    api_serve.add_argument("--evidence", help="approved evidence bundle bound to the catalog")
     api_serve.add_argument("--host", default="127.0.0.1")
     api_serve.add_argument("--port", type=int, default=8000)
     api_serve.add_argument("--api-key-env", default="SAVOROUTE_API_KEY")
@@ -100,11 +101,22 @@ def build_parser() -> argparse.ArgumentParser:
     for name, flags in (
         ("catalog", {"help": "explicit catalog JSON; default: fictional demo"}),
         ("index", {"help": "optional matching vector index"}),
+        ("evidence", {"help": "approved evidence bundle bound to the catalog"}),
         ("host", {"default": "127.0.0.1"}),
         ("port", {"type": int, "default": 8000}),
         ("api-key-env", {"default": "SAVOROUTE_API_KEY"}),
     ):
         web_serve.add_argument(f"--{name}", **flags)
+
+    evidence = commands.add_parser("evidence", help="review and publish source-backed enrichment")
+    evidence_commands = evidence.add_subparsers(dest="evidence_command", required=True)
+    prepare_evidence = evidence_commands.add_parser("prepare", help="write blank review sheet")
+    publish_evidence = evidence_commands.add_parser("publish", help="publish approved references")
+    for action in (prepare_evidence, publish_evidence):
+        action.add_argument("--catalog", help="catalog JSON; default: fictional sample")
+        action.add_argument("--proposals", required=True, help="candidate evidence JSON")
+        action.add_argument("--output", required=True, help="new output file; never overwritten")
+    publish_evidence.add_argument("--review", required=True, help="completed review JSON")
 
     mcp = commands.add_parser("mcp", help="serve read-only MCP tools over local stdio")
     mcp_commands = mcp.add_subparsers(dest="mcp_command", required=True)
@@ -482,6 +494,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.command == "evidence":
+            from savoroute.evidence.review import prepare_review, publish_evidence
+
+            catalog = load_catalog(args.catalog)
+            if args.evidence_command == "prepare":
+                count = prepare_review(catalog, args.proposals, args.output)
+                print(f"Prepared {count} decisions: {args.output}")
+            else:
+                bundle = publish_evidence(catalog, args.proposals, args.review, args.output)
+                print(f"Published {len(bundle['claims'])} reviewed references: {args.output}")
+            return 0
         if args.command == "mcp":
             from savoroute.mcp.server import serve_stdio
 
@@ -490,7 +513,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command in {"api", "web"}:
             from savoroute.api.server import serve
 
-            serve(catalog=args.catalog, index=args.index, host=args.host,
+            serve(catalog=args.catalog, index=args.index, evidence=args.evidence, host=args.host,
                   port=args.port, api_key_env=args.api_key_env)
             return 0
         if args.command == "ingest":

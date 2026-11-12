@@ -210,3 +210,19 @@ The annotated identity fixture is synthetic; its error rates cannot be generaliz
 The committed sample records are fictional and contain no live listings, verified dietary information, restaurant availability, or real user data. The optional fetch command can retrieve real OSM records; it is not run by the tests. Original course materials and external assets are not redistributed. The MIT license covers this repository's original source and documentation, not third-party content.
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes and [CONTRIBUTING.md](CONTRIBUTING.md) for development checks and contribution scope.
+
+## Reviewed source references (v0.15.0)
+
+External menu links, image references, cuisine evidence and source notes require explicit
+manual approval before the web app can show them. The immutable-by-workflow evidence
+sidecar binds to one canonical catalog digest. It does not fetch remote content,
+verify copyright ownership, mutate retrieval fields, or represent dietary safety.
+See [reviewed evidence workflow](docs/reviewed-evidence.md) and
+[Notebook 17](notebooks/17_reviewed_catalog_evidence.ipynb).
+
+```bash
+savoroute evidence prepare --catalog catalog.json --proposals candidates.json --output review.json
+# Inspect each source and complete reviewer decisions.
+savoroute evidence publish --catalog catalog.json --proposals candidates.json --review review.json --output approved.json
+savoroute web serve --catalog catalog.json --evidence approved.json
+```

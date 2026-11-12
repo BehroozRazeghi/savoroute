@@ -56,3 +56,8 @@ and independently reviewed real-world relevance measurements.
 - Keep real-world annotation, deployed authentication, rate limits and live availability outside the scope of this release.
 
 Next: evaluate the OSM study with independent human labels, harden deployment only after product needs are clear, and expand the UI with validated data such as genuine photos or menus subject to rights and provenance.
+
+
+### v0.15.0 — evidence-first catalog references
+
+Approved menu links and image URLs carry source, observation date, attribution and manual review details in a separate catalog-bound sidecar. No camera-roll permissions or automatic photo downloads. Possible later increments: license-aware first-party media packaging, curated catalog coverage, and a separately consented local photo/visit suggestion queue inspired by Palate's human confirmation pattern.

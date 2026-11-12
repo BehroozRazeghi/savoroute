@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 
 from savoroute import __version__
 from savoroute.api.contracts import (
+    EvidenceItemOutput,
     ItemListOutput,
     ItemOutput,
     MetaOutput,
@@ -31,6 +32,7 @@ from savoroute.api.contracts import (
 )
 from savoroute.data.catalog import load_catalog
 from savoroute.domain.models import Catalog, CatalogItem
+from savoroute.evidence.review import load_evidence_bundle
 from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.retrieval.dense import DenseIndex, load_dense_index, validate_dense_catalog
 from savoroute.retrieval.fusion import FusionWeights
@@ -56,6 +58,7 @@ def create_app(
     *,
     catalog_path: str | Path | None = None,
     index_path: str | Path | None = None,
+    evidence_path: str | Path | None = None,
     encoder: JointTextImageEmbedder | None = None,
     api_key: str | None = None,
 ) -> FastAPI:
@@ -74,6 +77,8 @@ def create_app(
 
     catalog: Catalog = load_catalog(catalog_path)
     service = DiscoveryService(catalog)
+    evidence_bundle = (load_evidence_bundle(evidence_path, catalog)
+                       if evidence_path is not None else None)
     catalog_dir = Path(catalog_path).resolve().parent if catalog_path is not None else None
     index: VectorIndex | DenseIndex | None = None
     backend: Literal["none", "json", "sqlite", "faiss-hnsw"] = "none"
@@ -204,6 +209,20 @@ def create_app(
         if found is None:
             raise HTTPException(status_code=404, detail="Catalog item not found")
         return _item(found)
+
+    @router.get("/items/{item_id}/evidence", response_model=EvidenceItemOutput)
+    def item_evidence(item_id: str) -> dict[str, object]:
+        if catalog.get(item_id) is None:
+            raise HTTPException(status_code=404, detail="Catalog item not found")
+        # Public API does not expose the internal reviewer identifier or rationale.
+        claims = ([] if evidence_bundle is None else [
+            {**{field: value for field, value in entry.items() if field != "review"},
+             "reviewed_on": entry["review"]["reviewed_on"]}
+            for entry in evidence_bundle["claims"] if entry["item_id"] == item_id
+        ])
+        return {"item_id": item_id, "reviewed_claims": claims, "catalog_synthetic": catalog.synthetic,
+                "limitations": "Evidence is reviewer-approved metadata, not independently verified "
+                               "licensing, menu availability, dietary or food safety assurance."}
 
     @router.post("/search", response_model=SearchOutput)
     def search(request: SearchInput) -> dict[str, object]:

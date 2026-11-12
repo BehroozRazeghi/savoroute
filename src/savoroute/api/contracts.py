@@ -218,3 +218,22 @@ class MetaOutput(WireModel):
     catalog_media: int
     index_backend: Literal["none", "json", "sqlite", "faiss-hnsw"]
     server_encoder_enabled: bool
+
+
+class ReviewedClaimOutput(WireModel):
+    claim_id: str
+    item_id: str
+    kind: Literal["cuisine", "menu_url", "image_url", "descriptive_note"]
+    value: str
+    source_url: str
+    observed_on: str
+    license: str | None
+    attribution: str | None
+    reviewed_on: str
+
+
+class EvidenceItemOutput(WireModel):
+    item_id: str
+    catalog_synthetic: bool
+    reviewed_claims: list[ReviewedClaimOutput]
+    limitations: str

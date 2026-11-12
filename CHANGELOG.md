@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.0 — Relevance review and grounded recommendations
+
+- Add exhaustive versioned query–item review worksheets with separate reviewer sheets, explicit merge/adjudication, and catalog fingerprints.
+- Export separate development/test benchmark files only after every eligible item has a valid final judgment; retain an annotation audit with agreement statistics.
+- Add deterministic, catalog-grounded recommendations with hard metadata constraints, excluded items, soft preferences, retrieval ranks, and source attribution.
+- Provide CLI commands, notebook 12, and regression tests; preserve schema v1 and the existing vector backends.
+
+The repository does not contain independently reviewed real-world relevance labels. Mock notebook labels are synthetic and are not evidence of reviewer independence or real-world accuracy.
+
 ## 0.9.0 — Persistent vector retrieval
 
 - Add immutable SQLite vector bundles with stable record IDs, manifest hashes, and float32 storage.

@@ -55,3 +55,8 @@ Normalized vectors from one shared embedding space are scored by cosine similari
 The 42-query fictional challenge extends the original 16-query demonstration with literal, paraphrased, multi-answer, and no-match categories. `scripts/evaluate_challenge.py` reports each category independently using the existing item-level evaluation API. This is not independently annotated real food-search data. See [relevance annotation protocol](relevance-annotation.md).
 
 `evaluation/dense.py` measures local query time and set overlap with the exact JSON reference over seeded synthetic vectors. It does **not** estimate relevance, production throughput, or generalization. The SQLite backend is exact over stored float32 coordinates; the optional FAISS HNSW backend is approximate and has a recall/latency tradeoff. See [persistent retrieval guide](dense-index.md).
+
+
+## Reviewed relevance workbooks (`0.10.0`)
+
+The [relevance review workflow](relevance-workflow.md) generates a catalog-fingerprint-bound, exhaustive worksheet with separate reviewer sheets, controlled merging, and mandatory final decisions. Successful finalization exports separate development and test benchmarks using the existing binary item-level metric functions; incomplete, stale, or contradictory worksheets are rejected. `audit.json` records the workbook hash, number of disagreements, observed agreement, and Cohen's kappa (when defined). The bundled fictional query set does not provide independently annotated real-world evidence.

@@ -11,6 +11,15 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from savoroute.data.catalog import CatalogError, load_catalog
+from savoroute.domain.models import Catalog
+from savoroute.evaluation.annotations import (
+    finalize_relevance_workbook,
+    load_query_set,
+    load_relevance_workbook,
+    merge_reviewer_sheets,
+    prepare_relevance_workbook,
+    split_reviewer_sheets,
+)
 from savoroute.evaluation.dense import benchmark_dense
 from savoroute.evaluation.extraction import AnnotationError, evaluate_extraction, load_gold
 from savoroute.evaluation.fusion import evaluate_fusion
@@ -37,6 +46,7 @@ from savoroute.media.ingestion import (
     prepare_image_batch,
     write_image_batch,
 )
+from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.retrieval.dense import (
     DenseIndex,
     convert_vector_index,
@@ -48,6 +58,7 @@ from savoroute.retrieval.dense import (
 from savoroute.retrieval.fusion import FusionWeights, search_fused
 from savoroute.retrieval.lexical import SearchFilters
 from savoroute.retrieval.vector import (
+    VectorIndex,
     VectorIndexError,
     build_vector_index,
     load_vector_index,
@@ -58,7 +69,8 @@ from savoroute.retrieval.vector import (
 from savoroute.services.discovery import DiscoveryService
 from savoroute.services.ingestion import ingest_sources, write_ingestion
 from savoroute.services.osm_sync import sync_osm_snapshot, write_osm_sync
-from savoroute.services.storage import write_json_file
+from savoroute.services.recommendation import RecommendationPreferences, recommend_items
+from savoroute.services.storage import write_json_file, write_json_group
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -244,6 +256,61 @@ def build_parser() -> argparse.ArgumentParser:
     rank_eval.add_argument("--benchmark", default="data/sample/relevance_benchmark.json")
     rank_eval.add_argument("--at-k", type=int, default=5)
 
+    judgments = commands.add_parser("judgments", help="prepare and finalize reviewed relevance labels")
+    judgment_commands = judgments.add_subparsers(dest="judgment_command", required=True)
+    judgment_prepare = judgment_commands.add_parser(
+        "prepare", help="build an exhaustive unlabeled query-item worksheet"
+    )
+    judgment_prepare.add_argument("--catalog", required=True)
+    judgment_prepare.add_argument("--queries", required=True, help="version-1 query set JSON")
+    judgment_prepare.add_argument("--output", required=True)
+    judgment_prepare.add_argument("--max-pairs", type=int, default=20000)
+    judgment_finalize = judgment_commands.add_parser(
+        "finalize", help="validate two-reviewer judgments and export frozen benchmarks"
+    )
+    judgment_finalize.add_argument("--catalog", required=True)
+    judgment_finalize.add_argument("--workbook", required=True)
+    judgment_finalize.add_argument("--output-dir", required=True)
+
+    judgment_split = judgment_commands.add_parser(
+        "split", help="create two independent blank reviewer files"
+    )
+    judgment_split.add_argument("--catalog", required=True)
+    judgment_split.add_argument("--workbook", required=True)
+    judgment_split.add_argument("--output-dir", required=True)
+    judgment_merge = judgment_commands.add_parser(
+        "merge", help="combine reviewer sheets into an adjudication workbook"
+    )
+    judgment_merge.add_argument("--catalog", required=True)
+    judgment_merge.add_argument("--workbook", required=True)
+    judgment_merge.add_argument("--reviewer-a", required=True)
+    judgment_merge.add_argument("--reviewer-b", required=True)
+    judgment_merge.add_argument("--output", required=True)
+
+    recommendation = commands.add_parser("recommend", help="catalog-grounded recommendations")
+    recommendation.add_argument("query")
+    recommendation.add_argument("--catalog", help="catalog JSON; required with --index")
+    recommendation.add_argument("--index", help="optional JSON vector index or dense bundle")
+    recommendation.add_argument("--kind", choices=("restaurant", "recipe"))
+    recommendation.add_argument("--cuisine")
+    recommendation.add_argument("--location")
+    recommendation.add_argument("--diet", action="append", default=[])
+    recommendation.add_argument("--max-price-tier", type=int, choices=(1, 2, 3, 4))
+    recommendation.add_argument("--prefer-cuisine", action="append", default=[])
+    recommendation.add_argument("--prefer-diet", action="append", default=[])
+    recommendation.add_argument("--exclude-item", action="append", default=[])
+    recommendation.add_argument("--preference-strength", type=float, default=0.25)
+    recommendation.add_argument("--model", default="sentence-transformers/clip-ViT-B-32")
+    recommendation.add_argument("--revision")
+    recommendation.add_argument("--allow-download", action="store_true")
+    recommendation.add_argument("--pool-size", type=int, default=50)
+    recommendation.add_argument("--rrf-k", type=int, default=60)
+    recommendation.add_argument("--bm25-weight", type=float, default=1.0)
+    recommendation.add_argument("--text-weight", type=float, default=1.0)
+    recommendation.add_argument("--image-weight", type=float, default=1.0)
+    recommendation.add_argument("--limit", type=int, default=5)
+    recommendation.add_argument("--json", action="store_true")
+
     extraction_eval = commands.add_parser("evaluate-extraction", help="compare field extraction with gold annotations")
     extraction_eval.add_argument("--gold", required=True)
     extraction_eval.add_argument("--predictions", required=True, help="schema-v1 ingestion provenance JSON")
@@ -284,11 +351,11 @@ def _format_metric(value: float | None) -> str:
     return "N/A" if value is None else f"{value:.3f}"
 
 
-def _run_rank(args: argparse.Namespace) -> None:
+def _rank_context(
+    args: argparse.Namespace, catalog: Catalog, weights: FusionWeights,
+) -> tuple[VectorIndex | DenseIndex | None, JointTextImageEmbedder | None, Path | None]:
     if args.index and not args.catalog:
         raise ValueError("--catalog is required with --index")
-    catalog = load_catalog(args.catalog)
-    weights = FusionWeights(args.bm25_weight, args.text_weight, args.image_weight)
     index = (load_dense_index(args.index) if Path(args.index).is_dir()
              else load_vector_index(args.index)) if args.index else None
     directory = Path(args.catalog).resolve().parent if args.index else None
@@ -308,6 +375,13 @@ def _run_rank(args: argparse.Namespace) -> None:
             encoder = ClipTextImageEmbedder(
                 args.model, revision=args.revision, local_files_only=not args.allow_download,
             )
+    return index, encoder, directory
+
+
+def _run_rank(args: argparse.Namespace) -> None:
+    catalog = load_catalog(args.catalog)
+    weights = FusionWeights(args.bm25_weight, args.text_weight, args.image_weight)
+    index, encoder, directory = _rank_context(args, catalog, weights)
     if args.rank_command == "search":
         filters = SearchFilters(
             kind=args.kind, cuisine=args.cuisine, location=args.location,
@@ -354,6 +428,71 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if args.command == "rank":
             _run_rank(args)
+            return 0
+        if args.command == "judgments":
+            catalog = load_catalog(args.catalog)
+            if args.judgment_command == "prepare":
+                worksheet = prepare_relevance_workbook(
+                    catalog, load_query_set(args.queries), max_pairs=args.max_pairs,
+                )
+                write_json_file(worksheet, args.output)
+                print(f"Prepared {len(worksheet['judgments'])} unlabeled pairs: {args.output}")
+            elif args.judgment_command == "split":
+                reviewer_a, reviewer_b = split_reviewer_sheets(
+                    catalog, load_relevance_workbook(args.workbook),
+                )
+                root = Path(args.output_dir)
+                write_json_group(((root / "reviewer_a.json", reviewer_a),
+                                  (root / "reviewer_b.json", reviewer_b)))
+                print(f"Prepared independent review sheets: {root}")
+            elif args.judgment_command == "merge":
+                merged = merge_reviewer_sheets(
+                    catalog, load_relevance_workbook(args.workbook),
+                    load_relevance_workbook(args.reviewer_a),
+                    load_relevance_workbook(args.reviewer_b),
+                )
+                write_json_file(merged, args.output)
+                disagreements = sum(row["final_label"] is None for row in merged["judgments"])
+                print(f"Merged review sheets; adjudication required for {disagreements} pairs")
+            else:
+                dev, test, audit = finalize_relevance_workbook(
+                    catalog, load_relevance_workbook(args.workbook),
+                )
+                root = Path(args.output_dir)
+                write_json_group(((root / "development.json", dev),
+                                  (root / "test.json", test),
+                                  (root / "audit.json", audit)))
+                print(f"Exported complete judgments for {audit['query_count']} queries: {root}")
+            return 0
+        if args.command == "recommend":
+            if args.index and not args.catalog:
+                raise ValueError("--catalog is required with --index")
+            catalog = load_catalog(args.catalog)
+            weights = FusionWeights(args.bm25_weight, args.text_weight, args.image_weight)
+            index, encoder, directory = _rank_context(args, catalog, weights)
+            filters = SearchFilters(
+                kind=args.kind, cuisine=args.cuisine, location=args.location,
+                max_price_tier=args.max_price_tier, dietary_tags=tuple(args.diet),
+            )
+            prefs = RecommendationPreferences(
+                cuisines=tuple(args.prefer_cuisine), dietary_tags=tuple(args.prefer_diet),
+                excluded_item_ids=tuple(args.exclude_item),
+                preference_strength=args.preference_strength,
+            )
+            response = recommend_items(
+                catalog, args.query, filters=filters, preferences=prefs,
+                index=index, encoder=encoder, catalog_dir=directory, weights=weights,
+                rrf_k=args.rrf_k, pool_size=args.pool_size, limit=args.limit,
+            )
+            if args.json:
+                print(json.dumps(response.as_dict(), indent=2))
+            elif not response.results:
+                print(f"No recommendations ({response.status}).")
+            else:
+                for i, result in enumerate(response.results, start=1):
+                    print(f"{i}. {result.item.title} ({result.item.item_id}) "
+                          f"score={result.score:.6f} source={result.item.source}")
+                print(response.as_dict()["limitations"])
             return 0
         if args.command == "backend":
             if args.backend_command == "build":

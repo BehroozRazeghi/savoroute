@@ -4,7 +4,7 @@
 
 Savoroute is a food-discovery project developed as an installable Python library and a sequence of executable notebooks. The notebooks explain the algorithms and data flow; the CLI uses the same library. An HTTP API and user-facing application are planned after the retrieval and recommendation services are established.
 
-Version `0.9.0` adds immutable SQLite vector bundles and an optional FAISS HNSW search path. The v0.7 JSON exact index remains the reference. Both backends feed the v0.8 item-level RRF service through the same Python API. A deterministic synthetic latency harness and a 42-query fictional challenge benchmark support comparison without downloading models. The FAISS runtime and performance have not been verified in CI. An independently labeled real-world dataset and an HTTP/MCP service are not included.
+Version `0.10.0` adds a strict, two-reviewer relevance-annotation workflow with separate review sheets and deterministic, source-grounded recommendations. Workbooks are catalog-fingerprint bound and cannot be exported with missing labels or unresolved disagreements. Recommendations combine the existing retrieval sources with explicit metadata filters and inspectable source evidence. The JSON/SQLite vector backends and optional FAISS HNSW backend are unchanged. No independently reviewed real-world relevance dataset, live restaurant verification, or HTTP/MCP service is included.
 
 ## Installation
 
@@ -22,6 +22,12 @@ savoroute validate
 savoroute rank search "mushroom pasta" --kind recipe --json
 savoroute rank evaluate --json
 savoroute rank evaluate --benchmark data/sample/relevance_challenge_v1.json --json
+savoroute recommend "spicy tofu" --kind recipe --diet vegan --prefer-cuisine Japanese --json
+savoroute judgments prepare --catalog data/sample/catalog.json \
+  --queries data/sample/relevance_query_set_v1.json \
+  --output data/generated/relevance_workbook.json
+# Then `savoroute judgments split` for separate reviewer files, `merge` completed
+# reviews, adjudicate disagreements, and run `judgments finalize`. See docs.
 savoroute backend benchmark --engine sqlite --records 1000 --dimension 32 --queries 20
 savoroute evaluate --method both --at-k 5
 savoroute ingest --sources data/sample/ingestion_sources.json \
@@ -53,6 +59,12 @@ savoroute search "pasta" --catalog data/sample/catalog.json --kind restaurant
 savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 ```
 
+## Evaluation and recommendations
+
+Relevance workbooks are generated without labels and split into separate reviewer files. Completed reviews are merged, disagreements adjudicated, and all eligible query–item pairs finalized before development and test benchmarks can be exported. See [relevance workflow](docs/relevance-workflow.md).
+
+Recommendations contain only catalog items and recorded metadata; the output includes source references, retrieval ranks, and explicit limitations. No dietary safety, opening-hours, or availability claims are inferred. See [grounded recommendations](docs/grounded-recommendations.md).
+
 ## Notebooks
 
 | Notebook | Content |
@@ -69,8 +81,9 @@ savoroute evaluate --benchmark data/sample/relevance_benchmark.json --json
 | [09 — Multimodal vector index](notebooks/09_multimodal_vector_index.ipynb) | Build an exact cosine index, search text/image vectors, and evaluate labeled cross-modal queries |
 | [10 — Item-level rank fusion](notebooks/10_item_level_fusion.ipynb) | Combine BM25 and per-item vector rankings through RRF; evaluate item-level results |
 | [11 — Persistent vectors and benchmarks](notebooks/11_dense_backend_and_benchmarks.ipynb) | Convert exact vectors to SQLite, check agreement, evaluate RRF, and measure local latency |
+| [12 — Relevance review and recommendations](notebooks/12_review_and_recommend.ipynb) | Prepare exhaustive review pairs, validate synthetic mock decisions, and inspect grounded recommendations |
 
-All twelve notebooks (00–11) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
+All thirteen notebooks (00–12) run offline and import functions from `src/savoroute/`. They are examples of the library's behavior, not separate implementations. See [notebooks/README.md](notebooks/README.md).
 
 ## Multimodal vectors
 
@@ -134,11 +147,11 @@ The catalog uses stable `item_id` identifiers for recipes and restaurants. Media
 
 ## Development
 
-The [development roadmap](docs/roadmap.md) separates the implemented ingestion, media handling, lexical retrieval, and exact vector-index foundation from persistent local indexing, planned recommendation services, MCP and HTTP interfaces, and web application. Image ingestion is documented in [docs/media-ingestion.md](docs/media-ingestion.md). Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
+The [development roadmap](docs/roadmap.md) separates the implemented ingestion, media handling, lexical retrieval, and exact vector-index foundation from persistent indexing, implemented recommendation services, and planned MCP, HTTP, and web interfaces. Image ingestion is documented in [docs/media-ingestion.md](docs/media-ingestion.md). Text ingestion is documented in [docs/ingestion.md](docs/ingestion.md); the OSM adapter and extraction benchmark in [docs/osm-and-extraction-evaluation.md](docs/osm-and-extraction-evaluation.md). Native mobile development remains a separate product decision. Empty application directories are not included before there is application code.
 
 Source identities are stored separately from the version-1 catalog. `osm sync` updates OSM-owned records when the source binding and previous catalog state are unambiguous; proposed cross-source matches are review-only. The implementation does not delete entries absent from a bounded snapshot. See [source identity and updates](docs/entity-identity-and-updates.md) and [identity candidate evaluation](docs/identity-benchmark.md).
 
-Technical notes: [text ingestion](docs/ingestion.md) · [architecture](docs/architecture.md) · [catalog contract](docs/data-contract.md) · [provider interfaces](docs/provider-strategy.md) · [evaluation](docs/evaluation.md) · [design history](docs/comparison.md).
+Technical notes: [review and recommendation decision](docs/adr/0006-relevance-judgments-and-grounded-recommendations.md) · [text ingestion](docs/ingestion.md) · [architecture](docs/architecture.md) · [catalog contract](docs/data-contract.md) · [provider interfaces](docs/provider-strategy.md) · [evaluation](docs/evaluation.md) · [design history](docs/comparison.md).
 
 The annotated identity fixture is synthetic; its error rates cannot be generalized to real sources. The `identity prepare-osm` command generates an unlabeled worksheet from a saved Overpass snapshot for independent manual review.
 

@@ -26,3 +26,6 @@ The script reports each synthetic query group separately. Do not quote its metri
 6. **Evaluate per stratum:** report Recall@k, MRR@k, nDCG@k, no-result behavior, bootstrap uncertainty, and latency. Compare lexical, exact vector, and ANN modes with the same catalog and query set. Report ANN agreement against an exact ranking separately from retrieval relevance.
 
 `QueryJudgment` and `evaluate_fusion` accept externally labeled queries using the version-1 benchmark schema. The schema itself does not store evidence spans, annotator identities, or graded labels; those records need a separately versioned annotation artifact before publication. The provided fictional judgments are regression and teaching fixtures, not a substitute for this process.
+
+
+The new two-reviewer workbook/export workflow is documented in [relevance workflow](relevance-workflow.md). It is distinct from the older synthetic regression judgments and does not supply independent real labels.

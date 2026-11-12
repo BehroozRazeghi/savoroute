@@ -12,4 +12,4 @@ The original archive contains eight notebooks and four lab instruction files spa
 | Chat interface | Demonstration actions do not provide persisted application behavior | Shared services with tested read/write operations when introduced |
 | MCP | Educational examples predate the 2026 protocol update | Implementation against a selected supported MCP version |
 
-The original v0.1.0 offline foundation addressed schema validation, lexical retrieval, and evaluation. Subsequent milestones added extraction and OSM data processing; image processing, vector retrieval, agents, MCP, and user-facing applications are not yet implemented.
+The original v0.1.0 offline foundation addressed schema validation, lexical retrieval, and evaluation. Subsequent milestones added extraction, OSM data processing, local image validation and an optional joint text/image embedding adapter. Vector retrieval, agents, MCP, and user-facing applications are not yet implemented.

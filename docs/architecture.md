@@ -14,7 +14,7 @@ JSON demo fixtures ──> catalog loader ──> immutable Catalog, CatalogItem
 
 `src/savoroute/domain` defines the records. `data/catalog.py` parses the catalog and checks types, keys, IDs and media references. `retrieval/lexical.py` applies exact metadata filters and ranks eligible items. `evaluation/retrieval.py` runs catalog-bound relevance judgments. `services/discovery.py` exposes the search operation; the CLI also calls the catalog loader and evaluator directly. Provider protocols are defined; text-generation implementations are described below.
 
-The lexical demo uses bundled fictional JSON records. The local-media pipeline, exact vector index, and item-level RRF implementation are separate modules. No SQL database, HTTP server, MCP server, or application client is implemented.
+The lexical demo uses bundled fictional JSON records. The local-media pipeline, exact JSON vector index, persistent SQLite vector store, and item-level RRF implementation are separate modules. The catalog remains JSON-backed; there is no HTTP server, MCP server, or application client.
 
 ## Data and retrieval
 
@@ -51,7 +51,7 @@ licensed sources / submitted data
        optional native client
 ```
 
-The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. SQLite is a candidate for persistent canonical records. Stage 2b introduced a small JSON-based exact cosine index. Stage 3a adds canonical item-level fusion of BM25 and separate text/image vector rankings. A scalable approximate-search backend remains a later decision. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-source fusion operates on canonical item IDs and rank positions rather than uncalibrated raw similarity scores.
+The diagram includes implemented ingestion and catalog components as well as planned retrieval and application interfaces. The canonical catalog remains JSON-backed. Stage 2b introduced a bounded JSON-based exact cosine index; stage 3a added item-level fusion. Stage 3b adds immutable SQLite vector bundles and an optional FAISS HNSW approximate-search implementation, retaining the JSON index as a reference. Larger-scale lexical indexing and independent real-world evaluation remain future work. Any text-only and joint text/image embedding spaces will be indexed and scored separately. Cross-source fusion operates on canonical item IDs and rank positions rather than uncalibrated raw similarity scores.
 
 The API and MCP interfaces will call shared application services. Model credentials and data access policy will remain server-side. A responsive web client is the first application target; a native mobile client is not yet scoped.
 
@@ -93,4 +93,8 @@ local JSON source batch
 
 `retrieval/vector.py` builds and validates a versioned JSON index of text records (`text:<item_id>`) and local image records (`image:<media_id>`). It uses a single `JointTextImageEmbedder` with one declared embedding-space identity, unit-normalizes vectors, and records an input SHA-256 digest for each record. The CLI verifies both catalog consistency and indexed image hashes before searching. Queries are ranked by exact cosine similarity; filters and item-level deduplication are explicit.
 
-`evaluation/multimodal.py` evaluates labeled text-to-image and image-to-image queries. The provided synthetic benchmark contains image self-matches and is intended only for interface validation. Real model inference, independent judgments, larger-scale indexing and item-level multimodal fusion have not been verified or implemented. See [vector index](vector-index.md).
+`evaluation/multimodal.py` evaluates labeled text-to-image and image-to-image queries. The provided synthetic benchmark contains image self-matches and is intended only for interface validation. Real model inference and independent real-world judgments have not been verified. Item-level fusion and persistent vector indexing are implemented in later milestones. See [vector index](vector-index.md).
+
+## Persistent vector retrieval (`0.9.0`)
+
+`retrieval/dense.py` stores source IDs, metadata, and float32 embeddings in an immutable SQLite bundle. Optional FAISS HNSW uses ordinals mapped back through SQLite; the same `search_fused()` service accepts JSON or dense backends. Backend latency and exact-agreement experiments are implemented in `evaluation/dense.py`. The SQLite exact scan remains linear, and FAISS inference/latency require validation on a machine with the optional dependency installed. See [persistent vector retrieval](dense-index.md) and [relevance annotation](relevance-annotation.md).

@@ -9,6 +9,7 @@ from pathlib import Path
 from savoroute.data.catalog import load_catalog
 from savoroute.domain.models import Catalog
 from savoroute.providers.contracts import JointTextImageEmbedder
+from savoroute.retrieval.dense import DenseIndex
 from savoroute.retrieval.fusion import FusedHit, FusionWeights, search_fused
 from savoroute.retrieval.lexical import Method, SearchFilters, SearchHit, search_catalog
 from savoroute.retrieval.vector import VectorIndex
@@ -34,7 +35,7 @@ class DiscoveryService:
 
     def rank(
         self, query: str, *,
-        index: VectorIndex | None = None,
+        index: VectorIndex | DenseIndex | None = None,
         encoder: JointTextImageEmbedder | None = None,
         query_vector: Sequence[float] | None = None,
         catalog_dir: Path | None = None,

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "savoroute"
-version = "0.8.0"
+version = "0.9.0"
 description = "Food catalog ingestion, multimodal vector search, and retrieval evaluation"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,6 +24,7 @@ dev = ["pytest>=8,<10", "ruff>=0.8,<1", "Pillow>=10,<13"]
 openai = ["openai>=2,<4"]
 images = ["Pillow>=10,<13"]
 multimodal = ["Pillow>=10,<13", "sentence-transformers>=3,<7"]
+ann = ["numpy>=1.26,<3", "faiss-cpu>=1.9,<2"]
 notebooks = ["jupyterlab>=4,<5", "ipykernel>=6,<8", "nbclient>=0.10,<1", "nbformat>=5,<6", "Pillow>=10,<13"]
 
 [project.scripts]

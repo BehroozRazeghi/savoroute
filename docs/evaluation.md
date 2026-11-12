@@ -49,3 +49,9 @@ Normalized vectors from one shared embedding space are scored by cosine similari
 ## Item-level rank fusion (`0.8.0`)
 
 `evaluation/fusion.py` computes the same item-level metrics as the lexical benchmark over the fused result list. Source ranks, not BM25 and cosine scores, are combined; see [rank fusion](rank-fusion.md) for the weighting formula, item deduplication, and filter rules. The evaluation is restricted to the fictional catalog. Vector nearest-neighbor search always returns candidates in a nonempty pool, and no calibrated confidence threshold or reliable no-match detection is included.
+
+## Synthetic challenge and backend benchmarking (`0.9.0`)
+
+The 42-query fictional challenge extends the original 16-query demonstration with literal, paraphrased, multi-answer, and no-match categories. `scripts/evaluate_challenge.py` reports each category independently using the existing item-level evaluation API. This is not independently annotated real food-search data. See [relevance annotation protocol](relevance-annotation.md).
+
+`evaluation/dense.py` measures local query time and set overlap with the exact JSON reference over seeded synthetic vectors. It does **not** estimate relevance, production throughput, or generalization. The SQLite backend is exact over stored float32 coordinates; the optional FAISS HNSW backend is approximate and has a recall/latency tradeoff. See [persistent retrieval guide](dense-index.md).

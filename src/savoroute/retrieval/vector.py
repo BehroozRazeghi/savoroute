@@ -111,6 +111,11 @@ def _unit(values: Sequence[float], *, dimension: int | None = None) -> tuple[flo
     return tuple(float(v / norm) for v in values)
 
 
+def normalized_vector(values: Sequence[float], *, dimension: int | None = None) -> tuple[float, ...]:
+    """Validate and L2-normalize a vector for shared-space cosine retrieval."""
+    return _unit(values, dimension=dimension)
+
+
 def _validate_encoder(encoder: JointTextImageEmbedder) -> None:
     if (not isinstance(encoder.model_id, str) or not encoder.model_id.strip()
             or not isinstance(encoder.embedding_space_id, str)

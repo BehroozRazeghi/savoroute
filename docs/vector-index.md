@@ -45,3 +45,7 @@ To measure real-world performance, use a documented independently annotated data
 The IBM labs separate textual and visual embeddings and store text/image records in persistent vector indexes. That separation is retained. Savoroute instead uses an explicit item/media foreign key, a shared embedding-space contract for cross-modal queries, a validated portable index, and stable parent item identities. The lab's direct calls to Chroma private collections and arbitrary score normalization are not reused. A separate text encoder such as MiniLM must **not** be compared numerically with CLIP image vectors; models must share a defined space or be fused at the ranking level.
 
 See also [IBM course review](ibm-course-review.md) for module-specific design choices.
+
+## Larger persistent backends
+
+The JSON index continues as the portable exact reference. From v0.9.0, `retrieval/dense.py` can convert it into immutable SQLite storage or an optional FAISS HNSW bundle. The change preserves model identity, item/media IDs and the catalog fingerprint. See [persistent vector retrieval](dense-index.md).

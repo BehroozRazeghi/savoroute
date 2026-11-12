@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
 import sys
 from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
 
 from savoroute.data.catalog import CatalogError, load_catalog
+from savoroute.evaluation.dense import benchmark_dense
 from savoroute.evaluation.extraction import AnnotationError, evaluate_extraction, load_gold
 from savoroute.evaluation.fusion import evaluate_fusion
 from savoroute.evaluation.identity import evaluate_identity_candidates, load_identity_benchmark
@@ -34,6 +36,14 @@ from savoroute.media.ingestion import (
     MediaIngestionError,
     prepare_image_batch,
     write_image_batch,
+)
+from savoroute.retrieval.dense import (
+    DenseIndex,
+    convert_vector_index,
+    dense_modalities,
+    load_dense_index,
+    search_dense,
+    validate_dense_catalog,
 )
 from savoroute.retrieval.fusion import FusionWeights, search_fused
 from savoroute.retrieval.lexical import SearchFilters
@@ -181,13 +191,40 @@ def build_parser() -> argparse.ArgumentParser:
     vector_eval.add_argument("--benchmark", required=True)
     vector_eval.add_argument("--at-k", type=int, default=5)
 
+    backend = commands.add_parser("backend", help="persistent vectors and latency benchmarks")
+    backend_commands = backend.add_subparsers(dest="backend_command", required=True)
+    backend_build = backend_commands.add_parser("build", help="convert a JSON index to a bundle")
+    backend_build.add_argument("--index", required=True, help="v0.7/0.8 JSON vector index")
+    backend_build.add_argument("--output-dir", required=True, help="new output directory")
+    backend_build.add_argument("--engine", choices=("sqlite", "faiss-hnsw"), default="sqlite")
+    backend_build.add_argument("--hnsw-m", type=int, default=24)
+    backend_build.add_argument("--ef-construction", type=int, default=120)
+    backend_build.add_argument("--ef-search", type=int, default=96)
+    backend_search = backend_commands.add_parser("search", help="query a persistent vector bundle")
+    backend_search.add_argument("--bundle", required=True)
+    backend_search.add_argument("--vector", required=True, help="JSON array of query coordinates")
+    backend_search.add_argument("--catalog", help="optional catalog validation and kind filter")
+    backend_search.add_argument("--target", choices=("text", "image", "all"), default="all")
+    backend_search.add_argument("--kind", choices=("restaurant", "recipe"))
+    backend_search.add_argument("--limit", type=int, default=5)
+    backend_search.add_argument("--unique-items", action="store_true")
+    backend_benchmark = backend_commands.add_parser(
+        "benchmark", help="synthetic recall and machine-specific latency"
+    )
+    backend_benchmark.add_argument("--engine", choices=("sqlite", "faiss-hnsw"), default="sqlite")
+    backend_benchmark.add_argument("--records", type=int, default=1000)
+    backend_benchmark.add_argument("--dimension", type=int, default=32)
+    backend_benchmark.add_argument("--queries", type=int, default=20)
+    backend_benchmark.add_argument("--at-k", type=int, default=10)
+    backend_benchmark.add_argument("--seed", type=int, default=7)
+
     rank = commands.add_parser("rank", help="item-level BM25 and vector rank fusion")
     rank_commands = rank.add_subparsers(dest="rank_command", required=True)
     rank_search = rank_commands.add_parser("search", help="rank canonical catalog items")
     rank_eval = rank_commands.add_parser("evaluate", help="evaluate item-level fused rankings")
     for sub in (rank_search, rank_eval):
         sub.add_argument("--catalog", help="catalog JSON; required with --index")
-        sub.add_argument("--index", help="optional v0.7 vector index")
+        sub.add_argument("--index", help="optional JSON vector index or dense bundle directory")
         sub.add_argument("--model", default="sentence-transformers/clip-ViT-B-32")
         sub.add_argument("--revision", help="model revision used to build the index")
         sub.add_argument("--allow-download", action="store_true")
@@ -252,13 +289,19 @@ def _run_rank(args: argparse.Namespace) -> None:
         raise ValueError("--catalog is required with --index")
     catalog = load_catalog(args.catalog)
     weights = FusionWeights(args.bm25_weight, args.text_weight, args.image_weight)
-    index = load_vector_index(args.index) if args.index else None
+    index = (load_dense_index(args.index) if Path(args.index).is_dir()
+             else load_vector_index(args.index)) if args.index else None
     directory = Path(args.catalog).resolve().parent if args.index else None
     encoder = None
     if index is not None:
-        validate_catalog(index, catalog, catalog_dir=directory)
-        needed = ((weights.text > 0 and any(r.modality == "text" for r in index.records))
-                  or (weights.image > 0 and any(r.modality == "image" for r in index.records)))
+        if isinstance(index, DenseIndex):
+            validate_dense_catalog(index, catalog, catalog_dir=directory)
+            available = dense_modalities(index)
+        else:
+            validate_catalog(index, catalog, catalog_dir=directory)
+            available = {r.modality for r in index.records}
+        needed = ((weights.text > 0 and "text" in available)
+                  or (weights.image > 0 and "image" in available))
         if needed:
             from savoroute.providers.clip import ClipTextImageEmbedder
 
@@ -311,6 +354,37 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if args.command == "rank":
             _run_rank(args)
+            return 0
+        if args.command == "backend":
+            if args.backend_command == "build":
+                bundle = convert_vector_index(
+                    load_vector_index(args.index), args.output_dir,
+                    engine=args.engine, hnsw_m=args.hnsw_m,
+                    ef_construction=args.ef_construction, ef_search=args.ef_search,
+                )
+                print(f"Indexed {bundle.count} records ({bundle.dimension} dimensions) "
+                      f"with {bundle.engine}: {bundle.root}")
+                return 0
+            if args.backend_command == "benchmark":
+                result = benchmark_dense(
+                    backend=args.engine, records=args.records,
+                    dimension=args.dimension, queries=args.queries,
+                    k=args.at_k, seed=args.seed,
+                )
+                print(json.dumps(result.as_dict(), indent=2))
+                return 0
+            bundle = load_dense_index(args.bundle)
+            catalog = load_catalog(args.catalog) if args.catalog else None
+            if catalog is not None:
+                validate_dense_catalog(
+                    bundle, catalog, catalog_dir=Path(args.catalog).resolve().parent
+                )
+            vector = json.loads(args.vector)
+            hits = search_dense(
+                bundle, vector, target=args.target, k=args.limit, catalog=catalog,
+                kind=args.kind, unique_items=args.unique_items,
+            )
+            print(json.dumps([hit.as_dict() for hit in hits], indent=2))
             return 0
         if args.command == "vectors":
             from savoroute.providers.clip import ClipTextImageEmbedder
@@ -497,6 +571,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     except (CatalogError, BenchmarkError, IngestionError, MediaIngestionError,
             AnnotationError, VectorIndexError, ValueError, OSError,
-            RuntimeError, json.JSONDecodeError) as exc:
+            RuntimeError, sqlite3.Error, json.JSONDecodeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2

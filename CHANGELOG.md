@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.0 — Persistent vector retrieval
+
+- Add immutable SQLite vector bundles with stable record IDs, manifest hashes, and float32 storage.
+- Add optional FAISS HNSW indexing and approximate search with metadata mapping and filtered candidate overfetch.
+- Reuse SQLite/FAISS sources in item-level RRF and add CLI build, search, and synthetic latency benchmarks.
+- Add notebook 11, a 42-query fictional relevance challenge, and independent annotation guidance.
+
+The FAISS runtime is not exercised by default CI, and the synthetic benchmarks do not establish real-world relevance or production latency.
+
 ## 0.8.0 — Item-level rank fusion
 
 - Fuse catalog-backed BM25, text-vector, and image-vector rankings using weighted reciprocal rank fusion.

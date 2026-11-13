@@ -18,12 +18,19 @@ from typing import Any
 
 from savoroute.domain.models import Catalog
 from savoroute.evidence.review import catalog_digest
-from savoroute.ingestion.osm import parse_osm_candidate, parse_osm_elements
+from savoroute.geography.nearby import (
+    GeographyError,
+)
+from savoroute.geography.nearby import (
+    distance_m as _distance,
+)
+from savoroute.geography.nearby import (
+    restaurant_positions as _restaurant_positions,
+)
 
 MAX_PHOTOS = 1_000
 MAX_INPUT_BYTES = 512_000
 MAX_CLUSTERS = 1_000
-EARTH_RADIUS_M = 6_371_008.8
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 _TS = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$")
 
@@ -119,14 +126,6 @@ def _photos(payload: Any) -> tuple[Photo, ...]:
     return tuple(sorted(photos, key=lambda p: (p.taken_at, p.photo_id)))
 
 
-def _distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Haversine distance; wrapped longitude handles ±180° discontinuity."""
-    a, b = math.radians(lat1), math.radians(lat2)
-    delta = math.radians((lon2 - lon1 + 180) % 360 - 180)
-    h = math.sin((b - a) / 2) ** 2 + math.cos(a) * math.cos(b) * math.sin(delta / 2) ** 2
-    return 2 * EARTH_RADIUS_M * math.atan2(math.sqrt(max(h, 0)), math.sqrt(max(1 - h, 0)))
-
-
 def _center(cluster: list[Photo]) -> tuple[float, float]:
     """Circular longitude centroid; fall back to anchor for degenerate antipodes."""
     lat = sum(photo.lat for photo in cluster) / len(cluster)
@@ -164,36 +163,6 @@ def _clusters(
     return groups
 
 
-def _restaurant_positions(catalog: Catalog, osm: Any) -> list[dict[str, Any]]:
-    """Use only OSM geometry whose stable source identity exists in this catalog."""
-    if not isinstance(osm, dict):
-        raise VisitError("OSM input must be an Overpass JSON object")
-    rows = parse_osm_elements(osm)
-    synthetic = osm.get("savoroute_fixture") is True
-    if synthetic != catalog.synthetic:
-        raise VisitError("OSM fixture status differs from the catalog")
-    locations = []
-    seen: set[str] = set()
-    for row in rows:
-        candidate, ref, _ = parse_osm_candidate(row)
-        if candidate is None or candidate.lat is None or candidate.lon is None:
-            continue
-        item = catalog.get(candidate.item.item_id)
-        if item is None:
-            continue  # e.g. OSM record held for duplicate review, never admitted
-        if item.kind != "restaurant" or item.title != candidate.item.title:
-            raise VisitError("OSM source identity does not match the active catalog")
-        if not synthetic and item.source_url != f"https://www.openstreetmap.org/{ref}":
-            raise VisitError("OSM source URL differs from the active catalog binding")
-        if item.item_id in seen:
-            raise VisitError("duplicate OSM restaurant identity")
-        seen.add(item.item_id)
-        locations.append({"item_id": item.item_id, "title": item.title,
-                          "source_ref": ref, "latitude": candidate.lat,
-                          "longitude": candidate.lon})
-    return sorted(locations, key=lambda r: r["item_id"])
-
-
 def suggest_visits(
     catalog: Catalog,
     osm: Any,
@@ -214,7 +183,10 @@ def suggest_visits(
     if gap > span:
         raise VisitError("gap_minutes cannot exceed span_minutes")
     photos = _photos(metadata)
-    restaurants = _restaurant_positions(catalog, osm)
+    try:
+        restaurants = _restaurant_positions(catalog, osm)
+    except GeographyError as exc:
+        raise VisitError(str(exc)) from exc
     groups = _clusters(photos, gap=gap, span=span, radius=radius)
     if len(groups) > MAX_CLUSTERS:
         raise VisitError("too many visit clusters")

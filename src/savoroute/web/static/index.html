@@ -21,6 +21,7 @@
       <nav aria-label="Main navigation" class="main-nav">
         <a href="#discover">Discover</a>
         <a href="#catalog">Catalog</a>
+        <a href="#nearby">Nearby</a>
         <a href="/visits-review">Review visits</a>
         <a href="/docs" target="_blank" rel="noopener noreferrer">API docs <span aria-hidden="true">↗</span></a>
       </nav>
@@ -104,6 +105,20 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section class="shell nearby-section" id="nearby" aria-labelledby="nearby-heading">
+      <div class="section-heading"><div><p class="eyebrow">NEARBY DISCOVERY</p><h2 id="nearby-heading">Explore your surroundings.</h2></div>
+        <p>Search saved restaurant geometry by distance. Straight-line distances are estimates, not routes or entrance locations.</p></div>
+      <p class="status-line" id="nearby-availability" role="status">Checking whether OSM geometry is configured…</p>
+      <form id="nearby-form" class="nearby-form" hidden>
+        <div><label for="nearby-lat">Latitude</label><input id="nearby-lat" type="number" step="any" min="-90" max="90" placeholder="42.35" required></div>
+        <div><label for="nearby-lon">Longitude</label><input id="nearby-lon" type="number" step="any" min="-180" max="180" placeholder="-71.07" required></div>
+        <div><label for="nearby-radius">Radius</label><select id="nearby-radius"><option value="500">500 m</option><option value="2000" selected>2 km</option><option value="5000">5 km</option><option value="10000">10 km</option></select></div>
+        <button class="primary-button" type="submit" id="nearby-submit">Find nearby restaurants</button>
+      </form>
+      <p class="hint">Coordinates are provided only when you submit the form. No automatic device location access. The server uses the operator-supplied OSM snapshot.</p>
+      <div id="nearby-results" class="catalog-grid" aria-busy="false"></div>
     </section>
 
     <section class="catalog-band" id="catalog" aria-labelledby="catalog-title">

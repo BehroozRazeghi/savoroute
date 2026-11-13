@@ -32,3 +32,5 @@ The notebooks use fictional, local fixtures for CI and require no API keys or mo
 - `17_reviewed_catalog_evidence.ipynb` — explicit proposal/review/publish workflow and HTTP parity (fictional assertions only).
 
 - `18_opt_in_visit_discovery.ipynb` — offline selected metadata → OSM identity matching → review simulation → private confirmed history (fictional records only).
+
+- `19_geography_and_reviewed_media.ipynb` — fictional OSM nearby discovery, local image publication bound to manually reviewed evidence, HTTP menu-status contracts.

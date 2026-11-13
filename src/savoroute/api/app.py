@@ -6,6 +6,8 @@ loaded once when creating the application, never from a client-supplied path.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import asdict
 from pathlib import Path
 from secrets import compare_digest
@@ -13,7 +15,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, Security
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.security import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
 
@@ -23,16 +25,20 @@ from savoroute.api.contracts import (
     ItemListOutput,
     ItemOutput,
     MetaOutput,
+    NearbyOutput,
     RankInput,
     RankOutput,
     RecommendationOutput,
     RecommendInput,
+    ReviewedMediaListOutput,
     SearchInput,
     SearchOutput,
 )
 from savoroute.data.catalog import load_catalog
 from savoroute.domain.models import Catalog, CatalogItem
 from savoroute.evidence.review import load_evidence_bundle
+from savoroute.geography.nearby import NearbyIndex
+from savoroute.media.reviewed import load_reviewed_media
 from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.retrieval.dense import DenseIndex, load_dense_index, validate_dense_catalog
 from savoroute.retrieval.fusion import FusionWeights
@@ -59,6 +65,8 @@ def create_app(
     catalog_path: str | Path | None = None,
     index_path: str | Path | None = None,
     evidence_path: str | Path | None = None,
+    osm_path: str | Path | None = None,
+    reviewed_media_path: str | Path | None = None,
     encoder: JointTextImageEmbedder | None = None,
     api_key: str | None = None,
 ) -> FastAPI:
@@ -79,6 +87,21 @@ def create_app(
     service = DiscoveryService(catalog)
     evidence_bundle = (load_evidence_bundle(evidence_path, catalog)
                        if evidence_path is not None else None)
+    if reviewed_media_path is not None and evidence_bundle is None:
+        raise ValueError("reviewed media requires an approved evidence bundle")
+    media_bundle = (load_reviewed_media(reviewed_media_path, catalog, evidence_bundle)
+                    if reviewed_media_path is not None else None)
+    media_root = Path(reviewed_media_path).resolve() if reviewed_media_path is not None else None
+    spatial = None
+    if osm_path is not None:
+        source = Path(osm_path)
+        if not source.is_file() or source.stat().st_size > 2_000_000:
+            raise ValueError("OSM geometry snapshot must be a local JSON file under 2 MB")
+        try:
+            snapshot = json.loads(source.read_text(encoding="utf-8"))
+        except (UnicodeError, json.JSONDecodeError) as exc:
+            raise ValueError("invalid UTF-8 OSM snapshot") from exc
+        spatial = NearbyIndex.from_snapshot(catalog, snapshot)
     catalog_dir = Path(catalog_path).resolve().parent if catalog_path is not None else None
     index: VectorIndex | DenseIndex | None = None
     backend: Literal["none", "json", "sqlite", "faiss-hnsw"] = "none"
@@ -173,6 +196,9 @@ def create_app(
             "catalog_media": len(catalog.media),
             "index_backend": backend,
             "server_encoder_enabled": encoder is not None,
+            "geography_enabled": spatial is not None,
+            "geography_restaurants": len(spatial.positions) if spatial else 0,
+            "reviewed_media_enabled": media_bundle is not None,
         }
 
     @router.get("/items", response_model=ItemListOutput)
@@ -201,6 +227,36 @@ def create_app(
             "items": [_item(item) for item in selected[offset:offset + limit]],
         }
 
+    @router.get("/nearby", response_model=NearbyOutput)
+    def nearby(
+        latitude: Annotated[float, Query(ge=-90, le=90)],
+        longitude: Annotated[float, Query(ge=-180, le=180)],
+        radius_m: Annotated[int, Query(ge=25, le=20000)] = 2000,
+        limit: Annotated[int, Query(ge=1, le=50)] = 20,
+        cuisine: Annotated[str | None, Query(min_length=1, max_length=120)] = None,
+    ) -> dict[str, object]:
+        if spatial is None:
+            raise HTTPException(status_code=409, detail="OSM geometry is not configured")
+        from savoroute.geography.nearby import GeographyError
+
+        try:
+            matches = spatial.search(latitude, longitude, radius_m=radius_m,
+                                     limit=limit, cuisine=cuisine)
+        except GeographyError as exc:
+            _bad_request(exc)
+        return {
+            "catalog_synthetic": catalog.synthetic,
+            "source_sha256": spatial.source_sha256,
+            "geometry_restaurants": len(spatial.positions),
+            "radius_m": radius_m,
+            "results": [{"item": _item(row["item"]), "distance_m": row["distance_m"],
+                         "geometry_basis": row["geometry_basis"],
+                         "source_ref": row["source_ref"]} for row in matches],
+            "limitations": "OSM nodes or bounding-box centers are approximate reference geometry; "
+                           "distance is straight-line, not walking distance or proof of an entrance. "
+                           "No live business or accessibility verification.",
+        }
+
     @router.get("/items/{item_id}", response_model=ItemOutput)
     def item(item_id: str) -> dict[str, object]:
         if not 1 <= len(item_id) <= 256:
@@ -221,8 +277,46 @@ def create_app(
             for entry in evidence_bundle["claims"] if entry["item_id"] == item_id
         ])
         return {"item_id": item_id, "reviewed_claims": claims, "catalog_synthetic": catalog.synthetic,
+                "menu_status": ("reviewed_reference" if any(claim["kind"] == "menu_url"
+                    for claim in claims) else "not_recorded"),
                 "limitations": "Evidence is reviewer-approved metadata, not independently verified "
                                "licensing, menu availability, dietary or food safety assurance."}
+
+    @router.get("/items/{item_id}/media", response_model=ReviewedMediaListOutput)
+    def item_media(item_id: str) -> dict[str, object]:
+        if catalog.get(item_id) is None:
+            raise HTTPException(status_code=404, detail="Catalog item not found")
+        assets = ([] if media_bundle is None else [
+            {key: value for key, value in entry.items() if key != "file"}
+            for entry in media_bundle["assets"] if entry["item_id"] == item_id
+        ])
+        return {"item_id": item_id, "images": assets,
+                "limitations": "License and source attribution were manually reviewed, not "
+                               "independently verified. Image content may be outdated."}
+
+    @router.get("/media/{asset_id}", include_in_schema=True)
+    def local_media(asset_id: str) -> FileResponse:
+        if media_bundle is None or media_root is None:
+            raise HTTPException(status_code=404, detail="Reviewed local image not found")
+        entry = next((entry for entry in media_bundle["assets"]
+                      if entry["asset_id"] == asset_id), None)
+        if entry is None:
+            raise HTTPException(status_code=404, detail="Reviewed local image not found")
+        # Re-check bytes at request time; a changed file must fail closed rather
+        # than silently serving content that differs from reviewed publication.
+        file = media_root / entry["file"]
+        if file.is_symlink() or not file.is_file() or not file.resolve().is_relative_to(media_root):
+            raise HTTPException(status_code=409, detail="Reviewed local image changed")
+        if file.stat().st_size > 16 * 1024 * 1024:
+            raise HTTPException(status_code=409, detail="Reviewed local image changed")
+        data = file.read_bytes()
+        if hashlib.sha256(data).hexdigest() != entry["sha256"]:
+            raise HTTPException(status_code=409, detail="Reviewed local image changed")
+        return Response(
+            content=data, media_type="image/png",
+            headers={"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff",
+                     "Referrer-Policy": "no-referrer"},
+        )
 
     @router.post("/search", response_model=SearchOutput)
     def search(request: SearchInput) -> dict[str, object]:
@@ -329,7 +423,7 @@ def create_app(
                 "X-Frame-Options": "DENY",
                 "Content-Security-Policy": (
                     "default-src 'none'; script-src 'self'; style-src 'self'; "
-                    "img-src 'self' data:; connect-src 'self'; "
+                    "img-src 'self' data: blob:; connect-src 'self'; "
                     "base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
                 ),
             },

@@ -449,5 +449,25 @@ def create_app(
             },
         )
 
+    @app.get("/study-review", include_in_schema=False)
+    def study_review_page() -> FileResponse:
+        # Reviewer sheets and reference files are opened by the browser only.
+        # No annotation data passes through an HTTP endpoint.
+        return FileResponse(
+            static_dir / "study-review.html",
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Referrer-Policy": "no-referrer",
+                "X-Frame-Options": "DENY",
+                "Content-Security-Policy": (
+                    "default-src 'none'; script-src 'self'; style-src 'self'; "
+                    "connect-src 'none'; base-uri 'none'; form-action 'none'; "
+                    "frame-ancestors 'none'; object-src 'none'"
+                ),
+            },
+        )
+
     app.mount("/assets", StaticFiles(directory=static_dir), name="web-assets")
     return app

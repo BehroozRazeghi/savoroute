@@ -25,6 +25,11 @@ from savoroute.evaluation.extraction import AnnotationError, evaluate_extraction
 from savoroute.evaluation.fusion import evaluate_fusion
 from savoroute.evaluation.identity import evaluate_identity_candidates, load_identity_benchmark
 from savoroute.evaluation.multimodal import evaluate_multimodal, load_multimodal_benchmark
+from savoroute.evaluation.research import (
+    analyze_reviewed_study,
+    audit_reviewer_progress,
+    prepare_analysis_plan,
+)
 from savoroute.evaluation.retrieval import BenchmarkError, evaluate_search, load_benchmark
 from savoroute.evaluation.study import (
     evaluate_reviewed_study,
@@ -387,6 +392,36 @@ def build_parser() -> argparse.ArgumentParser:
     study_eval.add_argument("--allow-test", action="store_true")
     study_eval.add_argument("--at-k", type=int, default=5)
     study_eval.add_argument("--output", help="optional JSON report output, no overwrite")
+    study_audit = study_commands.add_parser(
+        "audit", help="check independent reviewer-sheet coverage without disclosing labels"
+    )
+    study_audit.add_argument("--study-dir", required=True)
+    study_audit.add_argument("--reviewer-a", required=True)
+    study_audit.add_argument("--reviewer-b", required=True)
+    study_audit.add_argument("--output", help="optional audit JSON, no overwrite")
+    study_plan = study_commands.add_parser(
+        "plan", help="freeze an analysis configuration before evaluating held-out test data"
+    )
+    study_plan.add_argument("--study-dir", required=True)
+    study_plan.add_argument("--output", required=True)
+    study_plan.add_argument("--at-k", type=int, default=5)
+    study_plan.add_argument(
+        "--primary-metric", choices=(
+            "ndcg_at_k", "recall_at_k", "reciprocal_rank_at_k", "correct_empty",
+        ), default="ndcg_at_k",
+    )
+    study_plan.add_argument("--resamples", type=int, default=2000)
+    study_plan.add_argument("--seed", type=int, default=2026)
+    study_analyze = study_commands.add_parser(
+        "analyze", help="paired query bootstrap and diagnostics on adjudicated judgments"
+    )
+    study_analyze.add_argument("--study-dir", required=True)
+    study_analyze.add_argument("--workbook", required=True)
+    study_analyze.add_argument("--plan", required=True)
+    study_analyze.add_argument("--split", choices=("development", "test"),
+                               default="development")
+    study_analyze.add_argument("--allow-test", action="store_true")
+    study_analyze.add_argument("--output", help="optional report JSON, no overwrite")
 
     recommendation = commands.add_parser("recommend", help="catalog-grounded recommendations")
     recommendation.add_argument("query")
@@ -596,6 +631,29 @@ def main(argv: Sequence[str] | None = None) -> int:
             elif args.study_command == "verify":
                 manifest = verify_osm_study(args.study_dir)
                 print(f"Verified {manifest['items']} items and {manifest['queries']} queries")
+            elif args.study_command == "audit":
+                audit = audit_reviewer_progress(
+                    args.study_dir, args.reviewer_a, args.reviewer_b,
+                )
+                if args.output:
+                    write_study_report(audit, args.output)
+                print(json.dumps(audit, ensure_ascii=False, indent=2))
+            elif args.study_command == "plan":
+                plan = prepare_analysis_plan(
+                    args.study_dir, args.output, at_k=args.at_k,
+                    primary_metric=args.primary_metric,
+                    resamples=args.resamples, seed=args.seed,
+                )
+                print(f"Prepared checksum-bound analysis plan: {args.output}")
+                print(f"Primary metric: {plan['primary_metric']}@{plan['at_k']}")
+            elif args.study_command == "analyze":
+                report = analyze_reviewed_study(
+                    args.study_dir, args.workbook, args.plan,
+                    split=args.split, allow_test=args.allow_test,
+                )
+                if args.output:
+                    write_study_report(report, args.output)
+                print(json.dumps(report, ensure_ascii=False, indent=2))
             else:
                 report = evaluate_reviewed_study(
                     args.study_dir, args.workbook, split=args.split,

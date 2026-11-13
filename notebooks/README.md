@@ -34,3 +34,5 @@ The notebooks use fictional, local fixtures for CI and require no API keys or mo
 - `18_opt_in_visit_discovery.ipynb` — offline selected metadata → OSM identity matching → review simulation → private confirmed history (fictional records only).
 
 - `19_geography_and_reviewed_media.ipynb` — fictional OSM nearby discovery, local image publication bound to manually reviewed evidence, HTTP menu-status contracts.
+
+- `20_reviewer_grounded_statistical_evaluation.ipynb` — simulated two-reviewer workflow on a fictional catalog; checksum-bound analysis plans, progress audits, paired bootstrap and diagnostic cases. No real-world labels or claims.

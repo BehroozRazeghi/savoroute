@@ -62,7 +62,7 @@ def test_frontend_uses_existing_api_with_real_server_auth_boundaries():
         headers = {"X-API-Key": "secret-for-tests"}
         meta = client.get("/v1/meta", headers=headers).json()
         assert meta["catalog_items"] == len(load_catalog().items)
-        assert meta["package_version"] == "0.17.0"
+        assert meta["package_version"] == "0.18.0"
         assert client.get("/v1/items", headers=headers).status_code == 200
         result = client.post(
             "/v1/recommend",

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Independent relevance review · Savoroute</title>
+  <link rel="stylesheet" href="/assets/study-review.css">
+  <script type="module" src="/assets/study-review.js"></script>
+</head>
+<body>
+  <a class="skip" href="#judgment">Skip to judgment</a>
+  <header class="top"><div class="wrap bar"><a class="logo" href="/">savoroute<span>.</span></a>
+    <span class="overline">INDEPENDENT RELEVANCE REVIEW</span></div></header>
+  <main class="wrap">
+    <section class="intro">
+      <p class="overline">STUDY WORKSPACE · LOCAL-ONLY FILES</p>
+      <h1>Judge the evidence.<br><em>Not the ranking.</em></h1>
+      <p>Review each query–restaurant pair against the frozen catalog reference. No retrieval scores, other reviewer labels, or generated relevance decisions are shown. The files you select stay in this tab.</p>
+    </section>
+    <section class="panel" aria-labelledby="upload-title">
+      <h2 id="upload-title">1. Open two frozen study files</h2>
+      <div class="files">
+        <label>Unlabeled reference JSON <input id="reference-file" type="file" accept=".json,application/json"></label>
+        <label>Your reviewer sheet JSON <input id="sheet-file" type="file" accept=".json,application/json"></label>
+      </div>
+      <p class="note">Open <code>review_reference.json</code> and a copy of <code>reviewer_a.json</code> or <code>reviewer_b.json</code>. Never open the other reviewer's completed sheet. There are no uploads or browser storage.</p>
+      <button id="load" type="button">Load my review queue</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+    <section id="workspace" hidden aria-labelledby="review-title">
+      <div class="work-head"><div><p class="overline">2. HUMAN JUDGMENTS</p><h2 id="review-title">Relevance review</h2></div><span class="counter" id="progress"></span></div>
+      <div class="toolbar panel">
+        <label>Query / case <select id="case-selector"></select></label>
+        <button id="next-unreviewed" type="button">Next unreviewed</button>
+        <p class="note">Labels describe relevance to this query within this frozen collection—not restaurant quality or verified menu availability. If you cannot justify the decision, leave it unreviewed and seek adjudication.</p>
+      </div>
+      <article class="panel review" id="judgment">
+        <div class="record">
+          <p class="overline" id="position"></p>
+          <h3 id="query"></h3>
+          <h4 id="title"></h4>
+          <p id="description"></p>
+          <dl id="attributes"></dl>
+          <p id="source-container"></p>
+        </div>
+        <div class="entry">
+          <label>Your judgment
+            <select id="decision">
+              <option value="">Unreviewed</option>
+              <option value="true">Relevant</option>
+              <option value="false">Not relevant</option>
+            </select>
+          </label>
+          <label>Evidence note <span>(required for relevant)</span>
+            <textarea id="note" rows="5" maxlength="4000" placeholder="State the catalog or source evidence supporting your judgment."></textarea>
+          </label>
+          <p id="decision-warning" role="status"></p>
+          <div class="navigation"><button id="previous" type="button">Previous</button><button id="next" type="button">Next</button></div>
+        </div>
+      </article>
+      <section class="panel save"><div><h2>3. Download your review sheet</h2><p class="note">Download periodically: closing this tab loses unsaved edits. The Python CLI validates completeness, provenance, and adjudication before any evaluation.</p></div><button id="download" type="button">Download my JSON</button></section>
+    </section>
+    <footer>Independent reviewers should label separately. Neither a nearby place nor a cuisine tag alone proves menu, opening status, dietary suitability, or a restaurant visit.</footer>
+  </main>
+</body>
+</html>

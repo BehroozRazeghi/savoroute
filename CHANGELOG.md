@@ -1,3 +1,11 @@
+## [0.18.0] — 2026-11-12
+
+- Added a checksum-bound retrieval analysis plan, reviewer-sheet coverage audit and strict held-out test-evaluation gate.
+- Added reproducible paired, query-level percentile bootstrap confidence intervals for BM25 versus overlap, separately for positive and no-match queries.
+- Added per-query catalog-label error attribution without fabricating relevance judgments, changing ranking algorithms, or reporting real-world results from unlabeled OSM data.
+- Added a local-only reviewer labeling interface (`/study-review`), Notebook 20, and an evaluation methods guide and ADR 0014.
+- Preserved the frozen v0.11.0 study and existing `study evaluate` semantics.
+
 # Changelog
 
 ## 0.17.0 — Approximate geography and reviewed local media

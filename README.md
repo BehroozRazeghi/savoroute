@@ -226,3 +226,10 @@ savoroute evidence prepare --catalog catalog.json --proposals candidates.json --
 savoroute evidence publish --catalog catalog.json --proposals candidates.json --review review.json --output approved.json
 savoroute web serve --catalog catalog.json --evidence approved.json
 ```
+
+
+## Opt-in local visit suggestions (v0.16.0)
+
+`visits suggest` clusters **user-selected photo metadata** (opaque ID, timezone-aware timestamp, latitude/longitude) and proposes nearby restaurants using the **existing** OSM identity bindings. It reads no photos and requests no camera-roll access. A separate review sheet is required; nothing is confirmed automatically. `visits finalize` verifies the review digest and exports reduced confirmed history without photo IDs or GPS coordinates.
+
+The web server also serves `/visits-review`, a browser-local review page whose selected files are **not uploaded**. Source data and review decisions are sensitive—keep them out of Git. See [the operator guide](docs/opt-in-visit-discovery.md) and [ADR 0012](docs/adr/0012-local-visit-suggestions.md). The included example is entirely fictional.

@@ -118,6 +118,25 @@ def build_parser() -> argparse.ArgumentParser:
         action.add_argument("--output", required=True, help="new output file; never overwritten")
     publish_evidence.add_argument("--review", required=True, help="completed review JSON")
 
+    visits = commands.add_parser("visits", help="offline metadata-only visit suggestions")
+    visit_commands = visits.add_subparsers(dest="visit_command", required=True)
+    suggest = visit_commands.add_parser("suggest", help="cluster selected metadata; prepare review")
+    suggest.add_argument("--catalog", required=True, help="canonical OSM restaurant catalog")
+    suggest.add_argument("--osm", required=True, help="matching local Overpass JSON snapshot")
+    suggest.add_argument("--photos", required=True, help="explicit user-selected photo metadata JSON")
+    suggest.add_argument("--output", required=True, help="private unreviewed suggestions JSON")
+    suggest.add_argument("--review-template", required=True, help="blank review decisions JSON")
+    suggest.add_argument("--gap-minutes", type=int, default=90)
+    suggest.add_argument("--span-minutes", type=int, default=180)
+    suggest.add_argument("--cluster-radius-m", type=int, default=200)
+    suggest.add_argument("--match-radius-m", type=int, default=125)
+    suggest.add_argument("--max-candidates", type=int, default=5)
+    finalize = visit_commands.add_parser("finalize", help="publish explicitly reviewed visits")
+    finalize.add_argument("--catalog", required=True, help="same canonical catalog")
+    finalize.add_argument("--suggestions", required=True)
+    finalize.add_argument("--review", required=True, help="completed private review decisions")
+    finalize.add_argument("--output", required=True, help="new minimal confirmed history JSON")
+
     mcp = commands.add_parser("mcp", help="serve read-only MCP tools over local stdio")
     mcp_commands = mcp.add_subparsers(dest="mcp_command", required=True)
     mcp_serve = mcp_commands.add_parser("serve", help="start the local MCP stdio server")
@@ -494,6 +513,35 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.command == "visits":
+            from savoroute.visits.workflow import (
+                build_review_template,
+                finalize_visits,
+                load_visit_json,
+                suggest_visits,
+            )
+
+            catalog = load_catalog(args.catalog)
+            if args.visit_command == "suggest":
+                suggestions = suggest_visits(
+                    catalog, load_visit_json(args.osm), load_visit_json(args.photos),
+                    gap_minutes=args.gap_minutes, span_minutes=args.span_minutes,
+                    cluster_radius_m=args.cluster_radius_m,
+                    match_radius_m=args.match_radius_m, max_candidates=args.max_candidates,
+                )
+                review = build_review_template(suggestions)
+                write_json_group(((args.output, suggestions), (args.review_template, review)))
+                print(f"Prepared {len(suggestions['clusters'])} unreviewed visit clusters; "
+                      f"review every decision in {args.review_template}")
+            else:
+                history = finalize_visits(
+                    catalog, load_visit_json(args.suggestions),
+                    load_visit_json(args.review),
+                )
+                write_json_file(history, args.output)
+                print(f"Exported {len(history['confirmed_visits'])} user-confirmed visits "
+                      f"({history['rejected_count']} rejected): {args.output}")
+            return 0
         if args.command == "evidence":
             from savoroute.evidence.review import prepare_review, publish_evidence
 

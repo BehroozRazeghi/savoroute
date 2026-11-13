@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.16.0 — Opt-in restaurant visit suggestions
+
+- Add strict, bounded, user-selected photo metadata input with timezone-aware, deterministic spatial-temporal clustering.
+- Match only reviewed/admitted OSM source identities in the active catalog using wrapped-longitude Haversine distances.
+- Generate private, digest-bound suggestion and review files; require explicit confirm, reject, or reassign decisions.
+- Export a minimized confirmed-history artifact that omits raw coordinates, photo IDs, and review reasons.
+- Add a browser-local review queue with no metadata uploads or API calls, a restrictive CSP, CLI commands, notebook 18, and regression tests.
+- Keep catalog schema, search ranking, HTTP v1, MCP, media licensing, and the frozen real-data study unchanged.
+
+**Limitations:** No camera-roll access, photo interpretation, automatically confirmed visits, or independently validated visit-matching accuracy.
+
+
 ## 0.15.0 — Reviewer-approved catalog references
 
 - Introduce catalog-digest-bound evidence proposals and explicit per-claim reviews.

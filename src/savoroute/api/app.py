@@ -335,5 +335,25 @@ def create_app(
             },
         )
 
+    @app.get("/visits-review", include_in_schema=False)
+    def visit_review_page() -> FileResponse:
+        # The browser reads user-selected JSON locally. This route never accepts
+        # photo metadata, sends no API request, and exposes no personal history.
+        return FileResponse(
+            static_dir / "visits-review.html",
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-store",
+                "X-Content-Type-Options": "nosniff",
+                "Referrer-Policy": "no-referrer",
+                "X-Frame-Options": "DENY",
+                "Content-Security-Policy": (
+                    "default-src 'none'; script-src 'self'; style-src 'self'; "
+                    "connect-src 'none'; base-uri 'none'; form-action 'none'; "
+                    "frame-ancestors 'none'; object-src 'none'"
+                ),
+            },
+        )
+
     app.mount("/assets", StaticFiles(directory=static_dir), name="web-assets")
     return app

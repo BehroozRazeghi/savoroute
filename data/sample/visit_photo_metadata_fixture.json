@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "user_selected": true,
+  "photos": [
+    {"photo_id": "demo_a", "taken_at": "2026-01-04T12:00:00-05:00", "latitude": 42.35001, "longitude": -71.06001},
+    {"photo_id": "demo_b", "taken_at": "2026-01-04T12:08:00-05:00", "latitude": 42.35003, "longitude": -71.06002},
+    {"photo_id": "demo_c", "taken_at": "2026-01-04T18:00:00-05:00", "latitude": 42.35501, "longitude": -71.06001},
+    {"photo_id": "demo_d", "taken_at": "2026-01-04T18:15:00-05:00", "latitude": 42.35502, "longitude": -71.06001},
+    {"photo_id": "demo_e", "taken_at": "2026-01-05T10:00:00-05:00", "latitude": 42.39000, "longitude": -71.10000}
+  ]
+}

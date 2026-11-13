@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Review visits · Savoroute</title>
+  <link rel="stylesheet" href="/assets/visits-review.css">
+  <script type="module" src="/assets/visits-review.js"></script>
+</head>
+<body>
+  <a class="skip" href="#queue">Skip to review queue</a>
+  <header class="masthead"><div class="wrap head-inner">
+    <a class="brand" href="/">savoroute<span>.</span></a>
+    <span class="label">PRIVATE REVIEW</span>
+  </div></header>
+  <main class="wrap">
+    <section class="intro">
+      <p class="eyebrow">LOCAL-FIRST · USER CONTROLLED</p>
+      <h1>Which places were<br><em>really yours?</em></h1>
+      <p>Explore possible restaurant visits grouped from metadata you selected. Each visit is <strong>unconfirmed</strong> until you review it. No photos are opened, and your files stay inside this browser tab.</p>
+    </section>
+    <section class="load card" aria-labelledby="load-title">
+      <h2 id="load-title">1. Open your private review files</h2>
+      <div class="file-grid">
+        <label>Suggestions JSON <input type="file" id="suggestions-file" accept=".json,application/json"></label>
+        <label>Review JSON <input type="file" id="review-file" accept=".json,application/json"></label>
+      </div>
+      <p class="subtext">Both files come from <code>savoroute visits suggest</code>. You can reopen a partially completed review file later. No files are uploaded.</p>
+      <button id="load-files" type="button">Load review queue</button>
+      <p id="load-status" role="status" aria-live="polite"></p>
+    </section>
+    <section id="queue" class="queue" hidden aria-labelledby="queue-title">
+      <div class="queue-top"><div>
+        <p class="eyebrow">2. DECIDE, DON'T ASSUME</p>
+        <h2 id="queue-title">Visit suggestions</h2>
+      </div><span id="progress" class="progress"></span></div>
+      <p class="subtext">Distance indicates only proximity to OSM geometry. A nearby restaurant is not proof of a visit. “Reassign” lets you enter a different known Savoroute restaurant item ID.</p>
+      <div id="review-cards" class="review-cards"></div>
+      <div class="export card">
+        <div><h2>3. Save your decisions</h2><p>Download your review JSON. After completing every card, run <code>savoroute visits finalize</code> locally to generate minimized confirmed history.</p></div>
+        <button id="export-review" type="button">Download review JSON</button>
+      </div>
+    </section>
+    <footer>Private metadata deserves care. Keep your files out of Git, email attachments, and public servers. Delete them when no longer needed.</footer>
+  </main>
+</body>
+</html>

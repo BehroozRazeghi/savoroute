@@ -17,6 +17,7 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 4b · Real-data study preparation | Frozen OSM provenance, split checks, reviewer references, baseline reports; notebook 13 | Implemented; independent real annotation outstanding |
 | 5a · HTTP interface | Versioned read-only API, catalog browsing, shared discovery/recommendations, OpenAPI, notebook 14 | Implemented locally; production hardening outstanding |
 | 5b · Agent and web interfaces | MCP tools, responsive web application | Planned |
+| 5c · Personal visit discovery | Local-only, user-selected metadata clusters, OSM-proximity suggestions, explicit review and minimal confirmed history; notebook 18 | Implemented as opt-in pilot; accuracy not validated |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
 
 ## Completed ingestion work

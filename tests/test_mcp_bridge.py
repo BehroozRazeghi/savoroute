@@ -28,7 +28,7 @@ def test_metadata_uses_identical_http_contract(bridge):
     with TestClient(create_app()) as http:
         expected = http.get("/v1/meta").json()
     assert run(bridge.metadata()) == expected
-    assert expected["package_version"] == "0.15.0"
+    assert expected["package_version"] == "0.16.0"
     assert expected["catalog_synthetic"] is True
     assert expected["index_backend"] == "none"
 

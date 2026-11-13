@@ -30,3 +30,5 @@ jupyter lab
 The notebooks use fictional, local fixtures for CI and require no API keys or model downloads. Optional model-backed examples are described in their corresponding guides. **Notebooks 13–15 demonstrate infrastructure with synthetic inputs; they do not contain independent human judgments or a real-world performance result.**
 
 - `17_reviewed_catalog_evidence.ipynb` — explicit proposal/review/publish workflow and HTTP parity (fictional assertions only).
+
+- `18_opt_in_visit_discovery.ipynb` — offline selected metadata → OSM identity matching → review simulation → private confirmed history (fictional records only).

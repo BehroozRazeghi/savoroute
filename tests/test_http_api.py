@@ -7,6 +7,7 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+from savoroute import __version__
 from savoroute.api.app import create_app
 from savoroute.cli import main
 from savoroute.data.catalog import catalog_to_dict, load_catalog
@@ -27,7 +28,7 @@ def test_liveness_metadata_and_versioned_schema(client):
     assert client.get("/healthz").json() == {"status": "ok", "api_version": "v1"}
     metadata = client.get("/v1/meta")
     assert metadata.status_code == 200
-    assert metadata.json()["package_version"] == "0.18.0"
+    assert metadata.json()["package_version"] == __version__
     assert metadata.json()["catalog_synthetic"] is True
     assert metadata.json()["catalog_items"] == 12
     assert metadata.json()["index_backend"] == "none"

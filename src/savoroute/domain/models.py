@@ -22,6 +22,15 @@ class CatalogItem:
     location: str | None = None
     price_tier: int | None = None
     ingredients: tuple[str, ...] = ()
+    # Additive schema-v1 geography. None means unknown, never a guessed location.
+    raw_address: str | None = None
+    city: str | None = None
+    region: str | None = None
+    country: str | None = None
+    city_id: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    city_source: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

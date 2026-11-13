@@ -170,3 +170,20 @@ python -m ruff check src tests scripts
 Notebook 14 runs the same endpoints in process with `TestClient`, without starting
 a background server. HTTP routes expose catalog **metadata**, not the frozen study
 reviewer annotations; quality evaluation remains a separate workflow.
+
+## Milestone 3: optional OSM source observations (v0.20.0)
+
+When the server is started with `--source-facts` pointing to a catalog-bound
+sidecar, `GET /v1/items/{item_id}/source-facts` returns a declared source
+reference, snapshot date, raw tag names and bounded values, all explicitly
+marked `verification_status=unverified_osm_tags`. Without a sidecar, existing
+items return no facts and `not_configured`. An absent item returns HTTP 404;
+normal API-key checks apply. The `/v1/meta` response additionally advertises
+`source_facts_enabled` and `source_facts_records`. **This new route does not
+change `/v1/items`, `/v1/search`, `/v1/rank` or `/v1/recommend`.**
+
+See [source facts and quality audit](data-quality-and-source-facts.md).
+
+### Optional recipe notes (v0.21.0)
+
+`GET /v1/items/{item_id}/recipe-notes` is available when startup configured `--recipe-notes <catalog-digest-bound-json>`. It returns editorial recipe ingredients, preparation steps, a revision-specific source URL, attribution, CC BY-SA license information and review status `source_transcribed_unverified`; requests for unmatched items or when disabled return the standard not-found/disabled response. This endpoint shares the API-key authorization gate, does not retrieve source text over a network, and does **not** assert allergy or food safety verification. Use matching `--catalog`, `--source-facts` and `--recipe-notes` sidecars. See `docs/recipe-curation-m4.md`.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from importlib.resources import files
 from pathlib import Path
@@ -15,6 +16,8 @@ _ID = re.compile(r"^[a-z][a-z0-9_-]{1,63}$")
 _ITEM_ALLOWED = {
     "item_id", "kind", "title", "description", "cuisines", "dietary_tags",
     "source", "source_url", "location", "price_tier", "ingredients",
+    "raw_address", "city", "region", "country", "city_id",
+    "latitude", "longitude", "city_source",
 }
 _MEDIA_ALLOWED = {"media_id", "item_id", "kind", "uri", "source", "caption"}
 
@@ -73,6 +76,30 @@ def _source_url(value: Any, context: str) -> str | None:
     return url
 
 
+def _coordinate(value: Any, context: str, maximum: int) -> float | None:
+    if value is None:
+        return None
+    if type(value) not in (int, float) or not math.isfinite(value) or not -maximum <= value <= maximum:
+        raise CatalogError(f"{context} must be a finite coordinate in [-{maximum}, {maximum}]")
+    return float(value)
+
+
+def _geo_fields(row: dict[str, Any], context: str, kind: str) -> dict[str, Any]:
+    names = ("raw_address", "city", "region", "country", "city_id", "city_source")
+    geo = {name: _optional_text(row.get(name), f"{context}.{name}") for name in names}
+    geo["latitude"] = _coordinate(row.get("latitude"), f"{context}.latitude", 90)
+    geo["longitude"] = _coordinate(row.get("longitude"), f"{context}.longitude", 180)
+    if (geo["latitude"] is None) != (geo["longitude"] is None):
+        raise CatalogError(f"{context}: latitude and longitude must both be present or absent")
+    if geo["city_id"] is not None and geo["city"] is None:
+        raise CatalogError(f"{context}: city_id requires city")
+    if geo["city_source"] is not None and geo["city"] is None:
+        raise CatalogError(f"{context}: city_source requires city")
+    if kind == "recipe" and any(value is not None for value in geo.values()):
+        raise CatalogError(f"{context}: recipe must not have geographic fields")
+    return geo
+
+
 def parse_catalog(payload: Any) -> Catalog:
     """Parse versioned JSON; reject misspellings, invalid IDs, and dangling media."""
     data = _object(payload, "catalog")
@@ -121,6 +148,7 @@ def parse_catalog(payload: Any) -> Catalog:
             location=location,
             price_tier=tier,
             ingredients=_words(row.get("ingredients", []), f"{context}.ingredients"),
+            **_geo_fields(row, context, kind),
         ))
     raw_media = data.get("media", [])
     if not isinstance(raw_media, list):
@@ -173,6 +201,10 @@ def catalog_to_dict(catalog: Catalog) -> dict[str, Any]:
                 "dietary_tags": list(item.dietary_tags), "source": item.source,
                 "source_url": item.source_url, "location": item.location,
                 "price_tier": item.price_tier, "ingredients": list(item.ingredients),
+                **{field: getattr(item, field) for field in (
+                    "raw_address", "city", "region", "country", "city_id",
+                    "latitude", "longitude", "city_source",
+                ) if getattr(item, field) is not None},
             }
             for item in catalog.items
         ],

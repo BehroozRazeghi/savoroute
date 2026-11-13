@@ -50,3 +50,14 @@ An optional `media` list contains `media_id`, `item_id`, `kind`, `uri`, `source`
 The fields `source` and `source_url` are record-level labels. The catalog does not store collection timestamps, extraction evidence, licenses, or update history. Text ingestion now writes source identifiers, collection timestamps, content hashes, and quoted evidence into a separate provenance file (`docs/ingestion.md`). A separate source registry now records manual cross-provider identity links and last source-managed item hashes; the catalog schema does not contain these fields. Automated cross-provider entity resolution, durable history, and license-policy enforcement remain unimplemented. See [source identity and updates](entity-identity-and-updates.md).
 
 `synthetic: true` identifies the demonstration dataset. Its restaurants, recipes, prices and tags are fictional. A dietary tag is not evidence of ingredient completeness, allergen safety or nutritional suitability. The catalog contains no live venue information or booking inventory.
+
+
+## Milestone 3: source observations (schema-v1 catalog unchanged)
+
+An optional sidecar built from an existing matching OSM snapshot stores
+website, hours and other permitted source-tag observations separately from
+the canonical catalog, with digest and source-element linkage. It is not a
+trusted extension of `CatalogItem`; the API and frontend label its content
+unverified. An independent quality report counts genuinely recorded fields
+and flags the generic OSM description as non-informative. See
+[data-quality-and-source-facts.md](data-quality-and-source-facts.md).

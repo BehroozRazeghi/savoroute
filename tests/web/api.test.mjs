@@ -108,3 +108,14 @@ test('local images stay on v1 with API key in header and no third-party fetches'
   await assert.rejects(requestImageBlob('https://example.org/image.png'), /Invalid local media/);
   await assert.rejects(requestImageBlob('/v1/media/../../etc/passwd'), /Invalid local media/);
 });
+
+test('browser city input matches existing location contract without substring inference', () => {
+  const filters = makeFilters({
+    kind: 'restaurant', cuisine: '', location: '  Boston  ',
+    dietaryTags: '', maxPriceTier: '',
+  });
+  assert.equal(filters.location, 'Boston');
+  const params = browseParams(filters, 0, 20);
+  assert.equal(params.get('location'), 'Boston');
+  assert.equal(params.get('city'), null); // API resolves exact recorded city on the server
+});

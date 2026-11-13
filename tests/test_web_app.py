@@ -7,6 +7,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from savoroute import __version__
 from savoroute.api.app import create_app
 from savoroute.cli import build_parser, main
 from savoroute.data.catalog import catalog_to_dict, load_catalog
@@ -26,7 +27,7 @@ def test_home_page_and_security_headers():
         assert "connect-src 'self'" in csp
         assert "'unsafe-inline'" not in csp
         html = response.text
-        assert "Savoroute" in html
+        assert "SavoRoute" in html
         assert 'src="/assets/app.js"' in html
         assert 'href="/assets/styles.css"' in html
         assert 'href="/assets/favicon.svg"' in html
@@ -62,7 +63,7 @@ def test_frontend_uses_existing_api_with_real_server_auth_boundaries():
         headers = {"X-API-Key": "secret-for-tests"}
         meta = client.get("/v1/meta", headers=headers).json()
         assert meta["catalog_items"] == len(load_catalog().items)
-        assert meta["package_version"] == "0.18.0"
+        assert meta["package_version"] == __version__
         assert client.get("/v1/items", headers=headers).status_code == 200
         result = client.post(
             "/v1/recommend",
@@ -97,6 +98,6 @@ def test_web_cli_uses_exact_same_configured_http_server(monkeypatch):
     assert main(["web", "serve", "--catalog", "my-catalog.json", "--port", "8123"]) == 0
     assert received == [{
         "catalog": "my-catalog.json", "index": None, "evidence": None, "osm": None,
-        "reviewed_media": None, "host": "127.0.0.1",
+        "reviewed_media": None, "source_facts": None, "recipe_notes": None, "host": "127.0.0.1",
         "port": 8123, "api_key_env": "SAVOROUTE_API_KEY",
     }]

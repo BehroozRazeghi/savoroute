@@ -98,6 +98,8 @@ def build_parser() -> argparse.ArgumentParser:
     api_serve.add_argument("--evidence", help="approved evidence bundle bound to the catalog")
     api_serve.add_argument("--osm", help="saved Overpass JSON for approximate nearby discovery")
     api_serve.add_argument("--reviewed-media", help="local rights-reviewed PNG bundle directory")
+    api_serve.add_argument("--source-facts", help="optional OSM source-observation bundle bound to catalog")
+    api_serve.add_argument("--recipe-notes", help="optional source-linked recipe instructions and license ledger")
     api_serve.add_argument("--host", default="127.0.0.1")
     api_serve.add_argument("--port", type=int, default=8000)
     api_serve.add_argument("--api-key-env", default="SAVOROUTE_API_KEY")
@@ -111,11 +113,29 @@ def build_parser() -> argparse.ArgumentParser:
         ("evidence", {"help": "approved evidence bundle bound to the catalog"}),
         ("osm", {"help": "saved Overpass JSON for approximate nearby discovery"}),
         ("reviewed-media", {"help": "local rights-reviewed PNG bundle directory"}),
+        ("source-facts", {"help": "optional catalog-bound OSM observations (unverified)"}),
+        ("recipe-notes", {"help": "optional source-linked recipes with instructions and rights metadata"}),
         ("host", {"default": "127.0.0.1"}),
         ("port", {"type": int, "default": 8000}),
         ("api-key-env", {"default": "SAVOROUTE_API_KEY"}),
     ):
         web_serve.add_argument(f"--{name}", **flags)
+
+    quality = commands.add_parser("quality", help="audit saved catalog quality and export raw OSM observations")
+    quality_commands = quality.add_subparsers(dest="quality_command", required=True)
+    quality_audit = quality_commands.add_parser("audit", help="create catalog coverage report and optional OSM observation bundle")
+    quality_audit.add_argument("--catalog", required=True, help="catalog JSON to inspect")
+    quality_audit.add_argument("--osm", help="matching local OSM snapshot; never fetched remotely")
+    quality_audit.add_argument("--report", required=True, help="new, non-overwriting quality JSON report")
+    quality_audit.add_argument("--source-facts-out", help="new source-observation sidecar; requires --osm")
+    quality_audit.add_argument("--queue-limit", type=int, default=50)
+    recipes_build = quality_commands.add_parser(
+        "recipes-build", help="stage source-linked Wikibooks recipe adaptations alongside a real catalog")
+    recipes_build.add_argument("--catalog", required=True, help="original catalog, never overwritten")
+    recipes_build.add_argument("--manifest", required=True, help="source-linked recipe adaptation manifest")
+    recipes_build.add_argument("--output", required=True, help="new cumulative catalog JSON")
+    recipes_build.add_argument("--notes-out", required=True, help="new catalog-bound preparation notes and license ledger")
+    recipes_build.add_argument("--report", required=True, help="new reproducible build report")
 
     evidence = commands.add_parser("evidence", help="review and publish source-backed enrichment")
     evidence_commands = evidence.add_subparsers(dest="evidence_command", required=True)
@@ -152,6 +172,20 @@ def build_parser() -> argparse.ArgumentParser:
     mcp_serve.add_argument("--catalog", help="explicit catalog JSON; default: fictional demo")
     mcp_serve.add_argument("--index", help="optional matching JSON/SQLite/FAISS vector index")
 
+    geo = commands.add_parser("geo", help="auditable offline catalog geography normalization")
+    geo_commands = geo.add_subparsers(dest="geo_command", required=True)
+    normal = geo_commands.add_parser("normalize", help="backfill city and coordinates from OSM source")
+    normal.add_argument("--catalog", required=True, help="existing canonical catalog")
+    normal.add_argument("--osm", required=True, help="matching, saved Overpass snapshot")
+    normal.add_argument("--output", required=True, help="new normalized catalog JSON")
+    normal.add_argument("--report", required=True, help="new lineage and coverage report JSON")
+    normal.add_argument("--boundary", help="optional independently verified WGS84 city GeoJSON")
+    normal.add_argument("--boundary-city", help="verified city name")
+    normal.add_argument("--boundary-region", help="verified region or state")
+    normal.add_argument("--boundary-country", help="verified country code")
+    normal.add_argument("--boundary-city-id", help="stable city identifier")
+    normal.add_argument("--boundary-source-url", help="authoritative HTTPS GIS layer URL")
+
     demo = commands.add_parser("demo", help="run two fictional catalog searches")
     demo.add_argument("--catalog", help="optional JSON catalog override")
 
@@ -163,7 +197,10 @@ def build_parser() -> argparse.ArgumentParser:
     search.add_argument("--catalog", help="default: bundled demo catalog")
     search.add_argument("--kind", choices=("restaurant", "recipe"))
     search.add_argument("--cuisine")
-    search.add_argument("--location")
+    search.add_argument("--location", help="legacy exact address or recorded city")
+    search.add_argument("--city", help="recorded city only")
+    search.add_argument("--region", help="recorded state or region")
+    search.add_argument("--country", help="recorded country")
     search.add_argument("--diet", action="append", default=[], help="required catalog tag")
     search.add_argument("--max-price-tier", type=int, choices=(1, 2, 3, 4))
     search.add_argument("--method", choices=("bm25", "overlap"), default="bm25")
@@ -330,6 +367,9 @@ def build_parser() -> argparse.ArgumentParser:
     rank_search.add_argument("--kind", choices=("restaurant", "recipe"))
     rank_search.add_argument("--cuisine")
     rank_search.add_argument("--location")
+    rank_search.add_argument("--city")
+    rank_search.add_argument("--region")
+    rank_search.add_argument("--country")
     rank_search.add_argument("--diet", action="append", default=[])
     rank_search.add_argument("--max-price-tier", type=int, choices=(1, 2, 3, 4))
     rank_search.add_argument("--limit", type=int, default=5)
@@ -430,6 +470,9 @@ def build_parser() -> argparse.ArgumentParser:
     recommendation.add_argument("--kind", choices=("restaurant", "recipe"))
     recommendation.add_argument("--cuisine")
     recommendation.add_argument("--location")
+    recommendation.add_argument("--city")
+    recommendation.add_argument("--region")
+    recommendation.add_argument("--country")
     recommendation.add_argument("--diet", action="append", default=[])
     recommendation.add_argument("--max-price-tier", type=int, choices=(1, 2, 3, 4))
     recommendation.add_argument("--prefer-cuisine", action="append", default=[])
@@ -521,6 +564,7 @@ def _run_rank(args: argparse.Namespace) -> None:
     if args.rank_command == "search":
         filters = SearchFilters(
             kind=args.kind, cuisine=args.cuisine, location=args.location,
+                city=args.city, region=args.region, country=args.country,
             max_price_tier=args.max_price_tier, dietary_tags=tuple(args.diet),
         )
         hits = search_fused(
@@ -559,6 +603,72 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.command == "quality" and args.quality_command == "recipes-build":
+            from savoroute.quality.recipes import export_recipe_catalog, read_recipe_manifest
+            if any(Path(p).resolve() == Path(args.catalog).resolve()
+                   for p in (args.output, args.notes_out, args.report)):
+                raise ValueError("recipe outputs must not overwrite input catalog")
+            result = export_recipe_catalog(
+                load_catalog(args.catalog), read_recipe_manifest(args.manifest),
+                catalog_path=args.output, notes_path=args.notes_out,
+                report_path=args.report, manifest_path=args.manifest,
+            )
+            print(f"Added {result['added_source_linked_recipes']} source-linked recipes; "
+                  f"output contains {result['result_restaurants']} restaurants and "
+                  f"{result['result_recipes']} recipes; source text remains unverified")
+            return 0
+        if args.command == "quality":
+            from savoroute.quality.audit import audit_catalog
+            from savoroute.quality.osm_facts import build_osm_source_facts, read_osm_snapshot
+
+            if bool(args.osm) != bool(args.source_facts_out):
+                raise ValueError("--osm and --source-facts-out must be supplied together")
+            catalog = load_catalog(args.catalog)
+            facts = (build_osm_source_facts(catalog, read_osm_snapshot(args.osm))
+                     if args.osm else None)
+            report = audit_catalog(catalog, source_facts=facts, queue_limit=args.queue_limit)
+            documents = ((args.report, report),) if facts is None else (
+                (args.report, report), (args.source_facts_out, facts))
+            if any(Path(path).resolve() == Path(args.catalog).resolve() or
+                   (args.osm and Path(path).resolve() == Path(args.osm).resolve())
+                   for path, _ in documents):
+                raise ValueError("quality outputs must not overwrite source inputs")
+            write_json_group(documents)
+            print(f"Audited {report['total_records']} catalog records; "
+                  f"{report['review_queue_total']} records require review")
+            return 0
+        if args.command == "geo":
+            from savoroute.geography.normalization import (
+                load_city_boundary,
+                normalize_osm_catalog,
+                write_normalized_catalog,
+            )
+
+            boundary_fields = (
+                args.boundary_city, args.boundary_region, args.boundary_country,
+                args.boundary_city_id, args.boundary_source_url,
+            )
+            if args.boundary is None and any(x is not None for x in boundary_fields):
+                raise ValueError("--boundary metadata requires --boundary")
+            if args.boundary is not None and any(x is None for x in boundary_fields):
+                raise ValueError("--boundary requires --boundary-city, --boundary-region, "
+                                 "--boundary-country, --boundary-city-id, and --boundary-source-url")
+            boundary = load_city_boundary(
+                args.boundary, city=args.boundary_city, region=args.boundary_region,
+                country=args.boundary_country, city_id=args.boundary_city_id,
+                source_url=args.boundary_source_url,
+            ) if args.boundary is not None else None
+            result = normalize_osm_catalog(
+                load_catalog(args.catalog), json.loads(Path(args.osm).read_text(encoding="utf-8")),
+                boundary=boundary,
+            )
+            write_normalized_catalog(result, catalog_path=args.output, report_path=args.report)
+            print(f"Normalized {result.report['matched_osm_items']} records: "
+                  f"city tags={result.report['city_from_osm_tag']}, "
+                  f"boundary={result.report['city_from_boundary']}, "
+                  f"unknown={result.report['city_unknown']}; "
+                  f"conflicts={len(result.report['boundary_conflicts'])}")
+            return 0
         if args.command == "visits":
             from savoroute.visits.workflow import (
                 build_review_template,
@@ -609,6 +719,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             serve(catalog=args.catalog, index=args.index, evidence=args.evidence,
                   osm=args.osm, reviewed_media=args.reviewed_media,
+                  source_facts=args.source_facts, recipe_notes=args.recipe_notes,
                   host=args.host, port=args.port, api_key_env=args.api_key_env)
             return 0
         if args.command == "ingest":
@@ -706,6 +817,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             index, encoder, directory = _rank_context(args, catalog, weights)
             filters = SearchFilters(
                 kind=args.kind, cuisine=args.cuisine, location=args.location,
+                city=args.city, region=args.region, country=args.country,
                 max_price_tier=args.max_price_tier, dietary_tags=tuple(args.diet),
             )
             prefs = RecommendationPreferences(
@@ -913,6 +1025,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command == "search":
             filters = SearchFilters(
                 kind=args.kind, cuisine=args.cuisine, location=args.location,
+                city=args.city, region=args.region, country=args.country,
                 max_price_tier=args.max_price_tier, dietary_tags=tuple(args.diet),
             )
             hits = service.search(args.query, filters=filters,

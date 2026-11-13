@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from savoroute import __version__
 from savoroute.api.app import create_app
 from savoroute.cli import build_parser, main
 from savoroute.data.catalog import catalog_to_dict, load_catalog
@@ -28,7 +29,7 @@ def test_metadata_uses_identical_http_contract(bridge):
     with TestClient(create_app()) as http:
         expected = http.get("/v1/meta").json()
     assert run(bridge.metadata()) == expected
-    assert expected["package_version"] == "0.18.0"
+    assert expected["package_version"] == __version__
     assert expected["catalog_synthetic"] is True
     assert expected["index_backend"] == "none"
 

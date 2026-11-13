@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 import re
+import unicodedata
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -32,6 +33,9 @@ class SearchFilters:
     location: str | None = None
     max_price_tier: int | None = None
     dietary_tags: tuple[str, ...] = ()
+    city: str | None = None
+    region: str | None = None
+    country: str | None = None
 
     def __post_init__(self) -> None:
         if self.kind is not None and (
@@ -42,7 +46,7 @@ class SearchFilters:
             type(self.max_price_tier) is not int or not 1 <= self.max_price_tier <= 4
         ):
             raise ValueError("max_price_tier must be an integer from 1 to 4")
-        for field in ("cuisine", "location"):
+        for field in ("cuisine", "location", "city", "region", "country"):
             value = getattr(self, field)
             if value is not None and (not isinstance(value, str) or not value.strip()):
                 raise ValueError(f"{field} must be a nonempty string or None")
@@ -60,6 +64,11 @@ class SearchHit:
     method: Method
 
 
+def _place_key(value: str | None) -> str:
+    """Normalize Unicode and whitespace for equality, not fuzzy/substring geocoding."""
+    return " ".join(unicodedata.normalize("NFKC", value or "").casefold().split())
+
+
 def filter_catalog(
     items: Iterable[CatalogItem], filters: SearchFilters | None = None
 ) -> tuple[CatalogItem, ...]:
@@ -72,7 +81,18 @@ def filter_catalog(
             continue
         if f.cuisine and f.cuisine.strip().casefold() not in {x.casefold() for x in item.cuisines}:
             continue
-        if f.location and (item.location or "").casefold() != f.location.strip().casefold():
+        # Legacy location remains an exact display-address match OR an exact
+        # canonical city match, so existing clients can request location="Boston".
+        # A street containing the word Boston is NOT evidence of city identity.
+        if f.location and _place_key(f.location) not in {
+            _place_key(item.location), _place_key(item.city),
+        }:
+            continue
+        if f.city and _place_key(f.city) != _place_key(item.city):
+            continue
+        if f.region and _place_key(f.region) != _place_key(item.region):
+            continue
+        if f.country and _place_key(f.country) != _place_key(item.country):
             continue
         if f.max_price_tier is not None and (
             item.price_tier is None or item.price_tier > f.max_price_tier

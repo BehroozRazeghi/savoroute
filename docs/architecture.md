@@ -59,3 +59,7 @@ See [rank fusion](rank-fusion.md) and [recommendation scoring](grounded-recommen
 `evaluation/` provides synthetic tests, reviewer-sheet processing, frozen-study integrity checks, baseline comparisons, and query-level bootstrap summaries. The human-review workflow does not create relevance labels automatically. The small Boston OSM pilot is not a demonstrated real-world quality result until independent judgments and adjudication are complete; even then, its query sample limits generalization.
 
 See [statistical evaluation](statistical-relevance-study.md), [design decisions](adr/), and the [quality plan](product-quality-plan.md). Operational security, larger-scale effectiveness, and UX validation remain open work.
+
+## Geographic filtering in v0.21.1
+
+Metadata filters use exact, case-insensitive values for cuisine and dietary tags, and an integer bound for price tier. The legacy `location` filter accepts exact recorded-city equality or exact display-address equality; substring matching is not used. City, region and country fields must be source-grounded, and missing municipalities remain unknown. A missing price tier does not satisfy a maximum-price filter. Dietary tags are catalog metadata, not verified allergen information. See [geographic normalization](geographic-normalization.md).

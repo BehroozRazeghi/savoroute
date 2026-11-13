@@ -12,6 +12,7 @@ import json
 import re
 import shutil
 import tempfile
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
@@ -239,8 +240,23 @@ def verify_osm_study(directory: str | Path) -> dict[str, Any]:
     imported = import_osm_snapshot(
         snapshot, dataset_name=catalog.dataset_name, synthetic_fixture=synthetic_fixture,
     )
-    if (catalog_fingerprint(imported.catalog) != catalog_fingerprint(catalog)
-            or manifest.get("catalog_fingerprint") != catalog_fingerprint(catalog)):
+    # Frozen study v1 catalogs predate optional geography fields. Historical
+    # provenance must remain verifiable without changing any frozen file or
+    # permitting mismatches in the original fields. A legacy comparison is
+    # permitted only when the frozen catalog has no geography keys at all.
+    source_fingerprint = catalog_fingerprint(imported.catalog)
+    frozen_fingerprint = catalog_fingerprint(catalog)
+    geo_keys = {"raw_address", "city", "region", "country", "city_id",
+                "latitude", "longitude", "city_source"}
+    legacy = all(not geo_keys.intersection(item) for item in files["catalog.json"]["items"])
+    if source_fingerprint != frozen_fingerprint and legacy:
+        stripped = replace(imported.catalog, items=tuple(replace(
+            item, raw_address=None, city=None, region=None, country=None,
+            city_id=None, latitude=None, longitude=None, city_source=None,
+        ) for item in imported.catalog.items))
+        source_fingerprint = catalog_fingerprint(stripped)
+    if (source_fingerprint != frozen_fingerprint
+            or manifest.get("catalog_fingerprint") != frozen_fingerprint):
         raise StudyError("catalog provenance does not match original OSM snapshot")
     source_decisions = {
         category: sum(row.status == category for row in imported.decisions)

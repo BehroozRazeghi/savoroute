@@ -10,6 +10,8 @@ def serve(
     *, catalog: str | Path | None = None, index: str | Path | None = None,
     evidence: str | Path | None = None,
     osm: str | Path | None = None, reviewed_media: str | Path | None = None,
+    source_facts: str | Path | None = None,
+    recipe_notes: str | Path | None = None,
     host: str = "127.0.0.1", port: int = 8000,
     api_key_env: str = "SAVOROUTE_API_KEY",
 ) -> None:
@@ -31,5 +33,7 @@ def serve(
     # An HTTP API key alone is not equivalent to TLS, rate limits, or hardened hosting.
     application = create_app(catalog_path=catalog, index_path=index,
                              evidence_path=evidence, osm_path=osm,
-                             reviewed_media_path=reviewed_media, api_key=api_key)
+                             reviewed_media_path=reviewed_media,
+                             source_facts_path=source_facts, recipe_notes_path=recipe_notes,
+                             api_key=api_key)
     uvicorn.run(application, host=host, port=port, reload=False, access_log=osm is None)

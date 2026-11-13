@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "collection": "Wikibooks source-linked pilot recipes",
+  "recipes": [
+    {
+      "title": "Ratatouille I",
+      "description": "Provençal vegetable stew with eggplant, zucchini, tomato, peppers, and aromatics; an adapted source-linked recipe.",
+      "source_url": "https://en.wikibooks.org/wiki/Cookbook:Ratatouille_I",
+      "source_revision_url": "https://en.wikibooks.org/w/index.php?title=Cookbook:Ratatouille_I&oldid=4514115",
+      "ingredients": [
+        "Olive oil, enough to coat the pan",
+        "1 onion",
+        "1 garlic clove",
+        "1 eggplant",
+        "1 bell pepper",
+        "2 zucchini",
+        "6 medium ripe tomatoes",
+        "Salt and black pepper to taste",
+        "Herbes de Provence or fresh basil, optional"
+      ],
+      "steps": [
+        "Slice the eggplant and zucchini; brown them briefly in olive oil and set aside.",
+        "Soften the chopped onion and pepper in the same pan, then add garlic.",
+        "Add peeled, seeded tomatoes. Cover and simmer until they release liquid.",
+        "Return the browned vegetables; season and gently simmer until tender.",
+        "Cook uncovered to reduce surplus liquid, keeping the vegetables intact."
+      ],
+      "cuisines": [
+        "Provençal"
+      ],
+      "source_checked_on": "2026-11-13",
+      "source_license": "CC-BY-SA-4.0",
+      "source_attribution": "Wikibooks Cookbook contributors (revision history linked)",
+      "adaptation_notice": "Shortened, rephrased ingredient and method text; no original photographs or nutritional values reused"
+    },
+    {
+      "title": "Hummus III",
+      "description": "Chickpea-and-tahini spread prepared with lemon juice, olive oil, and garlic; an adapted source-linked recipe.",
+      "source_url": "https://en.wikibooks.org/wiki/Cookbook:Hummus_III",
+      "source_revision_url": "https://en.wikibooks.org/w/index.php?title=Cookbook:Hummus_III&oldid=4630237",
+      "ingredients": [
+        "1/2 cup dried chickpeas",
+        "5 tablespoons lemon juice",
+        "4 tablespoons olive oil",
+        "2 tablespoons tahini (sesame paste)",
+        "4 large garlic cloves",
+        "3/4 teaspoon salt"
+      ],
+      "steps": [
+        "Soak the dried chickpeas overnight, then drain and rinse.",
+        "Simmer the chickpeas in fresh water with chopped garlic and salt until fully tender.",
+        "Allow them to cool enough to process safely.",
+        "Blend with lemon juice, tahini, and olive oil until smooth."
+      ],
+      "cuisines": [
+        "Levantine"
+      ],
+      "source_checked_on": "2026-11-13",
+      "source_license": "CC-BY-SA-4.0",
+      "source_attribution": "Wikibooks Cookbook contributors (revision history linked)",
+      "adaptation_notice": "Shortened, rephrased ingredient and method text; no original photographs or nutritional values reused"
+    },
+    {
+      "title": "Red Lentil Soup",
+      "description": "Simple red lentil soup with onions, carrots, garlic, and bay leaf; an adapted source-linked recipe.",
+      "source_url": "https://en.wikibooks.org/wiki/Cookbook:Red_Lentil_Soup",
+      "source_revision_url": "https://en.wikibooks.org/w/index.php?title=Cookbook:Red_Lentil_Soup&oldid=4518501",
+      "ingredients": [
+        "1–2 tablespoons olive oil",
+        "1 onion, diced",
+        "2 carrots, diced",
+        "2 garlic cloves, minced",
+        "1/2 pound dry red lentils",
+        "6 cups water or stock",
+        "1 bay leaf"
+      ],
+      "steps": [
+        "Sort and thoroughly rinse the lentils.",
+        "Gently cook diced onion and carrots in olive oil until softened, then add garlic.",
+        "Add lentils, bay leaf, and water or stock.",
+        "Simmer until the lentils are tender, roughly 20–30 minutes; serve hot."
+      ],
+      "cuisines": [],
+      "source_checked_on": "2026-11-13",
+      "source_license": "CC-BY-SA-4.0",
+      "source_attribution": "Wikibooks Cookbook contributors (revision history linked)",
+      "adaptation_notice": "Shortened, rephrased ingredient and method text; no original photographs or nutritional values reused"
+    }
+  ]
+}

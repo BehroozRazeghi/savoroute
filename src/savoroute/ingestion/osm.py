@@ -10,7 +10,7 @@ import hashlib
 import json
 import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -199,6 +199,11 @@ def parse_osm_candidate(raw: Any) -> tuple[OsmCandidate | None, str, str]:
         cuisines=cuisines, dietary_tags=(), source="OpenStreetMap contributors",
         source_url=None,  # synthetic fixtures must not imply a real OSM listing
         location=location, price_tier=None, ingredients=(),
+        raw_address=full_address or address or None,
+        city=city or None, region=_text(tags, "addr:state") or None,
+        country=_text(tags, "addr:country") or None,
+        latitude=lat, longitude=lon,
+        city_source="osm:addr:city" if city else None,
     )
     return OsmCandidate(item, ref, basis, tags, lat, lon), ref, ""
 
@@ -266,13 +271,7 @@ def import_osm_snapshot(
             ))
             continue
         if not synthetic_fixture:
-            item = CatalogItem(
-                item_id=item.item_id, kind=item.kind, title=item.title,
-                description=item.description, cuisines=item.cuisines, dietary_tags=(),
-                source=item.source,
-                source_url=f"https://www.openstreetmap.org/{ref}",
-                location=item.location, price_tier=None, ingredients=(),
-            )
+            item = replace(item, source_url=f"https://www.openstreetmap.org/{ref}")
             candidate = OsmCandidate(item, ref, candidate.location_basis,
                                      candidate.raw_tags, candidate.lat, candidate.lon)
         existing_ids.add(item.item_id)
@@ -282,7 +281,8 @@ def import_osm_snapshot(
             "item_id": item.item_id,
             "location_basis": candidate.location_basis,
             "source_tags": {key: candidate.raw_tags[key] for key in (
-                "name", "cuisine", "addr:full", "addr:street", "addr:housenumber", "addr:city"
+                "name", "cuisine", "addr:full", "addr:street", "addr:housenumber", "addr:city",
+                "addr:state", "addr:country"
             ) if key in candidate.raw_tags},
             "latitude": candidate.lat, "longitude": candidate.lon,
             "source_version": version, "source_timestamp": timestamp,

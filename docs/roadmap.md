@@ -16,7 +16,7 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 4 · Recommendations | Binary relevance annotation workflow and deterministic catalog-grounded recommendations; notebook 12 | Implemented offline; independent real-world annotation pending |
 | 4b · Real-data study preparation | Frozen OSM provenance, split checks, reviewer references, baseline reports; notebook 13 | Implemented; independent real annotation outstanding |
 | 5a · HTTP interface | Versioned read-only API, catalog browsing, shared discovery/recommendations, OpenAPI, notebook 14 | Implemented locally; production hardening outstanding |
-| 5b · Agent and web interfaces | MCP tools, responsive web application | Planned |
+| 5b · MCP and web interfaces | Six local read-only MCP tools; responsive search-first browser | Implemented locally; no autonomous agent or remote MCP |
 | 5c · Personal visit discovery | Local-only, user-selected metadata clusters, OSM-proximity suggestions, explicit review and minimal confirmed history; notebook 18 | Implemented as opt-in pilot; accuracy not validated |
 | 5d · Geographic discovery and reviewed media | Saved OSM geometry search, review-bound local images, explicit menu reference status; notebook 19 | Implemented locally; actual rights and geolocation not independently verified |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
@@ -33,7 +33,7 @@ Stage 1d adds OSM metadata-aware reconciliation and pairwise evaluation of the s
 
 ## Application scope
 
-The intended web application uses the same catalog, retrieval, and recommendation services as the notebooks and CLI. Its first flows are search, filtering, and item detail. Image search and guided recommendations follow the corresponding package implementations. The native mobile client has no assigned framework or development milestone.
+The implemented local-first web interface reuses the same catalog, retrieval, and recommendation services as the notebooks and CLI. It supports search, filtering, evidence-aware details, and result comparison. The native mobile client has no selected framework or planned implementation milestone.
 
 ## Local image processing
 
@@ -46,7 +46,7 @@ validation, error handling, provenance, and preference constraints. Remote
 MCP/Streamable HTTP deployment is not part of this milestone. See
 [local MCP design](mcp-server.md) and [ADR 0009](adr/0009-local-mcp-adapter.md).
 
-Next: a deliberate user-facing web experience, deployment/security design,
+Next: a grounded user-facing agent workflow (not currently implemented), deployment/security design,
 and independently reviewed real-world relevance measurements.
 
 
@@ -68,3 +68,23 @@ Approved menu links and image URLs carry source, observation date, attribution a
 ### v0.18.0 — Reproducible real-data relevance evaluation (software)
 
 Implemented: local independent reviewer worksheet interface, incomplete-label progress audit, frozen analysis configuration, strict held-out release, fixed BM25/overlap baselines, paired query bootstrap and error reports. The actual 165-record Boston OSM pilot remains **unlabeled** until independent reviewers complete and adjudicate its 1,320 query–item pairs. Future work: rigorous labeling and reporting, larger geographically diverse query sets, and validation of multimodal systems with frozen model/index configurations.
+
+
+### v0.19.0 — Search-first product UX and pinned Boston boundary workflow
+
+Implemented responsive search-first discovery, mode chips, hidden advanced filters, source-grounded result comparison and browser interaction regression tests. Added official Boston GIS import validation and documented audit gates, but actual polygon acquisition and adjudication of 41 missing city tags remain pending because the boundary could not be fetched in the release environment.
+
+
+### v0.20.0 — Reproducible source-quality audit and opt-in source observations
+
+Implemented offline field coverage, review queue, and catalog-bound raw OSM
+source observations, visible in the item detail panel with explicit uncertainty.
+Source facts do not modify catalog indexing, filters, or recommendations. The
+Boston snapshot has no real recipes, no price tiers, and no informative restaurant
+descriptions. The 41 city-unattributed restaurants remain unresolved. Next:
+independent geographic backfill and lawful, human-reviewed restaurant and
+recipe sourcing; see `docs/data-quality-and-source-facts.md`.
+
+### v0.21.0 — Small attributed recipe seed, not recipe-market coverage
+
+A strict offline import now exercises 3 real-source, revision-linked Wikibooks Cookbook recipe adaptations beside the unchanged 165 OSM restaurants, with an authorized web/API preparation panel and separate CC BY-SA content obligations. These recipes remain unreviewed for culinary correctness and dietary/allergen safety. An explicit 41-record Boston municipality queue makes the official polygon dependency auditable; no additional cities were inferred. Next gates: independent source review, legally usable menu/photo content, actual municipal boundary retrieval, diverse real recipes, and benchmark relevance judgments. Full policy and commands: `docs/recipe-curation-m4.md`.

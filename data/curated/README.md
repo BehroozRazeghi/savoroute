@@ -1,0 +1,3 @@
+# Curated source-linked content (not synthetic sample data)
+
+`wikibooks-recipes-pilot-v1.json` contains three manually adapted recipe seed records tied to specific, attributed Wikibooks Cookbook revisions. Recipe-specific ingredients and instructions are adapted source content subject to **CC BY-SA 4.0**, distinct from SavoRoute's MIT-licensed program code. See `docs/recipe-curation-m4.md` for attribution links, adaptation disclosures, limits of source validation, reproduction, and publishing constraints. Do not assume this license covers third-party images. No images are bundled. No recipe has been independently tested or diet/allergen approved.

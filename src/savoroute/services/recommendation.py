@@ -56,6 +56,10 @@ class Recommendation:
             "dietary_tags": list(self.item.dietary_tags),
             "location": self.item.location, "price_tier": self.item.price_tier,
             "ingredients": list(self.item.ingredients),
+            **{field: getattr(self.item, field) for field in (
+                "raw_address", "city", "region", "country", "city_id",
+                "latitude", "longitude", "city_source",
+            )},
             "retrieval_score": round(self.retrieval_score, 9),
             "ranking_score": round(self.score, 9),
             "matched_preferred_cuisines": list(self.matched_cuisines),
@@ -95,6 +99,8 @@ class RecommendationResponse:
             "applied_filters": {
                 "kind": self.filters.kind, "cuisine": self.filters.cuisine,
                 "location": self.filters.location,
+                "city": self.filters.city, "region": self.filters.region,
+                "country": self.filters.country,
                 "max_price_tier": self.filters.max_price_tier,
                 "dietary_tags": list(self.filters.dietary_tags),
             },

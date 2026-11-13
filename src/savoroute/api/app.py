@@ -28,11 +28,13 @@ from savoroute.api.contracts import (
     NearbyOutput,
     RankInput,
     RankOutput,
+    RecipeNotesItemOutput,
     RecommendationOutput,
     RecommendInput,
     ReviewedMediaListOutput,
     SearchInput,
     SearchOutput,
+    SourceFactsItemOutput,
 )
 from savoroute.data.catalog import load_catalog
 from savoroute.domain.models import Catalog, CatalogItem
@@ -40,6 +42,8 @@ from savoroute.evidence.review import load_evidence_bundle
 from savoroute.geography.nearby import NearbyIndex
 from savoroute.media.reviewed import load_reviewed_media
 from savoroute.providers.contracts import JointTextImageEmbedder
+from savoroute.quality.osm_facts import load_source_facts, osm_snapshot_digest
+from savoroute.quality.recipes import load_recipe_notes
 from savoroute.retrieval.dense import DenseIndex, load_dense_index, validate_dense_catalog
 from savoroute.retrieval.fusion import FusionWeights
 from savoroute.retrieval.lexical import SearchFilters, filter_catalog
@@ -67,6 +71,8 @@ def create_app(
     evidence_path: str | Path | None = None,
     osm_path: str | Path | None = None,
     reviewed_media_path: str | Path | None = None,
+    source_facts_path: str | Path | None = None,
+    recipe_notes_path: str | Path | None = None,
     encoder: JointTextImageEmbedder | None = None,
     api_key: str | None = None,
 ) -> FastAPI:
@@ -85,6 +91,12 @@ def create_app(
 
     catalog: Catalog = load_catalog(catalog_path)
     service = DiscoveryService(catalog)
+    source_facts = load_source_facts(source_facts_path, catalog) if source_facts_path else None
+    source_facts_by_item = ({entry["item_id"]: entry for entry in source_facts["records"]}
+                            if source_facts is not None else {})
+    recipe_notes = load_recipe_notes(recipe_notes_path, catalog) if recipe_notes_path else None
+    recipe_notes_by_item = ({entry["item_id"]: entry for entry in recipe_notes["records"]}
+                            if recipe_notes is not None else {})
     evidence_bundle = (load_evidence_bundle(evidence_path, catalog)
                        if evidence_path is not None else None)
     if reviewed_media_path is not None and evidence_bundle is None:
@@ -101,6 +113,9 @@ def create_app(
             snapshot = json.loads(source.read_text(encoding="utf-8"))
         except (UnicodeError, json.JSONDecodeError) as exc:
             raise ValueError("invalid UTF-8 OSM snapshot") from exc
+        if (source_facts is not None and
+                osm_snapshot_digest(snapshot) != source_facts["osm_snapshot_sha256"]):
+            raise ValueError("OSM snapshot differs from source-facts provenance")
         spatial = NearbyIndex.from_snapshot(catalog, snapshot)
     catalog_dir = Path(catalog_path).resolve().parent if catalog_path is not None else None
     index: VectorIndex | DenseIndex | None = None
@@ -199,6 +214,10 @@ def create_app(
             "geography_enabled": spatial is not None,
             "geography_restaurants": len(spatial.positions) if spatial else 0,
             "reviewed_media_enabled": media_bundle is not None,
+            "source_facts_enabled": source_facts is not None,
+            "source_facts_records": len(source_facts_by_item),
+            "recipe_notes_enabled": recipe_notes is not None,
+            "recipe_notes_records": len(recipe_notes_by_item),
         }
 
     @router.get("/items", response_model=ItemListOutput)
@@ -206,6 +225,9 @@ def create_app(
         kind: Literal["restaurant", "recipe"] | None = None,
         cuisine: str | None = None,
         location: str | None = None,
+        city: str | None = None,
+        region: str | None = None,
+        country: str | None = None,
         max_price_tier: Annotated[int | None, Query(ge=1, le=4)] = None,
         dietary_tags: Annotated[list[str] | None, Query(max_length=20)] = None,
         offset: Annotated[int, Query(ge=0, le=1_000_000)] = 0,
@@ -216,6 +238,7 @@ def create_app(
                 catalog.items,
                 SearchFilters(
                     kind=kind, cuisine=cuisine, location=location,
+                    city=city, region=region, country=country,
                     max_price_tier=max_price_tier,
                     dietary_tags=tuple(dietary_tags or ()),
                 ),
@@ -281,6 +304,47 @@ def create_app(
                     for claim in claims) else "not_recorded"),
                 "limitations": "Evidence is reviewer-approved metadata, not independently verified "
                                "licensing, menu availability, dietary or food safety assurance."}
+
+    @router.get("/items/{item_id}/source-facts", response_model=SourceFactsItemOutput)
+    def item_source_facts(item_id: str) -> dict[str, object]:
+        if catalog.get(item_id) is None:
+            raise HTTPException(status_code=404, detail="Catalog item not found")
+        row = source_facts_by_item.get(item_id)
+        return {
+            "item_id": item_id,
+            "observed_at": source_facts["observed_at"] if row is not None else None,
+            "source_url": row["source_url"] if row is not None else None,
+            "source_timestamp": row["source_timestamp"] if row is not None else None,
+            "license": source_facts["license"] if row is not None else None,
+            "attribution": source_facts["attribution"] if row is not None else None,
+            "verification_status": ("unverified_osm_tags" if row is not None else
+                                    "not_configured" if source_facts is None else "no_record"),
+            "facts": row["facts"] if row is not None else [],
+            "limitations": "Source-supplied OSM observations are not independently verified; "
+                           "opening hours, dietary claims, accessibility, reservation, "
+                           "service and website availability may be stale or incorrect. "
+                           "Do not treat dietary tags as allergen safety evidence.",
+        }
+
+    @router.get("/items/{item_id}/recipe-notes", response_model=RecipeNotesItemOutput)
+    def item_recipe_notes(item_id: str) -> dict[str, object]:
+        if catalog.get(item_id) is None:
+            raise HTTPException(status_code=404, detail="Catalog item not found")
+        row = recipe_notes_by_item.get(item_id)
+        return {
+            "item_id": item_id,
+            "review_status": (row["review_status"] if row is not None else
+                              "not_configured" if recipe_notes is None else "no_record"),
+            **{key: row[key] if row is not None else None for key in (
+                "source_url", "source_revision_url", "source_checked_on", "source_attribution",
+                "source_license", "source_license_url", "adaptation_notice",
+            )},
+            "ingredients": row["ingredients"] if row is not None else [],
+            "steps": row["steps"] if row is not None else [],
+            "limitations": "A source-linked recipe adaptation is not independently cooked, professionally "
+                           "tested, or checked for dietary/allergen suitability. Publication requires "
+                           "retaining the original creator attribution, revision and CC BY-SA license.",
+        }
 
     @router.get("/items/{item_id}/media", response_model=ReviewedMediaListOutput)
     def item_media(item_id: str) -> dict[str, object]:

@@ -22,7 +22,7 @@ Each restaurant or recipe has a unique `item_id`. Media records, when present, r
 
 The search methods use a simple English alphanumeric tokenizer. Weighted overlap compares distinct query terms against selected item fields. BM25 is calculated over a concatenated document with repeated title and cuisine text; corpus statistics are computed from the complete supplied catalog before filtering. This is not BM25F, and it is not semantic search.
 
-Metadata filters use exact, case-insensitive values for cuisine, location, and dietary tags, and an integer bound for price tier. A missing price tier does not satisfy a maximum-price filter. Dietary tags are catalog metadata, not verified allergen information.
+Metadata filters use exact, case-insensitive values for cuisine and dietary tags, and an integer bound for price tier. Geographic filters use a source-grounded city/region/country when available. The legacy `location` filter accepts either exact display-address equality or exact recorded-city equality; substring matching is not used. See [geographic normalization](geographic-normalization.md). A missing price tier does not satisfy a maximum-price filter. Dietary tags are catalog metadata, not verified allergen information.
 
 ## Intended system
 

@@ -27,3 +27,14 @@ Local inputs and generated artifacts may be placed under `data/raw/`, `data/proc
 `sample/relevance_query_set_v1.json` defines fictional, unlabeled development/test queries for notebook 12 and the exhaustive annotation workflow. No reviewed real-world judgments are bundled.
 
 Real-data study snapshots and reviewer results belong under `data/generated/` (git-ignored). The study protocol is documented in [real-data evaluation](../docs/real-data-evaluation.md). No independent human judgments are bundled.
+
+
+## Milestone 3 Boston data-quality artifacts (generated, not externally verified)
+
+The distributed archive includes `generated/real-pilot/quality-audit-v1.json`
+and `generated/real-pilot/osm-source-facts-v1.json` computed solely from the
+previously saved OSM source snapshot. The source-facts file is a separate
+read-only observation overlay; it is not a verified menu dataset. These
+files are normally Git-ignored under `data/generated/`, so regenerate
+them locally before deployment if they are absent from a Git checkout.
+See `docs/data-quality-and-source-facts.md` for the exact command.

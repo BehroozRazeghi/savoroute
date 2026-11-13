@@ -50,9 +50,19 @@ def _coordinates(lat: Any, lon: Any) -> tuple[float | None, float | None]:
 
 
 def item_digest(item: CatalogItem) -> str:
-    """Fingerprint fields managed in the canonical catalog, excluding media."""
+    """Fingerprint item fields, preserving digests from before additive geography.
+
+    Original registry digests predate the optional geographical fields. Omit
+    absent new fields, but include recorded ones so material updates invalidate
+    source bindings and still require reconciliation.
+    """
+    payload = asdict(item)
+    for field in ("raw_address", "city", "region", "country", "city_id",
+                  "latitude", "longitude", "city_source"):
+        if payload[field] is None:
+            del payload[field]
     return hashlib.sha256(json.dumps(
-        asdict(item), sort_keys=True, ensure_ascii=False, separators=(",", ":"),
+        payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
     ).encode("utf-8")).hexdigest()
 
 

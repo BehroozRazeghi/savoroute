@@ -1,3 +1,54 @@
+## [0.21.1] — 2026-11-13 (Public repository preparation)
+
+- Remove the empty root `Untitled.ipynb`; retain the 21 substantive notebooks.
+- Replace the version-by-version landing page with an accurate, capability-based README and a precise installation/data-availability statement.
+- Correct the outdated roadmap and notebook index; add a public source/CI checklist and release-hygiene regression tests.
+- No changes to catalog ranking, source facts, recipe content, or the frozen Boston study.
+
+## [0.21.0] — 2026-11-13 (Attributed recipe pilot and unresolved-city review queue)
+
+- Add three revision-pinned, attributed CC BY-SA Wikibooks Cookbook recipe adaptations to a **separate, additive** catalog; preserve all 165 source-identified OSM restaurant items and frozen-study artifacts.
+- Validate recipe manifest source/revision correspondence, strict rights annotations, stable IDs, non-overwriting exports and digest-bound source and preparation notes. Do not infer dietary or allergen-safety labels.
+- Expose authorized read-only recipe notes through HTTP v1 and a source-linked preparation panel in the existing browser interface. Distinguish recipe fields from restaurant fields.
+- Generate a 41-record, coordinate-preserving unresolved Boston municipality queue for operator review. No boundary-derived city assignments are claimed; the official polygon remained inaccessible in this runtime.
+- Add source quality, security, rights, API, idempotency and real Chromium regression checks. No source images, verified menus, restaurant prices or invented descriptions were added.
+- Preserve the MIT program code vs CC BY-SA adapted recipe-content licensing boundary.
+
+## [0.20.0] — 2026-11-13 (Source quality and evidence coverage)
+
+- Introduce a reproducible, type-specific catalog quality audit, recorded-field
+  completeness metrics and bounded, deterministic human review queue.
+- Add strictly source-identity-bound extraction of selected fields from an
+  *existing local* Overpass snapshot into a separate, digest-bound OSM
+  observation sidecar; retain source timestamps, hashes and ODbL provenance.
+- Add an optional, authorized `/v1/items/{item_id}/source-facts` response and
+  an evidence-labeled web detail panel. Never silently promote these unverified
+  tags into dietary filters, availability checks or recommendation ranking.
+- Add CLI `savoroute quality audit`; default to never overwriting existing
+  files, catalog data, or historical frozen studies.
+- Add regression and Chromium tests for real Boston coverage and source-facts
+  behavior. The official Boston polygon remains unavailable in this runtime.
+- The Boston pilot still has 165 restaurants, 0 real recipes, 41 city-unknown
+  entries, 0 verified prices and 0 informative descriptions; no synthetic
+  enrichment is represented as genuine venue information.
+
+## [0.19.0] — 2026-11-13 (Geography and search-first web)
+
+- Replace the form-dense landing page with a responsive, search-first consumer interface: dine-out/cook/both selection, sample queries, a visible city field, and progressive disclosure of hard constraints and soft preferences.
+- Add evidence-conscious result and catalog cards, accessible detail dialogs, and local-only side-by-side comparison of up to three actual catalog entries; decorative illustrations are explicitly **not item photographs**.
+- Preserve same-origin FastAPI HTTP v1, local-only optional API key, source/rights boundaries, browser-side cancellation, and all existing recommendation algorithms.
+- Add a pinned official Boston boundary downloader and identity-checked offline backfill runner; never infer municipalities from an unverified rectangle. Report tagged records that fall outside a reviewed polygon without silently overwriting OSM tags.
+- Add offline Chromium UI interaction checks, boundary validation tests, and updated user/operator documentation. The official boundary could not be downloaded in the release environment; the 41 currently unknown cities therefore remain unknown in the bundled live catalog.
+
+### Milestone 1 carried forward (geographic normalization, November 2026)
+
+- Add optional source-backed geographic fields to canonical schema v1, OSM import, API item responses, and recommendation output.
+- Fix exact city/legacy location matching without guessing a city from street text or a collection bounding box.
+- Add offline `geo normalize` migration with SHA256 provenance, optional operator-verified WGS84 administrative polygon, and explicit unresolved/conflict reporting.
+- Normalize the live Boston pilot (124 explicitly tagged Boston records; 41 unknown) while retaining the original frozen evaluation bundle intact.
+- Preserve historical catalog-study verification and legacy item binding digests across additive geography fields.
+- Add geography regression tests and document known data constraints.
+
 ## [0.18.0] — 2026-11-12
 
 - Added a checksum-bound retrieval analysis plan, reviewer-sheet coverage audit and strict held-out test-evaluation gate.

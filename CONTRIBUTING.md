@@ -1,20 +1,27 @@
-# Development
+# Contributing
 
-The library is the source of truth for ingestion, retrieval, and catalog behavior. Notebooks demonstrate package functions, while CLI and future HTTP/MCP interfaces expose the same operations.
+SavoRoute is a developer-preview research application. Core catalog, retrieval, and recommendation behavior belongs in `src/savoroute/`; the web app, API, CLI, and local MCP bridge must reuse these services rather than add inconsistent ranking rules.
 
-## Local checks
+## Before opening a pull request
 
 ```bash
-python -m pip install -e ".[dev,notebooks]"
-python -m pytest
-ruff check src tests scripts
-jupyter lab
+python -m pip install -e ".[api,mcp,dev,notebooks]"
+python -m pytest -q
+python -m ruff check src tests scripts
+node --input-type=module --check < src/savoroute/web/static/app.js
+node --test tests/web/*.test.mjs
 ```
 
-The CI workflow runs tests, Ruff and notebook execution on Python 3.11–3.13. Local notebook changes are checked by running the affected notebook from its first cell using the repository-root working directory.
+CI also executes every notebook from its first cell on Python 3.11–3.13. When changing a notebook, execute it from the repository root and remove saved private data or unintended outputs.
 
-## Contributions
+Use a focused branch and pull request. Explain behavior changes, tests run, and any optional checks that could not be executed. Do not merge while required CI checks are failing or pending. Keep the default demo runnable without network access, credentials, or downloaded models.
 
-New package features include tests for validation errors, empty results, deterministic ordering, and applicable constraints. An accompanying notebook illustrates the public API after the implementation is working. Substantial decisions are recorded under `docs/adr/`.
+## Data and evidence policy
 
-External data and images require documented provenance and redistribution rights. Secrets, personal records, provider responses containing private data, and downloaded model artifacts are excluded from the repository. Evaluation reports identify the dataset, labels, configuration and limitations.
+- Never commit credentials, user photos, user visit history, private review files, or `data/generated/`.
+- Use separate, catalog-digest-bound sidecars for review claims and imported source observations. Unknown values are not negative facts.
+- Provide exact source identity, observation date, appropriate licenses, and review status when proposing real-world content. Review status does not independently verify factual accuracy or rights.
+- Do not represent saved OSM hours, prices, dietary tags, or source-provided images as current or independently verified.
+- Add regression tests for source validity, deterministic behavior, unauthorized access and incompatible catalogs when applicable.
+
+See [release checklist](docs/release-checklist.md), [source provenance](docs/data-quality-and-source-facts.md), and [roadmap](docs/roadmap.md).

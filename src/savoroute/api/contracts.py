@@ -33,12 +33,15 @@ class FilterInput(WireModel):
     location: Nonempty | None = None
     max_price_tier: Annotated[int, Field(strict=True, ge=1, le=4)] | None = None
     dietary_tags: Annotated[tuple[Nonempty, ...], Field(max_length=20)] = ()
+    city: Nonempty | None = None
+    region: Nonempty | None = None
+    country: Nonempty | None = None
 
     def as_domain(self) -> SearchFilters:
         return SearchFilters(
             kind=self.kind,
             cuisine=self.cuisine,
-            location=self.location,
+            location=self.location, city=self.city, region=self.region, country=self.country,
             max_price_tier=self.max_price_tier,
             dietary_tags=self.dietary_tags,
         )
@@ -122,6 +125,14 @@ class ItemOutput(WireModel):
     source_url: str | None
     location: str | None
     price_tier: int | None
+    raw_address: str | None = None
+    city: str | None = None
+    region: str | None = None
+    country: str | None = None
+    city_id: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    city_source: str | None = None
 
 
 class ItemListOutput(WireModel):
@@ -182,6 +193,14 @@ class RecommendationItemOutput(WireModel):
     location: str | None
     price_tier: int | None
     ingredients: list[str]
+    raw_address: str | None = None
+    city: str | None = None
+    region: str | None = None
+    country: str | None = None
+    city_id: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    city_source: str | None = None
     retrieval_score: float
     ranking_score: float
     matched_preferred_cuisines: list[str]
@@ -194,6 +213,9 @@ class AppliedFiltersOutput(WireModel):
     kind: Literal["restaurant", "recipe"] | None
     cuisine: str | None
     location: str | None
+    city: str | None = None
+    region: str | None = None
+    country: str | None = None
     max_price_tier: int | None
     dietary_tags: list[str]
 
@@ -221,6 +243,49 @@ class MetaOutput(WireModel):
     geography_enabled: bool
     geography_restaurants: int
     reviewed_media_enabled: bool
+    source_facts_enabled: bool = False
+    source_facts_records: int = 0
+    recipe_notes_enabled: bool = False
+    recipe_notes_records: int = 0
+
+
+
+class RecipeNotesItemOutput(WireModel):
+    api_version: Literal["v1"] = "v1"
+    item_id: str
+    review_status: Literal["source_transcribed_unverified", "not_configured", "no_record"]
+    source_url: str | None
+    source_revision_url: str | None
+    source_checked_on: str | None
+    source_attribution: str | None
+    source_license: str | None
+    source_license_url: str | None
+    adaptation_notice: str | None
+    ingredients: list[str]
+    steps: list[str]
+    limitations: str
+
+
+class SourceFactOutput(WireModel):
+    field: Literal["website", "menu_url", "cuisine_tag", "description_tag", "city_tag",
+                   "opening_hours", "outdoor_seating", "wheelchair",
+                   "reservation", "delivery", "takeaway", "diet_vegan", "diet_vegetarian",
+                   "diet_gluten_free"]
+    value: str
+    osm_tag: str
+
+
+class SourceFactsItemOutput(WireModel):
+    api_version: Literal["v1"] = "v1"
+    item_id: str
+    observed_at: str | None
+    source_url: str | None
+    source_timestamp: str | None
+    attribution: str | None
+    license: str | None
+    verification_status: Literal["unverified_osm_tags", "not_configured", "no_record"]
+    facts: list[SourceFactOutput]
+    limitations: str
 
 
 class ReviewedClaimOutput(WireModel):

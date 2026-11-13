@@ -27,7 +27,7 @@ def test_liveness_metadata_and_versioned_schema(client):
     assert client.get("/healthz").json() == {"status": "ok", "api_version": "v1"}
     metadata = client.get("/v1/meta")
     assert metadata.status_code == 200
-    assert metadata.json()["package_version"] == "0.16.0"
+    assert metadata.json()["package_version"] == "0.17.0"
     assert metadata.json()["catalog_synthetic"] is True
     assert metadata.json()["catalog_items"] == 12
     assert metadata.json()["index_backend"] == "none"
@@ -319,10 +319,11 @@ def test_serve_command_uses_explicit_app_without_starting_real_socket(monkeypatc
     catalog_path.write_text(json.dumps(catalog_to_dict(load_catalog())), encoding="utf-8")
     received = {}
 
-    def intercept(app, *, host, port, reload):
+    def intercept(app, *, host, port, reload, access_log):
         received["host"] = host
         received["port"] = port
         received["reload"] = reload
+        received["access_log"] = access_log
         with TestClient(app) as client:
             received["metadata"] = client.get("/v1/meta").json()
 

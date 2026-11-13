@@ -18,6 +18,7 @@ Each milestone adds reusable Python functionality, tests, a corresponding Jupyte
 | 5a · HTTP interface | Versioned read-only API, catalog browsing, shared discovery/recommendations, OpenAPI, notebook 14 | Implemented locally; production hardening outstanding |
 | 5b · Agent and web interfaces | MCP tools, responsive web application | Planned |
 | 5c · Personal visit discovery | Local-only, user-selected metadata clusters, OSM-proximity suggestions, explicit review and minimal confirmed history; notebook 18 | Implemented as opt-in pilot; accuracy not validated |
+| 5d · Geographic discovery and reviewed media | Saved OSM geometry search, review-bound local images, explicit menu reference status; notebook 19 | Implemented locally; actual rights and geolocation not independently verified |
 | 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
 
 ## Completed ingestion work

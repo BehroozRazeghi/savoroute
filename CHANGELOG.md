@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.17.0 — Approximate geography and reviewed local media
+
+- Add operator-bound OSM geolocation search with deterministic Haversine ranking, source geometry classification and explicit coordinate inputs.
+- Reuse the stable restaurant identity mapping used by opt-in visit suggestions; exclude unadmitted duplicate candidates.
+- Add an offline, rights-review-bound local PNG publication pipeline with source and normalized hashes, EXIF stripping, attribution and modification notes.
+- Expose protected read-only media endpoints and menu reference status without modifying canonical catalog or recommendation scoring.
+- Integrate nearby exploration, local images, and menu-status transparency into the existing web app; add Notebook 19, tests, CLI and ADR 0013.
+
+**Limitations:** OSM centers are not surveyed entrances; manually approved licenses are not independently verified; absence of a menu link is not proof that no menu exists. No geocoding, third-party image fetching or real-world accuracy claims.
+
+
 ## 0.16.0 — Opt-in restaurant visit suggestions
 
 - Add strict, bounded, user-selected photo metadata input with timezone-aware, deterministic spatial-temporal clustering.

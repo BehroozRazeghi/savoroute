@@ -91,6 +91,8 @@ def build_parser() -> argparse.ArgumentParser:
     api_serve.add_argument("--catalog", help="explicit catalog JSON; default: fictional demo")
     api_serve.add_argument("--index", help="optional matching JSON/SQLite/FAISS index")
     api_serve.add_argument("--evidence", help="approved evidence bundle bound to the catalog")
+    api_serve.add_argument("--osm", help="saved Overpass JSON for approximate nearby discovery")
+    api_serve.add_argument("--reviewed-media", help="local rights-reviewed PNG bundle directory")
     api_serve.add_argument("--host", default="127.0.0.1")
     api_serve.add_argument("--port", type=int, default=8000)
     api_serve.add_argument("--api-key-env", default="SAVOROUTE_API_KEY")
@@ -102,6 +104,8 @@ def build_parser() -> argparse.ArgumentParser:
         ("catalog", {"help": "explicit catalog JSON; default: fictional demo"}),
         ("index", {"help": "optional matching vector index"}),
         ("evidence", {"help": "approved evidence bundle bound to the catalog"}),
+        ("osm", {"help": "saved Overpass JSON for approximate nearby discovery"}),
+        ("reviewed-media", {"help": "local rights-reviewed PNG bundle directory"}),
         ("host", {"default": "127.0.0.1"}),
         ("port", {"type": int, "default": 8000}),
         ("api-key-env", {"default": "SAVOROUTE_API_KEY"}),
@@ -239,6 +243,13 @@ def build_parser() -> argparse.ArgumentParser:
     media_ingest.add_argument("--manifest", required=True, help="versioned JSON image manifest")
     media_ingest.add_argument("--catalog", help="catalog without existing media; default: demo")
     media_ingest.add_argument("--output-dir", required=True, help="new self-contained output directory")
+    reviewed_media = media_commands.add_parser(
+        "package-reviewed", help="package local images bound to reviewed image rights claims"
+    )
+    reviewed_media.add_argument("--catalog", required=True)
+    reviewed_media.add_argument("--evidence", required=True)
+    reviewed_media.add_argument("--manifest", required=True)
+    reviewed_media.add_argument("--output-dir", required=True)
 
     vectors = commands.add_parser("vectors", help="joint text/image vector retrieval")
     vector_commands = vectors.add_subparsers(dest="vector_command", required=True)
@@ -561,8 +572,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.command in {"api", "web"}:
             from savoroute.api.server import serve
 
-            serve(catalog=args.catalog, index=args.index, evidence=args.evidence, host=args.host,
-                  port=args.port, api_key_env=args.api_key_env)
+            serve(catalog=args.catalog, index=args.index, evidence=args.evidence,
+                  osm=args.osm, reviewed_media=args.reviewed_media,
+                  host=args.host, port=args.port, api_key_env=args.api_key_env)
             return 0
         if args.command == "ingest":
             _run_ingest(args)
@@ -726,6 +738,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if args.command == "media":
             catalog = load_catalog(args.catalog)
+            if args.media_command == "package-reviewed":
+                from savoroute.media.reviewed import package_reviewed_media
+
+                bundle = package_reviewed_media(
+                    catalog, args.evidence, args.manifest, args.output_dir
+                )
+                print(f"Packaged {len(bundle['assets'])} approved local images: "
+                      f"{Path(args.output_dir) / 'manifest.json'}")
+                return 0
             batch = prepare_image_batch(args.manifest, catalog)
             destination = write_image_batch(batch, args.output_dir)
             print(f"Imported {len(batch.images)} images; catalog media={len(batch.catalog.media)}")

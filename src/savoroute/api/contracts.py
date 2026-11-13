@@ -218,6 +218,9 @@ class MetaOutput(WireModel):
     catalog_media: int
     index_backend: Literal["none", "json", "sqlite", "faiss-hnsw"]
     server_encoder_enabled: bool
+    geography_enabled: bool
+    geography_restaurants: int
+    reviewed_media_enabled: bool
 
 
 class ReviewedClaimOutput(WireModel):
@@ -236,4 +239,46 @@ class EvidenceItemOutput(WireModel):
     item_id: str
     catalog_synthetic: bool
     reviewed_claims: list[ReviewedClaimOutput]
+    menu_status: Literal["reviewed_reference", "not_recorded"]
+    limitations: str
+
+
+class NearbyItemOutput(WireModel):
+    item: ItemOutput
+    distance_m: float
+    geometry_basis: Literal["node", "bbox_center"]
+    source_ref: str
+
+
+class NearbyOutput(WireModel):
+    api_version: Literal["v1"] = "v1"
+    catalog_synthetic: bool
+    source_sha256: str
+    geometry_restaurants: int
+    radius_m: int
+    results: list[NearbyItemOutput]
+    limitations: str
+
+
+class ReviewedImageOutput(WireModel):
+    asset_id: str
+    input_sha256: str
+    modifications: str
+    claim_id: str
+    item_id: str
+    sha256: str
+    width: int
+    height: int
+    license: str
+    attribution: str
+    source_url: str
+    image_reference_url: str
+    observed_on: str
+    reviewed_on: str
+
+
+class ReviewedMediaListOutput(WireModel):
+    api_version: Literal["v1"] = "v1"
+    item_id: str
+    images: list[ReviewedImageOutput]
     limitations: str

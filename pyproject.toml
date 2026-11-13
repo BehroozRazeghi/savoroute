@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "savoroute"
-version = "0.16.0"
-description = "Catalog discovery and opt-in reviewed restaurant visit suggestions"
+version = "0.17.0"
+description = "Catalog discovery, approximate geography and reviewed local image packaging"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

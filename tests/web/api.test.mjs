@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {afterEach, test} from 'node:test';
 import {
   ApiRequestError, browseParams, makeFilters, makePreferences,
-  parseTags, requestJson, safeSourceUrl,
+  parseTags, requestJson, requestImageBlob, nearbyParams, safeSourceUrl,
 } from '../../src/savoroute/web/static/api.mjs';
 
 const originalFetch = globalThis.fetch;
@@ -77,4 +77,34 @@ test('401 and 422 do not echo untrusted error details', async () => {
   await assert.rejects(requestJson('/v1/meta'),
     (error) => error instanceof ApiRequestError && error.status === 401 &&
       !error.message.includes('SECRET_STOLEN_IN_DETAILS'));
+});
+
+test('coordinate parameters reject incomplete, nonfinite and out-of-range inputs', () => {
+  const params = nearbyParams('42.35', '-71.06', '2000');
+  assert.equal(params.get('latitude'), '42.35');
+  assert.equal(params.get('longitude'), '-71.06');
+  assert.equal(params.get('radius_m'), '2000');
+  for (const value of ['', 'not-a-coordinate', 'nan', '91', 'Infinity']) {
+    assert.throws(() => nearbyParams(value, '-71', 2000));
+  }
+  assert.throws(() => nearbyParams('42', '-181', 2000));
+  assert.throws(() => nearbyParams('42', '-71', 20001));
+});
+
+test('local images stay on v1 with API key in header and no third-party fetches', async () => {
+  const id = 'img_' + 'a'.repeat(24);
+  const path = `/v1/media/${id}`;
+  let called = null;
+  globalThis.fetch = async (url, options) => {
+    called = {url, options};
+    return {ok: true, status: 200, headers: {get: () => 'image/png'},
+      blob: async () => new Blob(['png-sample'], {type: 'image/png'})};
+  };
+  const image = await requestImageBlob(path, {key: 'private-key'});
+  assert.equal(image.size, 10);
+  assert.equal(called.url, path);
+  assert.equal(called.options.headers['X-API-Key'], 'private-key');
+  assert.equal(called.options.credentials, 'same-origin');
+  await assert.rejects(requestImageBlob('https://example.org/image.png'), /Invalid local media/);
+  await assert.rejects(requestImageBlob('/v1/media/../../etc/passwd'), /Invalid local media/);
 });

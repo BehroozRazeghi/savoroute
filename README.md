@@ -233,3 +233,15 @@ savoroute web serve --catalog catalog.json --evidence approved.json
 `visits suggest` clusters **user-selected photo metadata** (opaque ID, timezone-aware timestamp, latitude/longitude) and proposes nearby restaurants using the **existing** OSM identity bindings. It reads no photos and requests no camera-roll access. A separate review sheet is required; nothing is confirmed automatically. `visits finalize` verifies the review digest and exports reduced confirmed history without photo IDs or GPS coordinates.
 
 The web server also serves `/visits-review`, a browser-local review page whose selected files are **not uploaded**. Source data and review decisions are sensitive—keep them out of Git. See [the operator guide](docs/opt-in-visit-discovery.md) and [ADR 0012](docs/adr/0012-local-visit-suggestions.md). The included example is entirely fictional.
+
+
+### v0.17 — Nearby exploration and reviewed local images
+
+Configure a saved matching OSM snapshot to enable approximate coordinate-aware restaurant browsing:
+
+```bash
+savoroute web serve --catalog data/generated/real-pilot/catalog.json \
+  --osm /path/to/saved-overpass-snapshot.json --port 8001
+```
+
+Use `savoroute media package-reviewed` only with a completed v0.15 evidence-review bundle and local images whose redistribution/derivative rights you have separately established. Media is served read-only with source, license, attribution and modifications. A missing menu reference is reported as `not_recorded`, **not** `no menu`. Details and JSON manifest schema: [Geographic discovery and reviewed local media](docs/geography-and-reviewed-media.md).

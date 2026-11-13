@@ -18,3 +18,12 @@
 .reviewed-entry strong {width: 100%; font-size: .875rem;}
 .reviewed-entry small {color: #546157;}
 .reviewed-entry p {margin: 0;}
+
+
+/* v0.17: optional, explicit coordinate search and separately reviewed local media */
+.nearby-section{padding:35px 0 65px}.nearby-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;align-items:end;gap:14px;margin:22px 0 13px;padding:22px;background:#f5f8f2;border:1px solid var(--line);border-radius:16px}
+.nearby-form[hidden]{display:none}.nearby-form label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}.nearby-form input,.nearby-form select{width:100%;min-width:0;padding:10px 12px;background:white;border-radius:8px;border:1px solid var(--line)}
+.nearby-form .primary-button{min-height:44px;white-space:normal}.nearby-section .catalog-grid{margin-top:20px}.distance-note{font-size:12px;color:#49634e;font-weight:700}.menu-status{background:#f4f7f0;border-radius:8px;padding:12px;font-size:12px;color:#526356}
+.reviewed-gallery{border-top:1px solid var(--line);margin-top:20px;padding-top:12px}.reviewed-gallery figure{margin:12px 0}.reviewed-gallery img{display:block;width:100%;max-height:290px;object-fit:contain;border-radius:10px;background:#eef2ec}.reviewed-gallery figcaption{color:#5e685f;font-size:11px;margin:8px 0}
+@media(max-width:950px){.nearby-form{grid-template-columns:repeat(2,minmax(0,1fr))}.nearby-form .primary-button{grid-column:span 2}}
+@media(max-width:550px){.nearby-form{grid-template-columns:1fr}.nearby-form .primary-button{grid-column:auto}}

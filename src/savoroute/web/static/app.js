@@ -1,4 +1,4 @@
-import {ApiRequestError, browseParams, makeFilters, makePreferences, requestJson, safeSourceUrl} from './api.mjs';
+import {ApiRequestError, browseParams, makeFilters, makePreferences, requestJson, requestImageBlob, nearbyParams, safeSourceUrl} from './api.mjs';
 
 const $ = (selector) => document.querySelector(selector);
 const nodes = {
@@ -14,10 +14,13 @@ const nodes = {
   datasetFacts: $('#dataset-facts'), footerVersion: $('#footer-version'),
   dialog: $('#item-dialog'), dialogContent: $('#dialog-content'),
   exclusions: $('#exclusion-status'), clearExclusions: $('#clear-exclusions'),
+  nearbyForm: $('#nearby-form'), nearbyAvailability: $('#nearby-availability'),
+  nearbyResults: $('#nearby-results'), nearbySubmit: $('#nearby-submit'),
 };
 const state = {
   key: '', excluded: new Set(), catalogOffset: 0, catalogLimit: 9, catalogTotal: 0,
-  catalogController: null, discoverController: null, lastSearch: null,
+  catalogController: null, discoverController: null, nearbyController: null,
+  lastSearch: null, detailObjectUrls: [],
 };
 
 function element(tag, className = '', text = null) {
@@ -229,16 +232,67 @@ async function loadMeta() {
     nodes.datasetLabel.textContent = meta.catalog_synthetic ? 'Fictional demonstration catalog' : shortText(meta.dataset_name, 'Imported catalog');
     nodes.datasetFacts.textContent = `${meta.catalog_items} catalog records · ${meta.index_backend === 'none' ? 'Lexical retrieval' : `Index: ${meta.index_backend}`}`;
     nodes.footerVersion.textContent = `Savoroute ${meta.package_version} · HTTP API ${meta.api_version}`;
+    nodes.nearbyForm.hidden = !meta.geography_enabled;
+    nodes.nearbyAvailability.textContent = meta.geography_enabled ?
+      `${meta.geography_restaurants} restaurants with bound OSM coordinates. Enter a point to explore.` :
+      'Nearby discovery is disabled. Restart the server with a matching --osm snapshot to enable it.';
   } catch (error) {
     nodes.datasetLabel.textContent = 'Catalog metadata unavailable';
     nodes.datasetFacts.textContent = error.message;
     if (error instanceof ApiRequestError && error.status === 401) $('#access-control').open = true;
   }
 }
+async function loadNearby(event) {
+  event.preventDefault();
+  let params;
+  try {
+    params = nearbyParams($('#nearby-lat').value, $('#nearby-lon').value,
+      $('#nearby-radius').value);
+  } catch (error) {
+    showError(nodes.nearbyResults, error);
+    return;
+  }
+  state.nearbyController?.abort();
+  const controller = new AbortController();
+  state.nearbyController = controller;
+  nodes.nearbyResults.setAttribute('aria-busy', 'true');
+  nodes.nearbySubmit.disabled = true;
+  nodes.nearbyAvailability.textContent = 'Finding catalog records near these coordinates…';
+  try {
+    const response = await requestJson(`/v1/nearby?${params}`, {key: state.key, signal: controller.signal});
+    if (controller !== state.nearbyController) return;
+    clear(nodes.nearbyResults);
+    nodes.nearbyAvailability.textContent = `${response.results.length} matching records in the selected radius. Distances are approximate.`;
+    if (!response.results.length) emptyResults('No nearby records in this snapshot.', 'Try a larger radius or different coordinates.', nodes.nearbyResults);
+    for (const result of response.results) {
+      const card = renderCard(result.item, null, true);
+      card.append(element('p', 'distance-note', `${result.distance_m.toFixed(0)} m straight-line · ${result.geometry_basis === 'bbox_center' ? 'OSM bounding-box center' : 'OSM node'}`));
+      nodes.nearbyResults.append(card);
+    }
+  } catch (error) {
+    if (error.name !== 'AbortError' && controller === state.nearbyController) {
+      nodes.nearbyAvailability.textContent = 'Nearby search could not complete.';
+      showError(nodes.nearbyResults, error);
+    }
+  } finally {
+    if (controller === state.nearbyController) {
+      nodes.nearbyResults.setAttribute('aria-busy', 'false');
+      nodes.nearbySubmit.disabled = false;
+    }
+  }
+}
+
+function revokeDetailImages() {
+  for (const url of state.detailObjectUrls) URL.revokeObjectURL(url);
+  state.detailObjectUrls = [];
+}
+
 function detailField(list, label, value) {
   list.append(element('dt', '', label), element('dd', '', String(value)));
 }
 async function openDetail(id, context) {
+  state.activeDetail = id;
+  revokeDetailImages();
   clear(nodes.dialogContent);
   nodes.dialogContent.append(element('p', 'status-line', 'Loading record…'));
   if (!nodes.dialog.open) nodes.dialog.showModal();
@@ -269,6 +323,10 @@ async function openDetail(id, context) {
     // mutate item fields or turn dietary information into a safety guarantee.
     try {
       const evidence = await requestJson(`/v1/items/${encodeURIComponent(id)}/evidence`, {key: state.key});
+      const menuStatus = evidence.menu_status === 'reviewed_reference' ?
+        'Reviewed menu reference recorded; current menu contents not verified.' :
+        'No reviewed menu reference recorded; this does not mean the restaurant has no menu.';
+      nodes.dialogContent.append(element('p', 'menu-status', menuStatus));
       if (evidence.reviewed_claims.length) {
         const panel = element('section', 'reviewed-panel');
         panel.append(element('h3', '', 'Reviewed source references'));
@@ -300,6 +358,43 @@ async function openDetail(id, context) {
     } catch {
       nodes.dialogContent.append(element('p', 'dialog-disclaimer', 'Reviewed source references are unavailable.'));
     }
+    try {
+      const media = await requestJson(`/v1/items/${encodeURIComponent(id)}/media`, {key: state.key});
+      if (media.images.length) {
+        const gallery = element('section', 'reviewed-gallery');
+        gallery.append(element('h3', '', 'Locally packaged reviewed images'));
+        // Only images served by this Savoroute instance are embedded; third-party
+        // image URLs remain external references and are never hotlinked.
+        for (const asset of media.images.slice(0, 3)) {
+          const frame = element('figure');
+          try {
+            const blob = await requestImageBlob(`/v1/media/${encodeURIComponent(asset.asset_id)}`, {key: state.key});
+            // A subsequent dialog may have superseded this request.
+            if (!nodes.dialog.open || state.activeDetail !== id) break;
+            const url = URL.createObjectURL(blob);
+            state.detailObjectUrls.push(url);
+            const image = element('img');
+            image.src = url;
+            image.alt = `Recorded image for ${item.title}; image content not independently verified`;
+            image.loading = 'lazy';
+            frame.append(image);
+          } catch {
+            frame.append(element('p', 'status-line', 'Local image could not be displayed.'));
+          }
+          frame.append(element('figcaption', '', `${asset.attribution} · ${asset.license} · Reviewed ${asset.reviewed_on} · ${asset.modifications}`));
+          const src = safeSourceUrl(asset.source_url);
+          if (src) {
+            const a = element('a', 'source-link', 'Image credit/source ↗');
+            a.href = src; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            frame.append(a);
+          }
+          gallery.append(frame);
+        }
+        if (state.activeDetail === id) nodes.dialogContent.append(gallery);
+      }
+    } catch {
+      nodes.dialogContent.append(element('p', 'dialog-disclaimer', 'Local media references are unavailable.'));
+    }
     nodes.dialogContent.append(element('p', 'dialog-disclaimer', 'This is a saved catalog record, not live restaurant information. Hours, availability, current pricing and allergen safety are not verified.'));
   } catch (error) { showError(nodes.dialogContent, error); }
 }
@@ -324,6 +419,8 @@ nodes.prev.addEventListener('click', () => {state.catalogOffset = Math.max(0, st
 nodes.next.addEventListener('click', () => {state.catalogOffset += state.catalogLimit; void loadCatalog();});
 $('#close-dialog').addEventListener('click', () => nodes.dialog.close());
 nodes.dialog.addEventListener('click', (event) => {if (event.target === nodes.dialog) nodes.dialog.close();});
+nodes.dialog.addEventListener('close', () => {state.activeDetail = null; revokeDetailImages();});
+nodes.nearbyForm.addEventListener('submit', (event) => {void loadNearby(event);});
 $('#access-form').addEventListener('submit', (event) => {
   event.preventDefault();
   state.key = $('#access-key').value;

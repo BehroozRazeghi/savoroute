@@ -101,3 +101,37 @@ export async function requestJson(path, {method = 'GET', body, key = '', signal}
   }
   return data;
 }
+
+
+export function nearbyParams(latitude, longitude, radius) {
+  if (latitude === '' || longitude === '') throw new Error('Enter both coordinates.');
+  const lat = Number(latitude), lon = Number(longitude), r = Number(radius);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) ||
+      lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+    throw new Error('Latitude must be −90..90 and longitude −180..180.');
+  }
+  if (!Number.isInteger(r) || r < 25 || r > 20000) throw new Error('Radius must be 25..20000 m.');
+  return new URLSearchParams({latitude: String(lat), longitude: String(lon), radius_m: String(r)});
+}
+
+export async function requestImageBlob(path, {key = '', signal} = {}) {
+  if (!/^\/v1\/media\/img_[0-9a-f]{24}$/.test(path)) {
+    throw new Error('Invalid local media path.');
+  }
+  const headers = {Accept: 'image/png'};
+  if (key) headers['X-API-Key'] = key;
+  let result;
+  try {
+    result = await fetch(path, {method: 'GET', headers, credentials: 'same-origin',
+      redirect: 'error', signal});
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    throw new ApiRequestError('Could not load the local image.', 0);
+  }
+  if (!result.ok || !(result.headers?.get('Content-Type') || '').startsWith('image/png')) {
+    throw new ApiRequestError('Local image response is invalid.', result.status);
+  }
+  const blob = await result.blob();
+  if (blob.size > 16 * 1024 * 1024) throw new ApiRequestError('Local image is too large.', 413);
+  return blob;
+}

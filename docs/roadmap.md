@@ -63,3 +63,8 @@ Next: evaluate the OSM study with independent human labels, harden deployment on
 ### v0.15.0 — evidence-first catalog references
 
 Approved menu links and image URLs carry source, observation date, attribution and manual review details in a separate catalog-bound sidecar. No camera-roll permissions or automatic photo downloads. Possible later increments: license-aware first-party media packaging, curated catalog coverage, and a separately consented local photo/visit suggestion queue inspired by Palate's human confirmation pattern.
+
+
+### v0.18.0 — Reproducible real-data relevance evaluation (software)
+
+Implemented: local independent reviewer worksheet interface, incomplete-label progress audit, frozen analysis configuration, strict held-out release, fixed BM25/overlap baselines, paired query bootstrap and error reports. The actual 165-record Boston OSM pilot remains **unlabeled** until independent reviewers complete and adjudicate its 1,320 query–item pairs. Future work: rigorous labeling and reporting, larger geographically diverse query sets, and validation of multimodal systems with frozen model/index configurations.

@@ -245,3 +245,8 @@ savoroute web serve --catalog data/generated/real-pilot/catalog.json \
 ```
 
 Use `savoroute media package-reviewed` only with a completed v0.15 evidence-review bundle and local images whose redistribution/derivative rights you have separately established. Media is served read-only with source, license, attribution and modifications. A missing menu reference is reported as `not_recorded`, **not** `no menu`. Details and JSON manifest schema: [Geographic discovery and reviewed local media](docs/geography-and-reviewed-media.md).
+
+
+### v0.18.0 · Reviewer-grounded retrieval study
+
+The local-only `/study-review` page helps independent annotators review frozen query–restaurant pairs without seeing retrieval rankings or each other's judgments. `savoroute study audit` checks reviewer-sheet progress, `study plan` fixes the comparison protocol, and `study analyze` reports query-level paired bootstrap intervals and item-level error diagnostics **only after full human adjudication**. Real-world OSM relevance labels are **not bundled or generated**. See [the study methods](docs/statistical-relevance-study.md) and Notebook 20.

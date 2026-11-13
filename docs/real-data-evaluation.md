@@ -104,3 +104,8 @@ The two local OSM fixtures and notebook 13 are **synthetic demonstrations** and 
 ## Evaluation methodology note
 
 This small-catalog protocol uses exhaustive judgments over all items admitted by each query's hard filters. Large-scale test collections often use pooled judgments instead, with unjudged items treated according to an explicitly defined policy. Such pooled judgments are not interchangeable with this exhaustive protocol, and naively treating unjudged items as negatives can bias measured results. See the [NIST TREC 2021 overview](https://trec.nist.gov/pubs/trec30/papers/Overview-2021.pdf) for a discussion of pooling and incompleteness.
+
+
+## v0.18.0 analysis and reviewer interface
+
+See [Statistical relevance study](statistical-relevance-study.md) for the new local labeling page, checksum-bound analysis plan, blind-safe reviewer-progress audit, paired query-bootstrap uncertainty estimates, error analysis and strict test-split release. The existing frozen v0.11.0 study and `study evaluate` command remain compatible. No independent labels or real-world scores are supplied by this release.

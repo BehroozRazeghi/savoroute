@@ -1,4 +1,4 @@
-# Baseline design comparison
+# Historical baseline comparison (v0.1.0)
 
 The repository consolidates two initial implementations reviewed on 2026-11-09: `culinary-discovery-agent-starter(1).zip` (28 files) and `palatepath-starter.zip` (35 files). Both provided working offline examples, but neither implemented an end-to-end multimodal system.
 
@@ -23,4 +23,4 @@ The repository consolidates two initial implementations reviewed on 2026-11-09: 
 - Model interfaces are defined by capability. Provider SDK dependencies will be introduced with actual implementations.
 - Notebook code imports the library rather than maintaining separate retrieval or evaluation algorithms.
 
-Features without working implementations—multimodal indexing, agent workflows, MCP, HTTP, and clients—remain in the roadmap rather than as empty packages or application directories.
+At v0.1.0 those features had not been implemented. This table describes the original baseline only; consult the [current architecture](architecture.md) and [changelog](../CHANGELOG.md) for the present implementation.

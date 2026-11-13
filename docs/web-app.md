@@ -1,10 +1,9 @@
-# Savoroute v0.14.0 — Local-first web application
+# Local web application
 
 ## Quick start
 
 ```bash
-conda activate savoroute
-python -m pip install -e ".[api,dev,notebooks]"
+python -m pip install -e ".[api]"
 savoroute web serve --host 127.0.0.1 --port 8000
 ```
 
@@ -52,15 +51,21 @@ The MCP server reuses the HTTP adapter in-process; the browser uses ordinary HTT
 python -m pytest -q
 python -m ruff check src tests scripts
 python -m pip check
-node --check src/savoroute/web/static/app.js
+node --input-type=module --check < src/savoroute/web/static/app.js
 node --check src/savoroute/web/static/api.mjs
+node --input-type=module --check < src/savoroute/web/static/visits-review.js
+node --input-type=module --check < src/savoroute/web/static/study-review.js
 node --test tests/web/*.test.mjs
 ```
 
-Node 22 is used **only for frontend contract tests**, not required to install or run the web app. CI runs both the Python and Node suites. Optional FAISS/MCP native dependencies have their own test requirements.
+Node 22 is used **only for frontend syntax and contract tests**, not required to install or run the web app. CI runs both the Python and Node suites. Optional FAISS/MCP native dependencies have their own test requirements.
 
 ## Known limitations and honest claims
 
 The UI reads saved catalog metadata. An OpenStreetMap record may have missing or stale cuisine, menus, contact information, images, prices, current status, or location. The UI does not provide verified opening hours, safety or allergen guarantees, live availability or reservations. Retrieval scores and source attribution are not guarantees of relevance. The independent OSM pilot prepared in v0.11.0 still requires real human judgments; browser functionality must not be presented as a real-world evaluation result.
 
 This is **not a production deployment guide**. Before publishing the service, review authentication/authorization, TLS, reverse-proxy trust, rate limits, monitoring, cache behavior, provenance permissions, content licensing and compliance.
+
+## Current product-design limitation
+
+The current homepage exposes many configuration controls before a user reaches results and mixes discovery navigation with operator review workflows. It is a functional local interface, **not** a validated consumer UX. The next dedicated UI change is specified in the [product-quality plan](product-quality-plan.md); it must preserve the same HTTP contracts and data provenance rules.

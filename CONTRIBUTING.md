@@ -1,20 +1,38 @@
-# Development
+# Contributing
 
-The library is the source of truth for ingestion, retrieval, and catalog behavior. Notebooks demonstrate package functions, while CLI and future HTTP/MCP interfaces expose the same operations.
+Savoroute is a Python package with several interfaces. Retrieval and catalog behavior belong in `src/savoroute/`; the web app, CLI, HTTP API, MCP server, and notebooks must reuse those implementations rather than duplicate ranking logic.
 
-## Local checks
+## Set up
+
+Python 3.11 or later:
 
 ```bash
-python -m pip install -e ".[dev,notebooks]"
-python -m pytest
-ruff check src tests scripts
-jupyter lab
+python -m pip install -e ".[api,mcp,dev,notebooks]"
 ```
 
-The CI workflow runs tests, Ruff and notebook execution on Python 3.11–3.13. Local notebook changes are checked by running the affected notebook from its first cell using the repository-root working directory.
+## Required checks
 
-## Contributions
+```bash
+python -m pytest -q
+python -m ruff check src tests scripts
+python -m pip check
+node --input-type=module --check < src/savoroute/web/static/app.js
+node --input-type=module --check < src/savoroute/web/static/visits-review.js
+node --input-type=module --check < src/savoroute/web/static/study-review.js
+node --check src/savoroute/web/static/api.mjs
+node --test tests/web/*.test.mjs
+git diff --check
+```
 
-New package features include tests for validation errors, empty results, deterministic ordering, and applicable constraints. An accompanying notebook illustrates the public API after the implementation is working. Substantial decisions are recorded under `docs/adr/`.
+CI also executes all notebooks from the repository root on Python 3.11, 3.12, and 3.13. Run affected notebooks locally when changing their dependencies or examples.
 
-External data and images require documented provenance and redistribution rights. Secrets, personal records, provider responses containing private data, and downloaded model artifacts are excluded from the repository. Evaluation reports identify the dataset, labels, configuration and limitations.
+## Change requirements
+
+- Include regression tests for new behavior, failures, boundary inputs, and deterministic ordering where relevant.
+- Preserve catalog identities and API contracts unless a deliberate versioned migration is part of the change.
+- Distinguish recorded source fields, inferred matches, human-reviewed claims, and verified outcomes. Do not label model output or fictional fixtures as ground truth.
+- Document any new optional dependencies, file formats, security assumptions, or operational requirements.
+- Keep credentials, downloaded models, real reviewer sheets, personal photo metadata, and generated study artifacts out of Git. Local generated files belong under `data/generated/`.
+- Do not introduce third-party images, menus, or datasets without checking redistribution terms and recording attribution.
+
+Use focused pull requests. Record architectural decisions under `docs/adr/`; keep release history in `CHANGELOG.md`, not in the project README. Product and UX priorities are maintained in the [quality plan](docs/product-quality-plan.md).

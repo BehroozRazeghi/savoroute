@@ -1,13 +1,12 @@
-# SavoRoute 0.19 — Search-first, local-first browser
+# SavoRoute browser application (v0.21.1 developer preview)
 
 ## Run
 
 ```bash
 python -m pip install -e '.[api,dev]'
 savoroute web serve --host 127.0.0.1 --port 8000
-# Fictional sample catalog (12 entries)
+# Optional saved Boston OSM pilot (requires separately generated, Git-ignored data)
 savoroute web serve --catalog data/generated/real-pilot/catalog.json --port 8001
-# Imported real OSM pilot (165 saved records)
 ```
 
 The catalog is selected at **server startup** and cannot be replaced by a browser request. `http://127.0.0.1:8001/` provides the same versioned FastAPI read-only service as `/v1/search`, `/v1/recommend`, `/v1/items`, and `/v1/nearby`. No Node, CDN, remote font or third-party script is required to run the page.
@@ -59,3 +58,11 @@ links are opened only on user action. See
 ### Source-linked recipe details (v0.21.0)
 
 For a combined catalog created by `savoroute quality recipes-build`, opt into `--recipe-notes` **using the sidecar created from that exact catalog digest**. Recipe detail panels show ingredient lists, preparation steps, source revision, CC BY-SA 4.0 license, attribution and an unverified-review status. Restaurant cards do not display recipe steps; recipe cards no longer show meaningless restaurant city/price fields. The browser intentionally does not render unlicensed third-party recipe images. See `docs/recipe-curation-m4.md` for source and publication limitations.
+
+## Other opt-in local workflows
+
+- **Reviewed media and menus:** pass a compatible catalog and reviewed evidence/media sources at server startup, subject to source rights and manual verification; see [reviewed media and geographic discovery](geography-and-reviewed-media.md). Local images are not silently replaced with unlicensed external images.
+- **Private visit suggestions:** the separately served `/visits-review` page reviews explicitly user-selected local metadata, not a background scan or an automatic update of the user's personal history. See [opt-in visit discovery](opt-in-visit-discovery.md).
+- **Independent study reviews:** the `/study-review` page supports an explicitly initiated, local labeling workflow; simulated or incomplete labels are not evidence of real-world ranking performance. See [statistical relevance study](statistical-relevance-study.md).
+
+These workflows are not a deployed autonomous agent or proof of commercial product readiness.

@@ -1,25 +1,27 @@
-# Development roadmap
+# Roadmap
 
-Each milestone adds reusable Python functionality, tests, a corresponding Jupyter notebook, and CLI support where applicable. Application interfaces are introduced only after the underlying services exist.
+This is a forward-looking quality plan, not a release diary. Completed milestones are recorded in [CHANGELOG.md](../CHANGELOG.md). The current implementation is summarized in the [architecture](architecture.md).
 
-| Stage | Scope | Status |
+## Next work, in order
+
+| Priority | Work | Completion criterion |
 | --- | --- | --- |
-| 0 · Foundation | Canonical catalog, lexical retrieval, evaluation, CLI, notebooks 00–03 | Complete |
-| 1a · Text ingestion | Source-batch validation, labeled extraction, model extraction protocol, field evidence, catalog admission, notebook 04 | Complete; live model calls unverified |
-| 1b · Source acquisition | Bounded OSM snapshot acquisition, direct tag mapping, duplicate review, extraction comparison harness, notebook 05 | Implemented offline; live fetch unverified |
-| 1c · Source identity and updates | Registry, explicit source links, idempotent OSM updates, conflict review, notebook 06 | Implemented offline |
-| 1d · Versioning and identity evaluation | Element-version ordering, annotation worksheet, pairwise candidate benchmark, notebook 07 | Implemented offline; independent real-data evaluation pending |
-| 2a · Local media | Bounded image ingestion, normalized storage, hashes, source/rights metadata, notebook 08; optional joint CLIP adapter | Implemented offline; real model inference unverified |
-| 2b · Multimodal embeddings | Versioned JSON vector index, exact cosine search, optional CLIP execution, labeled cross-modal evaluation, notebook 09 | Implemented; real-model inference and real-world evaluation unverified |
-| 3a · Item-level retrieval | Weighted BM25/text-vector/image-vector rank fusion, item deduplication, hard metadata filters, item-level benchmark, notebook 10 | Implemented offline; pretrained quality not established |
-| 3b · Persistent retrieval | SQLite vector bundles, optional FAISS HNSW, synthetic latency and 42-query challenge, notebook 11 | Implemented; real-data labeling and FAISS runtime validation pending |
-| 4 · Recommendations | Binary relevance annotation workflow and deterministic catalog-grounded recommendations; notebook 12 | Implemented offline; independent real-world annotation pending |
-| 4b · Real-data study preparation | Frozen OSM provenance, split checks, reviewer references, baseline reports; notebook 13 | Implemented; independent real annotation outstanding |
-| 5a · HTTP interface | Versioned read-only API, catalog browsing, shared discovery/recommendations, OpenAPI, notebook 14 | Implemented locally; production hardening outstanding |
-| 5b · MCP and web interfaces | Six local read-only MCP tools; responsive search-first browser | Implemented locally; no autonomous agent or remote MCP |
-| 5c · Personal visit discovery | Local-only, user-selected metadata clusters, OSM-proximity suggestions, explicit review and minimal confirmed history; notebook 18 | Implemented as opt-in pilot; accuracy not validated |
-| 5d · Geographic discovery and reviewed media | Saved OSM geometry search, review-bound local images, explicit menu reference status; notebook 19 | Implemented locally; actual rights and geolocation not independently verified |
-| 6 · Deployment | Operating limits, end-to-end tests, reproducible public demonstration | Planned |
+| P0 | Product and documentation consistency | One accurate project objective; README and linked guides match implemented interfaces and known limitations |
+| P1 | Discovery UI redesign | Search-first layout; usable on narrow screens and keyboard; clear dataset identity, loading/empty/error states, and source details; tested against fictional and saved OSM catalogs |
+| P1 | Interaction and accessibility verification | Defined user tasks, accessibility review, browser regressions, and documented defects; no untested claims of WCAG conformance |
+| P1 | Data completeness and product boundaries | Missing-field coverage reported; unknown attributes never displayed as asserted facts; external media only after rights review |
+| P1 | Execute Boston reviewer pilot | Frozen protocol, two independent reviewers, completed or explicitly unresolved labels, adjudication, and an appropriately limited report |
+| P2 | Broader independent relevance benchmark | Diverse, documented query sampling and geographic coverage; test sets fixed before method tuning |
+| P2 | Retrieval changes supported by evaluation | Error-driven changes with ablation and paired comparisons; no assumed improvement from adding models |
+| P3 | Deployment assessment | Authentication, network exposure, rate limits, observability, data retention, privacy, licenses, and load testing before hosting beyond loopback |
+
+See the [product-quality plan](product-quality-plan.md) for the precise work sequence and acceptance tests.
+
+## Current scope
+
+Implemented locally: JSON catalog validation, OSM ingestion and source identity management, lexical search, optional vector retrieval and rank fusion, preference-based recommendations, HTTP API, local MCP tools, web discovery, geographic lookup, review-bound media, private visit suggestions, and human relevance-study tooling.
+
+Not established: independent real-world retrieval effectiveness, verified venue/menu freshness, allergen safety, public deployment readiness, or consumer usability. The bundled catalogs and notebook benchmarks are fictional.
 
 ## Completed ingestion work
 
@@ -48,7 +50,6 @@ MCP/Streamable HTTP deployment is not part of this milestone. See
 
 Next: a grounded user-facing agent workflow (not currently implemented), deployment/security design,
 and independently reviewed real-world relevance measurements.
-
 
 ## Milestone 4 — Local-first web app (v0.14.0)
 

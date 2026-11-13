@@ -1,12 +1,20 @@
-# Scripts
+# Developer and study scripts
 
-`run_offline_baselines.py` evaluates both lexical rankers against the packaged synthetic benchmark. It imports the same evaluation functions as the CLI and does not train or download models.
+Scripts call the installed `savoroute` package. They do not provide separate ranking implementations.
+
+| Script | Purpose |
+| --- | --- |
+| `run_offline_baselines.py` | Evaluate lexical methods on a fictional packaged benchmark |
+| `evaluate_challenge.py` | Compare challenge-query behavior on a fictional relevance fixture |
+| `study_pilot.py` | Verify a frozen OSM study, create isolated reviewer packages, audit progress, and summarize an existing analysis |
+
+Examples:
 
 ```bash
 python scripts/run_offline_baselines.py
-python scripts/run_offline_baselines.py --at-k 3 --output outputs/phase0-metrics.json
+python scripts/evaluate_challenge.py --help
+python scripts/study_pilot.py --help
+python scripts/study_pilot.py preflight --study-dir /path/to/frozen-study
 ```
 
-The output is JSON. `outputs/` is excluded from version control. See [evaluation](../docs/evaluation.md) for metric definitions and limitations.
-
-`python scripts/evaluate_challenge.py` reports the lexical-only RRF baseline separately for each fictional challenge-query group. No model download is required.
+`study_pilot.py` does not generate relevance labels or establish reviewer independence. Its reviewer ZIPs and completed study outputs are private artifacts; keep them under `data/generated/` or another access-controlled location. See [Boston pilot execution](../docs/studies/boston-pilot-execution.md).

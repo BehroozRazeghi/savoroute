@@ -1,4 +1,4 @@
-# Educational source review
+# Historical educational source review
 
 The original archive contains eight notebooks and four lab instruction files spanning extraction, indexing, agents, user interfaces, and MCP. The examples informed the project scope. Their code, datasets, and images are not included in this repository.
 
@@ -12,4 +12,4 @@ The original archive contains eight notebooks and four lab instruction files spa
 | Chat interface | Demonstration actions do not provide persisted application behavior | Shared services with tested read/write operations when introduced |
 | MCP | Educational examples predate the 2026 protocol update | Implementation against a selected supported MCP version |
 
-The original v0.1.0 offline foundation addressed schema validation, lexical retrieval, and evaluation. Subsequent milestones added extraction, OSM data processing, local image validation and an optional joint text/image embedding adapter. Vector retrieval, agents, MCP, and user-facing applications are not yet implemented.
+This audit describes initial design decisions, not the current feature set. Subsequent releases implemented vector retrieval, a local MCP adapter, and a browser interface. See [current architecture](architecture.md) and [product-quality plan](product-quality-plan.md) for supported functionality and outstanding validation.

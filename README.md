@@ -33,8 +33,9 @@ savoroute --help
 | Retrieval | Optional cosine-based text/image indices; item-level reciprocal-rank fusion; SQLite and optional FAISS backends |
 | Decisions | Deterministic, catalog-grounded recommendations and comparison of up to three results in the browser |
 | Geography | Source-tagged city filtering; optional nearby search from a matching saved OSM snapshot; offline municipality-boundary workflow |
-| Evidence | Source identity, provenance records, manually reviewed references, and optional OSM observation and recipe-note sidecars |
-| Evaluation | Fictional fixtures, frozen OSM study inputs, independent labeling workflow, and paired query-level analysis |
+| Evidence | Source identity, provenance records, manually reviewed menu/media references, and optional OSM observation and recipe-note sidecars |
+| Evaluation | Fictional fixtures, frozen OSM study inputs, independent relevance labeling, query-level paired bootstrap intervals, and error analysis |
+| Privacy | Optional local, user-confirmed visit suggestions from explicitly selected metadata; no automatic photo-library scan |
 | Interfaces | Python library, CLI, local browser, read-only FastAPI v1, and six read-only MCP tools over stdio |
 
 Scores are **not probabilities**. Model-backed embeddings and FAISS require optional dependencies and compatible, locally configured indices. The default experience does not invoke an LLM. MCP exposes fixed search/retrieval tools to a trusted host; it does not implement an autonomous decision agent or remote MCP service.
@@ -71,6 +72,7 @@ CI also installs optional MCP/notebook dependencies and executes all notebooks o
 ## Documentation
 
 - [Architecture](docs/architecture.md) · [Data contract](docs/data-contract.md) · [Web application](docs/web-app.md) · [HTTP API](docs/http-api.md) · [Local MCP](docs/mcp-server.md)
+- [Opt-in visits](docs/opt-in-visit-discovery.md) · [Reviewed media and nearby search](docs/geography-and-reviewed-media.md) · [Real-data statistical evaluation](docs/statistical-relevance-study.md)
 - [Source quality and rights](docs/data-quality-and-source-facts.md) · [Recipes](docs/recipe-curation-m4.md) · [Geography](docs/boston-boundary-workflow.md)
 - [Retrieval evaluation](docs/evaluation.md) · [Independent relevance review](docs/statistical-relevance-study.md) · [Notebooks](notebooks/README.md)
 - [Roadmap](docs/roadmap.md) · [Changelog](CHANGELOG.md)

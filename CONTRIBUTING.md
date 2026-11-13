@@ -1,27 +1,34 @@
 # Contributing
 
-SavoRoute is a developer-preview research application. Core catalog, retrieval, and recommendation behavior belongs in `src/savoroute/`; the web app, API, CLI, and local MCP bridge must reuse these services rather than add inconsistent ranking rules.
+SavoRoute is an experimental developer-preview application. The Python package under `src/savoroute/` defines catalog, retrieval, recommendation, and evaluation behavior. The CLI, FastAPI service, local browser, notebooks, and read-only stdio MCP tools must use shared implementations rather than introduce divergent rules.
 
 ## Before opening a pull request
+
+Use a focused branch. Describe the behavioral change, source and data implications, tests executed, and tests that could not run. Preserve API and catalog compatibility unless a documented versioned migration is necessary.
+
+Install the development dependencies and run:
 
 ```bash
 python -m pip install -e ".[api,mcp,dev,notebooks]"
 python -m pytest -q
 python -m ruff check src tests scripts
+python -m pip check
 node --input-type=module --check < src/savoroute/web/static/app.js
+node --input-type=module --check < src/savoroute/web/static/visits-review.js
+node --input-type=module --check < src/savoroute/web/static/study-review.js
+node --check src/savoroute/web/static/api.mjs
 node --test tests/web/*.test.mjs
 ```
 
-CI also executes every notebook from its first cell on Python 3.11–3.13. When changing a notebook, execute it from the repository root and remove saved private data or unintended outputs.
+The JavaScript checks require Node.js. CI runs Python tests and notebook execution on Python 3.11–3.13. Execute modified notebooks from the repository root, remove unnecessary outputs, and do not commit private input data. Do not merge while required CI checks are failing or pending.
 
-Use a focused branch and pull request. Explain behavior changes, tests run, and any optional checks that could not be executed. Do not merge while required CI checks are failing or pending. Keep the default demo runnable without network access, credentials, or downloaded models.
+## Data, privacy, and evidence
 
-## Data and evidence policy
+- Never commit credentials, personal visit history, photos, reviewer decisions, downloaded model weights, or `data/generated/` outputs.
+- Preserve original source identity, observation time, permitted uses, and review status. A source observation is not independently verified current business information.
+- Bind reviewed claims and source-observation sidecars to the matching catalog digest. Unknown values must not be presented as negative facts or assumed to meet hard constraints.
+- Never present OSM opening hours, dietary tags, source images, prices, or external menu links as current or safety-verified without additional evidence.
+- Add regression tests for deterministic behavior, failure cases, unauthorized access, catalog/index mismatch, and geographic boundaries when relevant.
+- Keep the default fictional demo runnable without external network access, credentials, or a model download.
 
-- Never commit credentials, user photos, user visit history, private review files, or `data/generated/`.
-- Use separate, catalog-digest-bound sidecars for review claims and imported source observations. Unknown values are not negative facts.
-- Provide exact source identity, observation date, appropriate licenses, and review status when proposing real-world content. Review status does not independently verify factual accuracy or rights.
-- Do not represent saved OSM hours, prices, dietary tags, or source-provided images as current or independently verified.
-- Add regression tests for source validity, deterministic behavior, unauthorized access and incompatible catalogs when applicable.
-
-See [release checklist](docs/release-checklist.md), [source provenance](docs/data-quality-and-source-facts.md), and [roadmap](docs/roadmap.md).
+See the [release checklist](docs/release-checklist.md), [source quality guide](docs/data-quality-and-source-facts.md), [architecture](docs/architecture.md), and [roadmap](docs/roadmap.md).

@@ -1,38 +1,22 @@
 # Notebooks
 
-The notebooks follow the Savoroute implementation from data loading through retrieval, evaluation, and recommendations. Every notebook calls the installed Python package rather than maintaining a second implementation.
+These 21 notebooks demonstrate package behavior using local or fictional fixtures. They are instructional examples, not separate implementations or independent evidence of real-world retrieval quality.
 
-| Notebook | Topic |
-| --- | --- |
-| `00_quickstart.ipynb` | Catalog inspection and search |
-| `01_catalog_and_provenance.ipynb` | Schema validation and media references |
-| `02_lexical_retrieval.ipynb` | BM25, weighted overlap, and filters |
-| `03_retrieval_evaluation.ipynb` | Query judgments and retrieval metrics |
-| `04_structured_ingestion.ipynb` | Text extraction with quoted evidence |
-| `05_osm_sources_and_evaluation.ipynb` | OSM import, duplicate review, and extraction metrics |
-| `06_source_identity_and_updates.ipynb` | Source registry and controlled updates |
-| `07_identity_benchmark_evaluation.ipynb` | Source versioning and entity-matching evaluation |
-| `08_image_ingestion.ipynb` | Image normalization and provenance |
-| `09_multimodal_vector_index.ipynb` | Joint embeddings and cross-modal retrieval |
-| `10_item_level_fusion.ipynb` | BM25 and text/image rank fusion |
-| `11_dense_backend_and_benchmarks.ipynb` | SQLite/FAISS retrieval and synthetic latency benchmarks |
-| `12_review_and_recommend.ipynb` | Independent-review workflow and grounded recommendations |
-| `13_real_data_study.ipynb` | Reproducible OSM study setup, integrity checks, and simulated review |
-| `14_http_api.ipynb` | Read-only FastAPI interface, request validation, and service parity |
-| `15_mcp_readonly_tools.ipynb` | Local read-only MCP tools and HTTP contract parity |
-| `16_web_app.ipynb` | Packaged browser interface, API parity, and provenance-backed results |
+Install the optional notebook environment and open JupyterLab from the repository root:
 
 ```bash
 python -m pip install -e ".[dev,notebooks]"
 jupyter lab
 ```
 
-The notebooks use fictional, local fixtures for CI and require no API keys or model downloads. Optional model-backed examples are described in their corresponding guides. **Notebooks 13–15 demonstrate infrastructure with synthetic inputs; they do not contain independent human judgments or a real-world performance result.**
+| Notebooks | Topic |
+| --- | --- |
+| `00`–`03` | Catalog basics, lexical search, and synthetic retrieval metrics |
+| `04`–`07` | Source extraction, OSM ingestion, identity reconciliation, and identity evaluation |
+| `08`–`11` | Local image handling, optional joint embeddings, item-level rank fusion, and persistent vector retrieval |
+| `12`–`13` | Relevance review, recommendations, and frozen OSM studies |
+| `14`–`16` | HTTP API, local stdio MCP tools, and web interface |
+| `17`–`19` | Reviewed source evidence, opt-in visit suggestions, geographic discovery, and local media |
+| `20` | Two-reviewer study simulation and query-level statistical analysis |
 
-- `17_reviewed_catalog_evidence.ipynb` — explicit proposal/review/publish workflow and HTTP parity (fictional assertions only).
-
-- `18_opt_in_visit_discovery.ipynb` — offline selected metadata → OSM identity matching → review simulation → private confirmed history (fictional records only).
-
-- `19_geography_and_reviewed_media.ipynb` — fictional OSM nearby discovery, local image publication bound to manually reviewed evidence, HTTP menu-status contracts.
-
-- `20_reviewer_grounded_statistical_evaluation.ipynb` — simulated two-reviewer workflow on a fictional catalog; checksum-bound analysis plans, progress audits, paired bootstrap and diagnostic cases. No real-world labels or claims.
+All notebooks are named `NN_description.ipynb` and can be opened individually. The optional CLIP adapter requires separately installed model dependencies and an available model; the default CI exercises offline paths. Notebooks 12, 13, and 20 simulate reviews with **fictional** labels and do not contain independent human judgments. See the [documentation index](../docs/README.md) for production boundaries and detailed study procedures.

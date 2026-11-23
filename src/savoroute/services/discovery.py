@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from savoroute.data.catalog import load_catalog
@@ -11,7 +11,13 @@ from savoroute.domain.models import Catalog
 from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.retrieval.dense import DenseIndex
 from savoroute.retrieval.fusion import FusedHit, FusionWeights, search_fused
-from savoroute.retrieval.lexical import Method, SearchFilters, SearchHit, search_catalog
+from savoroute.retrieval.lexical import (
+    LexicalIndex,
+    Method,
+    SearchFilters,
+    SearchHit,
+    search_catalog,
+)
 from savoroute.retrieval.vector import VectorIndex
 from savoroute.services.recommendation import (
     RecommendationPreferences,
@@ -23,6 +29,10 @@ from savoroute.services.recommendation import (
 @dataclass(frozen=True, slots=True)
 class DiscoveryService:
     catalog: Catalog
+    lexical_index: LexicalIndex = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "lexical_index", LexicalIndex.build(self.catalog.items))
 
     @classmethod
     def from_path(cls, path: str | None = None) -> DiscoveryService:
@@ -36,7 +46,8 @@ class DiscoveryService:
         method: Method = "bm25",
         limit: int = 5,
     ) -> tuple[SearchHit, ...]:
-        return search_catalog(self.catalog.items, query, filters, method=method, limit=limit)
+        return search_catalog(self.catalog.items, query, filters, method=method, limit=limit,
+                              lexical_index=self.lexical_index)
 
     def rank(
         self, query: str, *,
@@ -55,6 +66,7 @@ class DiscoveryService:
             self.catalog, query, index=index, encoder=encoder,
             query_vector=query_vector, catalog_dir=catalog_dir, filters=filters,
             weights=weights, rrf_k=rrf_k, pool_size=pool_size, limit=limit,
+            lexical_index=self.lexical_index,
         )
 
     def recommend(
@@ -72,4 +84,5 @@ class DiscoveryService:
             index=index, encoder=encoder, query_vector=query_vector,
             catalog_dir=catalog_dir, weights=weights, rrf_k=rrf_k,
             pool_size=pool_size, limit=limit,
+            lexical_index=self.lexical_index,
         )

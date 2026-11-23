@@ -15,7 +15,7 @@ from savoroute.domain.models import Catalog, CatalogItem
 from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.retrieval.dense import DenseIndex
 from savoroute.retrieval.fusion import FusionWeights, RankEvidence, search_fused
-from savoroute.retrieval.lexical import SearchFilters, filter_catalog
+from savoroute.retrieval.lexical import LexicalIndex, SearchFilters, filter_catalog
 from savoroute.retrieval.vector import VectorIndex
 
 
@@ -124,6 +124,7 @@ def recommend_items(
     rrf_k: int = 60,
     pool_size: int = 50,
     limit: int = 5,
+    lexical_index: LexicalIndex | None = None,
 ) -> RecommendationResponse:
     """Filter, retrieve and softly rerank catalog items; never invent candidates."""
     if type(limit) is not int or not 1 <= limit <= 1000:
@@ -146,6 +147,7 @@ def recommend_items(
         catalog, query, index=index, encoder=encoder, query_vector=query_vector,
         catalog_dir=catalog_dir, filters=applied_filters, weights=weights,
         rrf_k=rrf_k, pool_size=pool_size, limit=min(len(catalog.items), 1000),
+        lexical_index=lexical_index,
     )
     preferred_cuisine = {value.strip().casefold() for value in prefs.cuisines}
     preferred_diet = {value.strip().casefold() for value in prefs.dietary_tags}

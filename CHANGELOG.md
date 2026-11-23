@@ -1,3 +1,10 @@
+## [0.22.0] — 2026-11-13 (Catalog-bound lexical retrieval efficiency)
+
+- Build an in-memory, catalog-bound lexical index once when `DiscoveryService` is instantiated; reuse it for search, BM25 fusion, and catalog-grounded recommendations. Standalone `search_catalog` retains its public signature and one-off behavior.
+- Preserve the original weighted overlap and BM25 definitions, full-catalog IDF under hard filters, deterministic ID tie-breaking, and result evidence. Reject explicit reuse of an index built for a different catalog tuple.
+- Add independent score-and-ranking parity tests, deterministic query fixtures, and a local opt-in latency microbenchmark reporting indexing cost and query p50/p95. Synthetic catalog repetition is a load exercise, **not** a new source of venue data.
+- No claims of improved relevance, consumer usability, real-world benchmark validity, or production readiness; the Boston independent reviewer study remains incomplete.
+
 ## [0.21.1] — 2026-11-13 (Public repository preparation)
 
 - Remove the empty root `Untitled.ipynb`; retain the 21 substantive notebooks.

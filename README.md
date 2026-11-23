@@ -4,7 +4,7 @@
 
 SavoRoute is an experimental Python application for searching and comparing restaurant and recipe records. It provides a browser interface, a versioned read-only HTTP API, command-line tools, and six read-only tools for local MCP clients. All interfaces reuse the same catalog and retrieval services.
 
-**Project status:** developer preview (`0.21.1`). This is not a live restaurant directory or a production agent. The default catalog is fictional. Restaurant opening hours, menu availability, current prices, allergen safety, and reservations are **not verified**. There are no autonomous agent workflows or user accounts.
+**Project status:** developer preview (`0.22.0`). This is not a live restaurant directory or a production agent. The default catalog is fictional. Restaurant opening hours, menu availability, current prices, allergen safety, and reservations are **not verified**. There are no autonomous agent workflows or user accounts.
 
 ## Try the application
 
@@ -29,7 +29,7 @@ savoroute --help
 
 | Area | Behavior |
 | --- | --- |
-| Search | Lexical overlap and BM25, catalog browsing, and explicit metadata constraints |
+| Search | Reusable catalog-bound lexical index (overlap and BM25), catalog browsing, and explicit metadata constraints |
 | Retrieval | Optional cosine-based text/image indices; item-level reciprocal-rank fusion; SQLite and optional FAISS backends |
 | Decisions | Deterministic, catalog-grounded recommendations and comparison of up to three results in the browser |
 | Geography | Source-tagged city filtering; optional nearby search from a matching saved OSM snapshot; offline municipality-boundary workflow |
@@ -60,6 +60,8 @@ The catalog, OSM observations, and recipe notes are tied to specific input diges
 
 ## Development checks
 
+An opt-in [local retrieval latency benchmark](docs/lexical-index-and-performance.md) compares per-query index construction with reuse of one in-memory index. It is a microbenchmark, **not** an independently judged relevance result or production latency service-level objective.
+
 ```bash
 python -m pip install -e ".[api,dev]"
 python -m pytest -q
@@ -74,7 +76,7 @@ CI also installs optional MCP/notebook dependencies and executes all notebooks o
 - [Architecture](docs/architecture.md) · [Data contract](docs/data-contract.md) · [Web application](docs/web-app.md) · [HTTP API](docs/http-api.md) · [Local MCP](docs/mcp-server.md)
 - [Opt-in visits](docs/opt-in-visit-discovery.md) · [Reviewed media and nearby search](docs/geography-and-reviewed-media.md) · [Real-data statistical evaluation](docs/statistical-relevance-study.md)
 - [Source quality and rights](docs/data-quality-and-source-facts.md) · [Recipes](docs/recipe-curation-m4.md) · [Geography](docs/boston-boundary-workflow.md)
-- [Retrieval evaluation](docs/evaluation.md) · [Independent relevance review](docs/statistical-relevance-study.md) · [Notebooks](notebooks/README.md)
+- [Lexical performance and parity](docs/lexical-index-and-performance.md) · [Retrieval evaluation](docs/evaluation.md) · [Independent relevance review](docs/statistical-relevance-study.md) · [Notebooks](notebooks/README.md)
 - [Roadmap](docs/roadmap.md) · [Changelog](CHANGELOG.md)
 
 ## Licensing and data use

@@ -1,8 +1,8 @@
-"""Two interpretable, offline retrieval baselines: overlap and BM25.
+"""Deterministic lexical baselines with reusable, catalog-bound index statistics.
 
-Filtering is deterministic and is performed before result selection. BM25 uses
-full-catalog statistics to avoid changing term weights when metadata filters
-change. Neither method computes semantic embeddings or calibrated probabilities.
+Filtering precedes result selection. BM25 document frequency and average length
+are computed over the *whole* catalog, even when a query has hard filters.
+Scores are retrieval scores, not calibrated probabilities.
 """
 
 from __future__ import annotations
@@ -10,9 +10,10 @@ from __future__ import annotations
 import math
 import re
 import unicodedata
-from collections import Counter
-from collections.abc import Iterable
-from dataclasses import dataclass
+from collections import Counter, defaultdict
+from collections.abc import Iterable, Mapping
+from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import Literal
 
 from savoroute.domain.models import CatalogItem, ItemKind
@@ -22,7 +23,7 @@ _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
 def tokenize(text: str) -> tuple[str, ...]:
-    """Intentionally basic English tokenizer. Not a multilingual tokenizer."""
+    """Intentionally basic English tokenizer; not a multilingual tokenizer."""
     return tuple(_TOKEN_RE.findall(text.casefold()))
 
 
@@ -46,10 +47,10 @@ class SearchFilters:
             type(self.max_price_tier) is not int or not 1 <= self.max_price_tier <= 4
         ):
             raise ValueError("max_price_tier must be an integer from 1 to 4")
-        for field in ("cuisine", "location", "city", "region", "country"):
-            value = getattr(self, field)
+        for name in ("cuisine", "location", "city", "region", "country"):
+            value = getattr(self, name)
             if value is not None and (not isinstance(value, str) or not value.strip()):
-                raise ValueError(f"{field} must be a nonempty string or None")
+                raise ValueError(f"{name} must be a nonempty string or None")
         if not isinstance(self.dietary_tags, tuple) or any(
             not isinstance(tag, str) or not tag.strip() for tag in self.dietary_tags
         ):
@@ -65,14 +66,14 @@ class SearchHit:
 
 
 def _place_key(value: str | None) -> str:
-    """Normalize Unicode and whitespace for equality, not fuzzy/substring geocoding."""
+    """Normalize Unicode and spacing for equality, not substring geocoding."""
     return " ".join(unicodedata.normalize("NFKC", value or "").casefold().split())
 
 
 def filter_catalog(
     items: Iterable[CatalogItem], filters: SearchFilters | None = None
 ) -> tuple[CatalogItem, ...]:
-    """Hard filters; unknown metadata cannot satisfy a requested constraint."""
+    """Hard filters: missing metadata cannot satisfy an explicit constraint."""
     f = filters or SearchFilters()
     tags = {tag.strip().casefold() for tag in f.dietary_tags}
     selected: list[CatalogItem] = []
@@ -81,9 +82,8 @@ def filter_catalog(
             continue
         if f.cuisine and f.cuisine.strip().casefold() not in {x.casefold() for x in item.cuisines}:
             continue
-        # Legacy location remains an exact display-address match OR an exact
-        # canonical city match, so existing clients can request location="Boston".
-        # A street containing the word Boston is NOT evidence of city identity.
+        # Legacy location accepts exact address or source-recorded city only.
+        # A street containing "Boston" is not evidence of Boston city identity.
         if f.location and _place_key(f.location) not in {
             _place_key(item.location), _place_key(item.city),
         }:
@@ -112,18 +112,117 @@ def _field_tokens(item: CatalogItem) -> tuple[str, ...]:
     return tokenize(" ".join(parts))
 
 
-def _overlap(item: CatalogItem, query_terms: set[str]) -> float:
-    name = set(tokenize(item.title))
-    cuisines = set(tokenize(" ".join(item.cuisines)))
-    description = set(tokenize(item.description))
-    tags = set(tokenize(" ".join(item.dietary_tags)))
-    location = set(tokenize(item.location or ""))
-    ingredients = set(tokenize(" ".join(item.ingredients)))
-    return float(
-        5 * len(query_terms & name) + 3 * len(query_terms & cuisines)
-        + 2 * len(query_terms & tags) + len(query_terms & description)
-        + len(query_terms & location) + len(query_terms & ingredients)
+def _overlap_fields(item: CatalogItem) -> tuple[frozenset[str], ...]:
+    """Field-specific tokens and weights match the original overlap baseline."""
+    return (
+        frozenset(tokenize(item.title)),
+        frozenset(tokenize(" ".join(item.cuisines))),
+        frozenset(tokenize(" ".join(item.dietary_tags))),
+        frozenset(tokenize(item.description)),
+        frozenset(tokenize(item.location or "")),
+        frozenset(tokenize(" ".join(item.ingredients))),
     )
+
+
+_OVERLAP_WEIGHTS = (5, 3, 2, 1, 1, 1)
+
+
+@dataclass(frozen=True, slots=True)
+class LexicalIndex:
+    """In-memory index built once from a fixed tuple of immutable catalog items.
+
+    Index contents cannot be mutated through public attributes. A new catalog
+    revision requires a new index; there is no implicit cross-catalog cache.
+    """
+
+    items: tuple[CatalogItem, ...]
+    _documents: tuple[Mapping[str, int], ...] = field(repr=False)
+    _lengths: tuple[int, ...] = field(repr=False)
+    _average_length: float = field(repr=False)
+    _document_frequency: Mapping[str, int] = field(repr=False)
+    _postings: Mapping[str, tuple[int, ...]] = field(repr=False)
+    _overlap_tokens: tuple[tuple[frozenset[str], ...], ...] = field(repr=False)
+    _positions: Mapping[str, int] = field(repr=False)
+
+    @classmethod
+    def build(cls, items: Iterable[CatalogItem]) -> LexicalIndex:
+        records = tuple(items)
+        positions = {item.item_id: pos for pos, item in enumerate(records)}
+        if len(positions) != len(records):
+            raise ValueError("duplicate catalog item_id")
+        if not records:
+            return cls(records, (), (), 0.0, MappingProxyType({}),
+                       MappingProxyType({}), (), MappingProxyType({}))
+
+        documents: list[Mapping[str, int]] = []
+        lengths: list[int] = []
+        frequencies: Counter[str] = Counter()
+        postings: dict[str, list[int]] = defaultdict(list)
+        for position, item in enumerate(records):
+            counts = Counter(_field_tokens(item))
+            documents.append(MappingProxyType(dict(counts)))
+            lengths.append(sum(counts.values()))
+            for term in counts:
+                frequencies[term] += 1
+                postings[term].append(position)
+        return cls(
+            records, tuple(documents), tuple(lengths), sum(lengths) / len(records),
+            MappingProxyType(dict(frequencies)),
+            MappingProxyType({term: tuple(indices) for term, indices in postings.items()}),
+            tuple(_overlap_fields(item) for item in records),
+            MappingProxyType(positions),
+        )
+
+    def search(
+        self, query: str, filters: SearchFilters | None = None, *,
+        limit: int = 5, method: Method = "bm25",
+    ) -> tuple[SearchHit, ...]:
+        """Search fixed catalog with stable BM25/overlap scores and ID tie-breaks."""
+        if type(limit) is not int or limit < 1:
+            raise ValueError("limit must be a positive integer")
+        if method not in ("bm25", "overlap"):
+            raise ValueError("method must be 'bm25' or 'overlap'")
+        terms = tuple(dict.fromkeys(tokenize(query)))
+        if not terms or not self.items:
+            return ()
+        query_set = set(terms)
+        candidate_positions = {
+            pos for term in terms for pos in self._postings.get(term, ())
+        }
+        if not candidate_positions:
+            return ()
+
+        # Keep the same full-catalog IDF with and without metadata constraints.
+        selected = filter_catalog(self.items, filters)
+        hits: list[SearchHit] = []
+        k1, b = 1.5, 0.75
+        for item in selected:
+            position = self._positions[item.item_id]
+            if position not in candidate_positions:
+                continue
+            if method == "overlap":
+                overlap = self._overlap_tokens[position]
+                score = float(sum(weight * len(query_set & values)
+                                  for weight, values in zip(_OVERLAP_WEIGHTS, overlap, strict=True)))
+            else:
+                document = self._documents[position]
+                length = self._lengths[position]
+                score = 0.0
+                for term in terms:
+                    tf = document.get(term, 0)
+                    if tf == 0:
+                        continue
+                    df = self._document_frequency[term]
+                    idf = math.log(1 + (len(self.items) - df + 0.5) / (df + 0.5))
+                    score += idf * (tf * (k1 + 1)) / (
+                        tf + k1 * (1 - b + b * length / self._average_length)
+                    )
+            if score > 0:
+                hits.append(SearchHit(item, score, tuple(sorted(query_set.intersection(
+                    self._documents[position]
+                ))), method))
+        hits.sort(key=lambda hit: (-hit.score, hit.item.item_id))
+        return tuple(hits[:limit])
 
 
 def search_catalog(
@@ -133,53 +232,15 @@ def search_catalog(
     *,
     limit: int = 5,
     method: Method = "bm25",
+    lexical_index: LexicalIndex | None = None,
 ) -> tuple[SearchHit, ...]:
-    """Return catalog-backed hits ranked by a transparent lexical baseline.
+    """Existing stateless API; optionally reuse an index bound to this exact tuple.
 
-    Scores are not comparable across different methods, query texts, or datasets.
-    Input item IDs must be unique. Empty/whitespace queries return no results.
+    Caller-owned iterables use a one-off index. The shared DiscoveryService
+    creates its index once; the vector/fusion layers can reuse it by injection.
     """
-    if type(limit) is not int or limit < 1:
-        raise ValueError("limit must be a positive integer")
-    if method not in ("bm25", "overlap"):
-        raise ValueError("method must be 'bm25' or 'overlap'")
-    records = tuple(items)
-    if len({item.item_id for item in records}) != len(records):
-        raise ValueError("duplicate catalog item_id")
-    selected = filter_catalog(records, filters)
-    terms = tuple(dict.fromkeys(tokenize(query)))
-    if not terms or not selected:
-        return ()
-    query_set = set(terms)
-    scores: dict[str, float] = {}
-    if method == "overlap":
-        scores = {item.item_id: _overlap(item, query_set) for item in selected}
-    else:
-        # In a production index, compute these once during indexing and persist them.
-        documents = {item.item_id: Counter(_field_tokens(item)) for item in records}
-        lengths = {item_id: sum(doc.values()) for item_id, doc in documents.items()}
-        avg_length = sum(lengths.values()) / len(lengths)
-        df = {term: sum(doc[term] > 0 for doc in documents.values()) for term in terms}
-        k1, b = 1.5, 0.75
-        for item in selected:
-            doc = documents[item.item_id]
-            length = lengths[item.item_id]
-            score = 0.0
-            for term in terms:
-                tf = doc[term]
-                if tf == 0:
-                    continue
-                idf = math.log(1 + (len(documents) - df[term] + 0.5) / (df[term] + 0.5))
-                score += idf * (tf * (k1 + 1)) / (
-                    tf + k1 * (1 - b + b * length / avg_length)
-                )
-            scores[item.item_id] = score
-    hits: list[SearchHit] = []
-    for item in selected:
-        if scores[item.item_id] <= 0:
-            continue
-        observed = set(_field_tokens(item))
-        hits.append(SearchHit(item, scores[item.item_id],
-                              tuple(sorted(query_set & observed)), method))
-    hits.sort(key=lambda hit: (-hit.score, hit.item.item_id))
-    return tuple(hits[:limit])
+    if lexical_index is None:
+        lexical_index = LexicalIndex.build(items)
+    elif not isinstance(items, tuple) or items is not lexical_index.items:
+        raise ValueError("lexical index belongs to a different catalog tuple")
+    return lexical_index.search(query, filters, limit=limit, method=method)

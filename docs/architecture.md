@@ -38,13 +38,13 @@ The diagram shows the retrieval path. Geographic discovery, evidence review, loc
 
 ## Retrieval and ranking
 
-- `retrieval/lexical.py` implements a simple English alphanumeric tokenizer, weighted term overlap, and BM25 over concatenated fields with repeated title/cuisine text. It is **not BM25F** or semantic search.
+- `retrieval/lexical.py` implements a simple English alphanumeric tokenizer, weighted term overlap, and BM25 over concatenated fields with repeated title/cuisine text. An immutable catalog-bound lexical index precomputes corpus statistics once for `DiscoveryService`; a changed catalog requires a new index. It is **not BM25F** or semantic search.
 - `retrieval/vector.py` supports optional shared text/image embeddings and an exact cosine index. `retrieval/dense.py` supports persistent SQLite retrieval and optional FAISS HNSW. The default sample uses no embedding model.
 - `retrieval/fusion.py` combines distinct item rankings using weighted reciprocal-rank contributions. Native BM25 and cosine scores are not directly added.
 - `services/recommendation.py` applies recorded metadata preferences to retrieved candidates. Its adjustment is a ranking utility, not a probability or evidence of user satisfaction.
 - Unknown cuisine, dietary, or price fields do not satisfy corresponding hard filters. Recorded dietary tags are not food-safety assurances.
 
-See [rank fusion](rank-fusion.md) and [recommendation scoring](grounded-recommendations.md) for algorithm definitions.
+See [lexical-index performance](lexical-index-and-performance.md), [rank fusion](rank-fusion.md), and [recommendation scoring](grounded-recommendations.md) for algorithm definitions.
 
 ## Interfaces and trust boundaries
 
@@ -60,6 +60,6 @@ See [rank fusion](rank-fusion.md) and [recommendation scoring](grounded-recommen
 
 See [statistical evaluation](statistical-relevance-study.md), [design decisions](adr/), and the [quality plan](product-quality-plan.md). Operational security, larger-scale effectiveness, and UX validation remain open work.
 
-## Geographic filtering in v0.21.1
+## Geographic filtering (current contract)
 
 Metadata filters use exact, case-insensitive values for cuisine and dietary tags, and an integer bound for price tier. The legacy `location` filter accepts exact recorded-city equality or exact display-address equality; substring matching is not used. City, region and country fields must be source-grounded, and missing municipalities remain unknown. A missing price tier does not satisfy a maximum-price filter. Dietary tags are catalog metadata, not verified allergen information. See [geographic normalization](geographic-normalization.md).

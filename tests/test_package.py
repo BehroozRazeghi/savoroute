@@ -11,7 +11,7 @@ from savoroute.providers.contracts import (
 
 
 def test_version_and_bundled_data():
-    assert __version__ == "0.21.1"
+    assert __version__ == "0.22.0"
     assert load_catalog().synthetic is True
 
 

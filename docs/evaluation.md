@@ -15,7 +15,7 @@ $$
 \frac{f(t,d)(k_1+1)}{f(t,d)+k_1\left(1-b+b\frac{|d|}{\overline L}\right)},
 $$
 
-where $k_1=1.5$, $b=0.75$, $N$ is the number of catalog records, $n_t$ is the number containing $t$, and $\overline L$ is the mean document length. The document is constructed by concatenating the title three times, cuisines twice, and description, dietary tags, ingredients, and location once. Field repetition is a heuristic, not BM25F. Corpus statistics are calculated over all input records, independent of the result filters.
+where $k_1=1.5$, $b=0.75$, $N$ is the number of catalog records, $n_t$ is the number containing $t$, and $\overline L$ is the mean document length. The document is constructed by concatenating the title three times, cuisines twice, and description, dietary tags, ingredients, and location once. Field repetition is a heuristic, not BM25F. Corpus statistics are calculated over all input records, independent of the result filters. The reusable lexical index caches these statistics per immutable catalog and does not modify the formula or its full-corpus denominator. The independent parity and performance protocol is described in [lexical-index performance](lexical-index-and-performance.md).
 
 Only positive-score eligible hits are returned, sorted by decreasing score and then `item_id`. Scores are not probabilities and are not comparable between methods or query texts.
 

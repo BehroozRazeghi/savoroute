@@ -22,7 +22,7 @@ from savoroute.retrieval.dense import (
     search_dense,
     validate_dense_catalog,
 )
-from savoroute.retrieval.lexical import SearchFilters, filter_catalog, search_catalog
+from savoroute.retrieval.lexical import LexicalIndex, SearchFilters, filter_catalog, search_catalog
 from savoroute.retrieval.vector import (
     VectorIndex,
     VectorIndexError,
@@ -149,6 +149,7 @@ def search_fused(
     rrf_k: int = 60,
     pool_size: int = 50,
     limit: int = 5,
+    lexical_index: LexicalIndex | None = None,
 ) -> tuple[FusedHit, ...]:
     """Rank filtered catalog items through BM25, text vectors, and image vectors.
 
@@ -182,7 +183,8 @@ def search_fused(
         return ()
     rankings: dict[SourceName, list[tuple[str, str, float]]] = {}
     if selected_weights.bm25 > 0:
-        lexical = search_catalog(catalog.items, query, filters, method="bm25", limit=pool_size)
+        lexical = search_catalog(catalog.items, query, filters, method="bm25",
+                                 limit=pool_size, lexical_index=lexical_index)
         rankings["bm25"] = [(hit.item.item_id, f"text:{hit.item.item_id}", hit.score)
                             for hit in lexical]
 

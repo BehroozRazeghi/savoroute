@@ -1,6 +1,6 @@
 # Product-quality plan
 
-**Status:** proposed engineering work following v0.18.0. This is not a claim that the acceptance tests have passed.
+**Status:** acceptance criteria originally drafted after v0.18.0, updated for v0.22.0. UI implementation and automated regression checks exist; independent consumer usability, accessibility conformance, and real-data relevance remain unverified. These criteria are not a claim that the entire plan has passed.
 
 **Product definition:** Savoroute is a local-first restaurant discovery application and Python retrieval toolkit, with recipe support. Its principal differentiator is inspection of catalog evidence and reproducible evaluation—not live inventory or an autonomous concierge.
 
@@ -10,16 +10,16 @@
 
 **Accept when:** the default fictional catalog is identified above the fold; quick-start commands work from a clean checkout; every major linked page describes an implemented interface or is explicitly historical; release history is kept in the changelog. Verify links and commands in CI or a clean local environment.
 
-## 2. Web discovery redesign — next engineering PR
+## 2. Web discovery — implemented baseline, uncompleted product validation
 
 **User objective:** find and inspect an eligible restaurant quickly, without understanding retrieval algorithms.
 
-**Required interaction changes:**
+**Design and verification requirements (some implemented, all subject to product validation):**
 
 1. Put a single search input and **Restaurants / Recipes** choice at the top. Open on a usable result state, not an oversized decorative hero.
 2. Show the active dataset's name and whether it is fictional before showing results. Do not use claims such as “real listings” for synthetic records.
 3. Use a compact results list or grid, with progressive disclosure for advanced filters and ranking preferences. Keep **Search** and **Recommendations** semantically distinct.
-4. Replace the current location free-text filter with normalized, catalog-derived location choices or a documented area-selection contract. Today the UI suggests “Boston” while the backend matches full stored location strings exactly, so an address such as “374 Commonwealth Avenue, Boston” can be excluded. Offer cuisine choices derived from available catalog values rather than silently requiring exact free-text matches.
+4. Improve location selection with catalog-derived choices and a documented geographic contract. The current backend accepts exact source-recorded city or display address; it does not infer city identity from an address substring. The 41 Boston-pilot records lacking a verified municipality remain unknown. Review cuisine choice presentation against actual catalog values.
 5. Give each result a concise title, recorded place/cuisine, source, and explicit missing-data states. Make item detail, origin link, and relevant ranking evidence accessible without exposing unexplained numerical scores as probabilities.
 6. Make nearby discovery usable without manual decimal-coordinate entry as the only entry path. Preserve consent: never request device location automatically. Any new geocoding or maps require a separate provider and privacy decision.
 7. Retain a separate researcher/operator area for review tools. Do not place visit-review and relevance-study operations in the primary consumer navigation.

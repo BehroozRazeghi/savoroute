@@ -2,17 +2,21 @@
 
 This is a forward-looking quality plan, not a release diary. Completed milestones are recorded in [CHANGELOG.md](../CHANGELOG.md). The current implementation is summarized in the [architecture](architecture.md).
 
+## Current implementation status (v0.22.0)
+
+The source contains the search-first UI, catalog/source observations, geographic normalization, three source-linked recipe examples, and a cached lexical retrieval index with score-parity tests. These are implementation milestones, **not** confirmation of production UX, independent recommendation relevance, or source freshness. The Boston query judgments remain incomplete; official municipal polygon classification of 41 missing-city records also remains pending.
+
 ## Next work, in order
 
 | Priority | Work | Completion criterion |
 | --- | --- | --- |
-| P0 | Product and documentation consistency | One accurate project objective; README and linked guides match implemented interfaces and known limitations |
-| P1 | Discovery UI redesign | Search-first layout; usable on narrow screens and keyboard; clear dataset identity, loading/empty/error states, and source details; tested against fictional and saved OSM catalogs |
+| P0 | Finish and independently audit the Boston study | Obtain defensible labels and adjudication, report unjudged coverage and uncertainty, verify frozen inputs without tuning on held-out data |
+| P1 | Validate the existing search-first user experience | Complete defined user tasks with prospective users; record accessibility, mobile, keyboard, empty/error-state failures without implying WCAG certification |
 | P1 | Interaction and accessibility verification | Defined user tasks, accessibility review, browser regressions, and documented defects; no untested claims of WCAG conformance |
-| P1 | Data completeness and product boundaries | Missing-field coverage reported; unknown attributes never displayed as asserted facts; external media only after rights review |
-| P1 | Execute Boston reviewer pilot | Frozen protocol, two independent reviewers, completed or explicitly unresolved labels, adjudication, and an appropriately limited report |
+| P1 | Data completeness and product boundaries | Obtain accurately sourced, rights-reviewed menus, descriptions and media; report missingness; keep unknown attributes unknown |
+| P1 | Complete Boston geography | Validate the real official municipal polygon and audit unresolved cases; never infer municipalities from address text |
 | P2 | Broader independent relevance benchmark | Diverse, documented query sampling and geographic coverage; test sets fixed before method tuning |
-| P2 | Retrieval changes supported by evaluation | Error-driven changes with ablation and paired comparisons; no assumed improvement from adding models |
+| P2 | Retrieval quality changes only after labels | Error-driven changes with ablation, fixed held-out queries, and paired comparisons; the current index improvement is performance-only |
 | P3 | Deployment assessment | Authentication, network exposure, rate limits, observability, data retention, privacy, licenses, and load testing before hosting beyond loopback |
 
 See the [product-quality plan](product-quality-plan.md) for the precise work sequence and acceptance tests.

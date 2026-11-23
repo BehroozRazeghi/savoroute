@@ -1,6 +1,57 @@
 # SavoRoute
 
-**Local-first food discovery with traceable catalog evidence and reproducible retrieval evaluation.**
+**Explore actual source-tagged restaurant records, see the evidence, and search without invented ratings.**
+
+SavoRoute combines a mobile-friendly React discovery interface, a Python/FastAPI
+backend, and read-only local MCP tools. A separate OSM-backed Boston preview
+provides real historical restaurant records; the default installation remains
+fictional for reproducible development and does not claim verified availability.
+
+### Real application screenshots
+
+<!-- SCREENSHOTS_BEGIN -->
+These screenshots were captured from the **running React consumer app**
+using the opt-in November 2026 OSM Boston catalog. Real source-tagged records,
+not a live verification of restaurant availability.
+
+| React desktop | React mobile |
+| --- | --- |
+| ![Current SavoRoute React desktop UI with OSM-backed Boston results](docs/screenshots/consumer-desktop-real.png) | ![Current SavoRoute React mobile UI with OSM-backed Boston results](docs/screenshots/consumer-mobile-real.png) |
+<!-- SCREENSHOTS_END -->
+
+### Try real Boston restaurant data
+
+With Python 3.11+ and Node.js 22.12+ from a checked-out repository:
+
+```bash
+python -m pip install -e ".[api]"
+(cd webapp && npm ci && npm run build)
+savoroute web serve --catalog data/real/boston-osm-2026-11.json --host 127.0.0.1 --port 8000
+```
+
+Open **http://127.0.0.1:8000/app/** for the React consumer interface.
+The preview includes **123** named OSM restaurant records with an explicit
+Boston city tag; one private listing and 41 records without that tag were
+excluded. It is a snapshot, **not current restaurant verification**.
+See [data rights and provenance](data/real/README.md) (ODbL-1.0).
+
+To produce **current, real React screenshots** after installing Playwright Chromium:
+
+```bash
+(cd webapp && npx playwright install chromium && npm run screenshots)
+```
+
+This produces `docs/screenshots/consumer-desktop-real.png` and
+`docs/screenshots/consumer-mobile-real.png`, captured by loading the running
+React app against the real catalog. **After both images succeed, the script
+updates the README screenshot links automatically.** Review the images and
+README diff, then commit both generated PNGs and the README change.
+
+**Photo understanding:** not currently implemented in the standalone web app.
+See [the first-product plan](docs/first-product-and-ai.md). The existing MCP
+server exposes catalog search to compatible local AI hosts; it does not itself
+interpret camera images or connect automatically to all commercial chat apps.
+
 
 SavoRoute is an experimental Python application for searching and comparing restaurant and recipe records. It provides a browser interface, a versioned read-only HTTP API, command-line tools, and six read-only tools for local MCP clients. All interfaces reuse the same catalog and retrieval services.
 

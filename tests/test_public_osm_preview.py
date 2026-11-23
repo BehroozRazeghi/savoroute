@@ -8,7 +8,6 @@ from fastapi.testclient import TestClient
 from savoroute.api.app import create_app
 from savoroute.data.catalog import load_catalog
 
-
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "data/real/boston-osm-2026-11.json"
 
@@ -60,6 +59,9 @@ def test_real_preview_license_and_readme_disclosure():
     assert "Open Database License" in documentation
     assert "2026-11-11" in documentation
     assert "ODbL" in public_readme
-    assert "legacy-osm-desktop.png" in public_readme
+    assert "docs/screenshots/consumer-desktop-real.png" in public_readme
+    assert "docs/screenshots/consumer-mobile-real.png" in public_readme
+    assert (ROOT / "docs/screenshots/consumer-desktop-real.png").is_file()
+    assert (ROOT / "docs/screenshots/consumer-mobile-real.png").is_file()
     assert (ROOT / "docs/screenshots/legacy-osm-desktop.png").is_file()
     assert (ROOT / "docs/screenshots/legacy-osm-mobile.png").is_file()

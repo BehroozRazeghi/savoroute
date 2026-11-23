@@ -10,13 +10,21 @@ fictional for reproducible development and does not claim verified availability.
 ### Real application screenshots
 
 <!-- SCREENSHOTS_BEGIN -->
-These screenshots were captured from the **running React consumer app**
-using the opt-in November 2026 OSM Boston catalog. Real source-tagged records,
-not a live verification of restaurant availability.
+These screenshots were captured from the **running React consumer app** using
+the opt-in November 2026 Boston OSM snapshot. Records are source-tagged,
+but this does **not** verify current restaurant availability.
 
-| React desktop | React mobile |
-| --- | --- |
-| ![Current SavoRoute React desktop UI with OSM-backed Boston results](docs/screenshots/consumer-desktop-real.png) | ![Current SavoRoute React mobile UI with OSM-backed Boston results](docs/screenshots/consumer-mobile-real.png) |
+#### Desktop application
+
+![SavoRoute desktop food discovery with Boston OSM records](docs/screenshots/consumer-desktop-real.png)
+
+#### Mobile application
+
+| Search | Filters | Restaurant results |
+| :---: | :---: | :---: |
+| ![SavoRoute mobile search screen](docs/screenshots/consumer-mobile-search.png) | ![SavoRoute mobile filter controls](docs/screenshots/consumer-mobile-filters.png) | ![SavoRoute mobile restaurant results](docs/screenshots/consumer-mobile-results.png) |
+
+[View the complete mobile screenshot](docs/screenshots/consumer-mobile-real.png).
 <!-- SCREENSHOTS_END -->
 
 ### Try real Boston restaurant data
@@ -41,11 +49,12 @@ To produce **current, real React screenshots** after installing Playwright Chrom
 (cd webapp && npx playwright install chromium && npm run screenshots)
 ```
 
-This produces `docs/screenshots/consumer-desktop-real.png` and
-`docs/screenshots/consumer-mobile-real.png`, captured by loading the running
-React app against the real catalog. **After both images succeed, the script
-updates the README screenshot links automatically.** Review the images and
-README diff, then commit both generated PNGs and the README change.
+This captures the full-page desktop/mobile application plus three matching
+390 × 844 mobile viewport screenshots for **Search**, **Filters**, and **Results**.
+After all five captures succeed, the script replaces the marked screenshot
+gallery above with a full-width desktop image and three side-by-side mobile
+images. Review the images and README diff; commit the generated PNGs and README.
+The full-page mobile capture remains accessible through a separate link.
 
 **Photo understanding:** not currently implemented in the standalone web app.
 See [the first-product plan](docs/first-product-and-ai.md). The existing MCP

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 from secrets import compare_digest
@@ -22,6 +23,7 @@ from fastapi.staticfiles import StaticFiles
 from savoroute import __version__
 from savoroute.api.contracts import (
     EvidenceItemOutput,
+    FacetsOutput,
     ItemListOutput,
     ItemOutput,
     MetaOutput,
@@ -64,6 +66,48 @@ def _bad_request(error: ValueError) -> None:
     raise HTTPException(status_code=400, detail=str(error)) from error
 
 
+def _catalog_facets(catalog: Catalog, kind: Literal["restaurant", "recipe"]) -> dict[str, object]:
+    """Calculate facets once per loaded catalog, not per HTTP request.
+
+    Labels use recorded strings; case differences share one option, and no
+    city is inferred from display addresses or coordinates.
+    """
+    counts: dict[str, Counter[str]] = {"cities": Counter(), "cuisines": Counter()}
+    labels: dict[str, dict[str, str]] = {"cities": {}, "cuisines": {}}
+    prices: set[int] = set()
+    total = 0
+    for item in catalog.items:
+        if item.kind != kind:
+            continue
+        total += 1
+        values = {
+            "cities": {item.city.strip()} if item.city and item.city.strip() else set(),
+            "cuisines": {value.strip() for value in item.cuisines if value.strip()},
+        }
+        for field, row_values in values.items():
+            for value in row_values:
+                key = value.casefold()
+                counts[field][key] += 1
+                # Stable display label independent of catalog iteration order.
+                previous = labels[field].get(key)
+                if previous is None or (value.casefold(), value) < (previous.casefold(), previous):
+                    labels[field][key] = value
+        if item.price_tier is not None:
+            prices.add(item.price_tier)
+
+    def rows(field: str) -> list[dict[str, object]]:
+        return [{"value": labels[field][key], "count": count}
+                for key, count in sorted(counts[field].items())]
+
+    return {
+        "kind": kind, "catalog_synthetic": catalog.synthetic, "total": total,
+        "cities": rows("cities"), "cuisines": rows("cuisines"),
+        "price_tiers": sorted(prices),
+        "limitations": "Only recorded catalog attributes are listed. Missing fields are unknown; "
+                       "facet counts are not independently verified.",
+    }
+
+
 def create_app(
     *,
     catalog_path: str | Path | None = None,
@@ -92,6 +136,7 @@ def create_app(
 
     catalog: Catalog = load_catalog(catalog_path)
     service = DiscoveryService(catalog)
+    facet_bundles = {kind: _catalog_facets(catalog, kind) for kind in ("restaurant", "recipe")}
     source_facts = load_source_facts(source_facts_path, catalog) if source_facts_path else None
     source_facts_by_item = ({entry["item_id"]: entry for entry in source_facts["records"]}
                             if source_facts is not None else {})
@@ -220,6 +265,11 @@ def create_app(
             "recipe_notes_enabled": recipe_notes is not None,
             "recipe_notes_records": len(recipe_notes_by_item),
         }
+
+    @router.get("/facets", response_model=FacetsOutput)
+    def facets(kind: Literal["restaurant", "recipe"] = "restaurant") -> dict[str, object]:
+        """Return cached source-recorded facets; never infer unknown fields."""
+        return facet_bundles[kind]
 
     @router.get("/items", response_model=ItemListOutput)
     def items(

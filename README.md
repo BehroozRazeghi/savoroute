@@ -25,7 +25,7 @@ savoroute recommend "spicy tofu" --kind recipe --json
 savoroute --help
 ```
 
-## Consumer web preview (PR 1 foundation)
+## Consumer web preview (PR 2: search and discovery)
 
 A separately built React/TypeScript interface is available at `/app/` after
 running the frontend build. The existing `/` browser app and all read-only
@@ -35,15 +35,17 @@ Requires Python 3.11+ and Node.js >=22.12:
 
 ```bash
 python -m pip install -e ".[api]"
-(cd webapp && npm install && npm run build)
+(cd webapp && npm ci && npm run build)
 savoroute web serve --host 127.0.0.1 --port 8000
 ```
 
 Open <http://127.0.0.1:8000/app/>. For live Vite development, start FastAPI
 on port 8000 and run `cd webapp && npm run dev` in another terminal; open
 <http://127.0.0.1:5173/app/>. See [consumer web foundation](docs/product-web-foundation.md)
-for exact scope, security boundaries and browser checks. The consumer shell is
-not validated for public deployment and uses fictional demo records by default.
+for the original shell, and [consumer discovery](docs/consumer-search-discovery.md)
+for URL-backed searches, source-recorded filters, result limits, security boundaries,
+and browser checks. The consumer app remains a developer preview and uses fictional
+demo records by default.
 
 ## Implemented capabilities
 

@@ -135,6 +135,22 @@ class ItemOutput(WireModel):
     city_source: str | None = None
 
 
+class FacetValueOutput(WireModel):
+    value: str
+    count: int
+
+
+class FacetsOutput(WireModel):
+    api_version: Literal["v1"] = "v1"
+    kind: Literal["restaurant", "recipe"]
+    catalog_synthetic: bool
+    total: int
+    cities: list[FacetValueOutput]
+    cuisines: list[FacetValueOutput]
+    price_tiers: list[int]
+    limitations: str
+
+
 class ItemListOutput(WireModel):
     api_version: Literal["v1"] = "v1"
     total: int

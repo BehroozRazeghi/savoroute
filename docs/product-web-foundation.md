@@ -25,7 +25,7 @@ Requires Python 3.11+ and Node >=22.12. Run from the repository root:
 
 ```bash
 python -m pip install -e ".[api,dev]"
-(cd webapp && npm install && npm run build)
+(cd webapp && npm ci && npm run build)
 savoroute web serve --host 127.0.0.1 --port 8000
 ```
 
@@ -80,11 +80,12 @@ wheel needs `npm run build` **before** `python -m build`. The Python package
 includes built HTML/CSS/JS when those files exist; the repository ZIP does not
 ship a stale generated bundle.
 
-The PR's CI currently uses `npm install` because the build environment here could
-not reach the npm registry to generate and verify a lockfile. Before release,
-create and commit `webapp/package-lock.json` from a trusted local `npm install`,
-switch CI to `npm ci`, and rerun the build. This is a release gate, not a claim
-of dependency-reproducible publishing.
+PR 1 subsequently committed `webapp/package-lock.json` and changed CI to
+`npm ci`. On an existing checkout, preserve that committed lockfile. PR 2 changes
+only the consumer discovery source and tests; it does not regenerate dependencies.
+
+See [consumer discovery PR 2](consumer-search-discovery.md) for the subsequent
+search/filter improvements and their release checks.
 
 ## PR 1 acceptance gate
 

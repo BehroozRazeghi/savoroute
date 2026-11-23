@@ -11,7 +11,13 @@ from savoroute.domain.models import Catalog
 from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.retrieval.dense import DenseIndex
 from savoroute.retrieval.fusion import FusedHit, FusionWeights, search_fused
-from savoroute.retrieval.lexical import LexicalIndex, Method, SearchFilters, SearchHit, search_catalog
+from savoroute.retrieval.lexical import (
+    LexicalIndex,
+    Method,
+    SearchFilters,
+    SearchHit,
+    search_catalog,
+)
 from savoroute.retrieval.vector import VectorIndex
 from savoroute.services.recommendation import (
     RecommendationPreferences,

@@ -1,4 +1,16 @@
-## Unreleased — Consumer web PR 1 (React/Vite foundation)
+## Unreleased — Consumer web PR 2 (search and discovery)
+
+- Add URL-backed consumer search, filter, and page state with Back/Forward and
+  refresh restoration; do not persist user input to remote services.
+- Expose read-only `GET /v1/facets`, computed once from the configured catalog,
+  to populate recorded city, cuisine, and price-tier options.
+- Use existing hard-filter behavior for server-paginated browse and BM25 search;
+  preserve score order and explicitly disclose the search API's top-100 limit.
+- Add responsive, keyboard-accessible filter controls and request cancellation,
+  retry, loading and honest empty states, with Python and browser regression tests.
+- Do not change recommendation ranking, retrieval scoring, MCP, or catalog data.
+
+## Consumer web PR 1 (React/Vite foundation)
 
 - Add an independent React/TypeScript/Vite consumer shell under `/app/`, while
   retaining the existing `/` interface and all read-only API, CLI, and MCP routes.

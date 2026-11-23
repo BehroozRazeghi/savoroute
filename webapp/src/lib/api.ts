@@ -65,17 +65,47 @@ export function getMeta(signal?: AbortSignal): Promise<CatalogMeta> {
   return request<CatalogMeta>('/v1/meta', {}, signal);
 }
 
-export function browse(kind: Kind, offset = 0, signal?: AbortSignal): Promise<PageOfItems> {
+export type FacetValue = { value: string; count: number };
+export type FacetResponse = {
+  kind: Kind;
+  catalog_synthetic: boolean;
+  total: number;
+  cities: FacetValue[];
+  cuisines: FacetValue[];
+  price_tiers: number[];
+  limitations: string;
+};
+
+export type DiscoveryFilters = {
+  city?: string;
+  cuisine?: string;
+  maxPriceTier?: number | null;
+};
+
+export function getFacets(kind: Kind, signal?: AbortSignal): Promise<FacetResponse> {
+  const params = new URLSearchParams({ kind });
+  return request<FacetResponse>(`/v1/facets?${params}`, {}, signal);
+}
+
+export function browse(kind: Kind, offset = 0, filters: DiscoveryFilters = {}, signal?: AbortSignal): Promise<PageOfItems> {
   const params = new URLSearchParams({ kind, offset: String(offset), limit: '9' });
+  if (kind === 'restaurant' && filters.city) params.set('city', filters.city);
+  if (filters.cuisine) params.set('cuisine', filters.cuisine);
+  if (kind === 'restaurant' && filters.maxPriceTier) params.set('max_price_tier', String(filters.maxPriceTier));
   return request<PageOfItems>(`/v1/items?${params.toString()}`, {}, signal);
 }
 
-export function search(query: string, kind: Kind, signal?: AbortSignal): Promise<SearchResponse> {
+export function search(query: string, kind: Kind, filters: DiscoveryFilters = {}, signal?: AbortSignal): Promise<SearchResponse> {
   const trimmed = query.trim();
   if (!trimmed || trimmed.length > 500) throw new Error('Search for 1–500 characters.');
   return request<SearchResponse>('/v1/search', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: trimmed, method: 'bm25', limit: 9, filters: { kind } }),
+    body: JSON.stringify({ query: trimmed, method: 'bm25', limit: 100, filters: {
+      kind,
+      ...(kind === 'restaurant' && filters.city ? { city: filters.city } : {}),
+      ...(filters.cuisine ? { cuisine: filters.cuisine } : {}),
+      ...(kind === 'restaurant' && filters.maxPriceTier ? { max_price_tier: filters.maxPriceTier } : {}),
+    } }),
   }, signal);
 }

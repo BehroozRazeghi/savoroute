@@ -19,7 +19,7 @@ test('search and recipe mode use existing API', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Recipes to discover' })).toBeVisible();
   await page.getByRole('searchbox', { name: 'Search food records' }).fill('noodles');
   await page.getByRole('button', { name: 'Search', exact: true }).click();
-  await expect(page.getByText(/search matches/)).toBeVisible();
+  await expect(page.getByText(/ranked matches/)).toBeVisible();
 });
 
 test('mobile navigation is accessible without horizontal overflow', async ({ page }) => {

@@ -6,6 +6,14 @@ This is a forward-looking quality plan, not a release diary. Completed milestone
 
 The source contains the search-first UI, catalog/source observations, geographic normalization, three source-linked recipe examples, and a cached lexical retrieval index with score-parity tests. These are implementation milestones, **not** confirmation of production UX, independent recommendation relevance, or source freshness. The Boston query judgments remain incomplete; official municipal polygon classification of 41 missing-city records also remains pending.
 
+## Consumer web workstream (PR 1 of 5, in progress)
+
+PR 1 adds a separate React/TypeScript shell served under `/app/`. Next increments:
+URL-preserving search/filter journeys, dedicated item routes, saved decisions and
+comparisons, and independent accessibility/usability/performance review. These
+are **not completed** by the foundation shell. The existing `/` application stays
+available during migration. See [product web foundation](product-web-foundation.md).
+
 ## Next work, in order
 
 | Priority | Work | Completion criterion |

@@ -1,3 +1,15 @@
+## Unreleased — Consumer web PR 1 (React/Vite foundation)
+
+- Add an independent React/TypeScript/Vite consumer shell under `/app/`, while
+  retaining the existing `/` interface and all read-only API, CLI, and MCP routes.
+- Add accessible responsive navigation, catalog cards, initial browsing, basic
+  lexical search through `/v1/search`, item detail dialogs, and honest data states.
+- Introduce typed same-origin API clients, a separate production build, and
+  dedicated backend and browser contract checks. No changes to ranking, filters,
+  retrieval mathematics, or catalog schema.
+- This is a developer-preview UI foundation, **not** a production deployment,
+  validated user experience, or evidence of real restaurant data quality.
+
 ## [0.22.0] — 2026-11-13 (Catalog-bound lexical retrieval efficiency)
 
 - Build an in-memory, catalog-bound lexical index once when `DiscoveryService` is instantiated; reuse it for search, BM25 fusion, and catalog-grounded recommendations. Standalone `search_catalog` retains its public signature and one-off behavior.

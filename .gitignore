@@ -36,3 +36,11 @@ artifacts/
 outputs/
 # OS
 .DS_Store
+
+# Generated consumer app (build locally/CI before packaging)
+src/savoroute/web/consumer_dist/
+
+# Consumer frontend generated artifacts
+/webapp/node_modules/
+/webapp/test-results/
+/webapp/playwright-report/

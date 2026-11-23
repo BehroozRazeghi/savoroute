@@ -15,7 +15,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, Security
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.security import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
 
@@ -75,6 +75,7 @@ def create_app(
     recipe_notes_path: str | Path | None = None,
     encoder: JointTextImageEmbedder | None = None,
     api_key: str | None = None,
+    consumer_dist_path: str | Path | None = None,
 ) -> FastAPI:
     """Create an independent app with explicit catalog/index configuration.
 
@@ -534,4 +535,45 @@ def create_app(
         )
 
     app.mount("/assets", StaticFiles(directory=static_dir), name="web-assets")
+
+    # The consumer app is an additive, separately built interface. The legacy
+    # home page, reviewer tools, and read-only /v1 contracts remain unchanged.
+    # Build: cd webapp && npm install && npm run build. No frontend dev server
+    # or runtime Node process is needed when serving the compiled app.
+    consumer_dist = (Path(consumer_dist_path).resolve() if consumer_dist_path is not None
+                     else Path(__file__).resolve().parents[1] / "web" / "consumer_dist")
+    consumer_ready = (consumer_dist / "index.html").is_file()
+
+    @app.get("/app", include_in_schema=False)
+    def consumer_home_redirect() -> Response:
+        if consumer_ready:
+            return RedirectResponse(url="/app/", status_code=307)
+        return Response("Consumer app is not built. Run npm install && npm run build in webapp/.",
+                        media_type="text/plain", status_code=503)
+
+    if consumer_ready:
+        class ConsumerStaticFiles(StaticFiles):
+            async def get_response(self, path: str, scope: dict) -> Response:
+                response = await super().get_response(path, scope)
+                response.headers["X-Content-Type-Options"] = "nosniff"
+                response.headers["Referrer-Policy"] = "no-referrer"
+                response.headers["X-Frame-Options"] = "DENY"
+                response.headers["Content-Security-Policy"] = (
+                    "default-src 'none'; script-src 'self'; style-src 'self'; "
+                    "img-src 'self' data:; connect-src 'self'; "
+                    "font-src 'self'; base-uri 'none'; form-action 'none'; "
+                    "frame-ancestors 'none'; object-src 'none'"
+                )
+                if path in {"", ".", "index.html"}:
+                    response.headers["Cache-Control"] = "no-store"
+                return response
+
+        app.mount("/app", ConsumerStaticFiles(directory=consumer_dist, html=True),
+                  name="consumer-app")
+    else:
+        @app.get("/app/", include_in_schema=False)
+        def consumer_not_built() -> Response:
+            return Response("Consumer app is not built. Run npm install && npm run build in webapp/.",
+                            media_type="text/plain", status_code=503)
+
     return app

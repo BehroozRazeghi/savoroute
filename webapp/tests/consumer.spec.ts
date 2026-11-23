@@ -5,7 +5,7 @@ test('consumer app loads real catalog records and marks fictional data', async (
   page.on('pageerror', err => consoleErrors.push(err.message));
   await page.goto('/app/');
   await expect(page.getByRole('heading', { name: /Find your next good food decision/i })).toBeVisible();
-  await expect(page.getByText('FICTIONAL DEMO')).toBeVisible();
+  await expect(page.getByText('FICTIONAL DEMO', { exact: true })).toBeVisible();
   await expect(page.getByRole('article').first()).toBeVisible();
   await page.getByRole('button', { name: /View recorded details for/i }).first().click();
   await expect(page.getByRole('dialog', { name: 'Catalog entry details' })).toBeVisible();

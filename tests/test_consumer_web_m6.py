@@ -6,7 +6,6 @@ from fastapi.testclient import TestClient
 
 from savoroute.api.app import create_app
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "src/savoroute/web/consumer_dist"
 

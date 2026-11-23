@@ -6,6 +6,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
@@ -38,3 +39,29 @@ jobs:
                              resources={'metadata': {'path': '.'}}).execute()
               print('OK', path)
           PY
+  consumer_web:
+    name: Consumer web build and browser tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python -m pip install -e ".[api,dev]"
+      - name: Install consumer frontend dependencies
+        working-directory: webapp
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck and build consumer frontend
+        working-directory: webapp
+        run: npm run build
+      - name: Verify packaged consumer routes
+        run: python -m pytest -q tests/test_consumer_web_m6.py tests/test_web_app.py
+      - name: Install Chromium for browser tests
+        working-directory: webapp
+        run: npx playwright install --with-deps chromium
+      - name: Consumer browser smoke tests
+        working-directory: webapp
+        run: npm run test:e2e

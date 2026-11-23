@@ -37,7 +37,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "savoroute.resources" = ["*.json"]
-"savoroute.web" = ["static/*.html", "static/*.css", "static/*.js", "static/*.mjs", "static/*.svg"]
+"savoroute.web" = ["static/*.html", "static/*.css", "static/*.js", "static/*.mjs", "static/*.svg", "consumer_dist/*.html", "consumer_dist/assets/*.js", "consumer_dist/assets/*.css", "consumer_dist/assets/*.svg"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

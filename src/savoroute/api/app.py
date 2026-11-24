@@ -22,7 +22,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
 from savoroute import __version__
-from savoroute.ai.contracts import AIStatusOutput, InterpretInput, InterpretOutput, MAX_BODY_BYTES
+from savoroute.ai.contracts import MAX_BODY_BYTES, AIStatusOutput, InterpretInput, InterpretOutput
 from savoroute.ai.images import InvalidFoodImage, normalize_image
 from savoroute.ai.limits import AIGuard, RequestLimited
 from savoroute.ai.provider import FoodAIProvider, ProviderUnavailable

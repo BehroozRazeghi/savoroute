@@ -1464,3 +1464,26 @@ button:focus-visible,a:focus-visible,input:focus-visible {
 }
 
 .filter-warning { color: #87512e; font-size: 12px; line-height: 1.65; }
+
+/* Optional opt-in AI flow: deliberately distinct from verified catalog search. */
+.ai-discovery { margin: 2.2rem auto; padding: clamp(1rem, 3vw, 2rem); border: 1px solid #dce3dc; border-radius: 20px; background: #f8faf7; color: #20392e; }
+.ai-discovery-heading h2 { margin: .55rem 0; font-family: Georgia, serif; font-size: clamp(1.5rem, 3vw, 2.2rem); }
+.ai-discovery-heading p { max-width: 65ch; line-height: 1.6; }
+.ai-form { max-width: 760px; display: grid; gap: .75rem; margin-top: 1.1rem; }
+.ai-form > label, .ai-result label { font-weight: 650; font-size: .92rem; }
+.ai-form textarea, .ai-result input { width: 100%; padding: .8rem 1rem; border: 1px solid #aebcb2; border-radius: 12px; background: white; color: #213a31; font: inherit; }
+.ai-form textarea:focus-visible, .ai-result input:focus-visible, .ai-photo-button:focus-within { outline: 3px solid #8dbd9f; outline-offset: 2px; }
+.ai-photo-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+.ai-photo-button { cursor: pointer; display: inline-flex; padding: .65rem 1rem; border: 1px solid #abbdb0; border-radius: 12px; font-weight: 600; background: #fff; }
+.ai-photo-button input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.ai-photo-preview { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem; }
+.ai-photo-preview img { width: 74px; height: 74px; object-fit: cover; border-radius: 10px; }
+.ai-photo-preview button { border: 0; background: transparent; color: #725039; text-decoration: underline; cursor: pointer; }
+.ai-consent { display: flex; align-items: flex-start; gap: .6rem; line-height: 1.45; font-weight: 500 !important; }
+.ai-consent input { margin-top: .25rem; width: 18px; height: 18px; flex: none; }
+.ai-privacy, .ai-off { color: #536a5b; font-size: .85rem; line-height: 1.55; }
+.ai-submit { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; width: fit-content; padding: .75rem 1.2rem; background: #244935; color: #fff; border: 1px solid #244935; border-radius: 12px; font-weight: 650; cursor: pointer; }
+.ai-submit:disabled { opacity: .5; cursor: not-allowed; }
+.ai-error { color: #8b2d2d; font-size: .95rem; }
+.ai-result { display: grid; gap: .6rem; padding: 1rem; border: 1px solid #b9d0bd; border-radius: 14px; background: #fff; }
+.ai-result p { margin: 0; font-size: .9rem; line-height: 1.5; }

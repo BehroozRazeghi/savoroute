@@ -109,3 +109,44 @@ export function search(query: string, kind: Kind, filters: DiscoveryFilters = {}
     } }),
   }, signal);
 }
+
+/** AI interpretation is optional and never returns verified restaurant/menu facts. */
+export type AIStatus = {
+  enabled: boolean;
+  input_types: ('text' | 'image')[];
+  consent_required: true;
+};
+export type FoodInterpretation = {
+  search_query: string;
+  dishes: string[];
+  cuisines: string[];
+  ingredients: string[];
+  uncertainties: string[];
+};
+export type AIInterpretResponse = {
+  provider: string;
+  interpretation: FoodInterpretation;
+  catalog_verified: false;
+  limitations: string;
+};
+
+export function getAIStatus(signal?: AbortSignal): Promise<AIStatus> {
+  return request<AIStatus>('/v1/ai/status', {}, signal);
+}
+
+export function interpretFood(
+  prompt: string, imageBase64: string | null, consent: boolean, signal?: AbortSignal,
+): Promise<AIInterpretResponse> {
+  if (!consent) throw new Error('Approve external AI processing first.');
+  if (!prompt.trim() && !imageBase64) throw new Error('Add a description or food photo.');
+  if (prompt.length > 500) throw new Error('The prompt is too long.');
+  return request<AIInterpretResponse>('/v1/ai/interpret', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt: prompt.trim(), image_base64: imageBase64,
+      consent_remote_processing: true,
+    }),
+    cache: 'no-store',
+  }, signal);
+}

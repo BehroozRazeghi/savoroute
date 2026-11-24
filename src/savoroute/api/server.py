@@ -42,10 +42,23 @@ def serve(
         ai_provider = OpenAIResponsesProvider(
             api_key=secret, model=os.environ.get("SAVOROUTE_AI_MODEL", "gpt-6.1-terra"),
         )
+    # Live discovery is a SEPARATE opt-in paid web-search feature; AI
+    # interpretation can work without it, and vice versa.
+    live_provider = None
+    if os.environ.get("SAVOROUTE_LIVE_ENABLED") == "1":
+        from savoroute.live.provider import OpenAIWebSearchProvider
+
+        secret = os.environ.get("SAVOROUTE_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        if not secret:
+            raise ValueError("SAVOROUTE_LIVE_ENABLED=1 requires SAVOROUTE_OPENAI_API_KEY")
+        live_provider = OpenAIWebSearchProvider(
+            api_key=secret, model=os.environ.get("SAVOROUTE_LIVE_MODEL", "gpt-6.1-terra"),
+        )
     # An HTTP API key alone is not equivalent to TLS, rate limits, or hardened hosting.
     application = create_app(catalog_path=catalog, index_path=index,
                              evidence_path=evidence, osm_path=osm,
                              reviewed_media_path=reviewed_media,
                              source_facts_path=source_facts, recipe_notes_path=recipe_notes,
-                             api_key=api_key, ai_provider=ai_provider)
+                             api_key=api_key, ai_provider=ai_provider,
+                             live_provider=live_provider)
     uvicorn.run(application, host=host, port=port, reload=False, access_log=osm is None)

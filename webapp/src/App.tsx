@@ -3,6 +3,7 @@ import { ApiError, browse, getFacets, getMeta, search, type CatalogItem, type Ca
 import { DEFAULT_DISCOVERY, PAGE_SIZE, SEARCH_LIMIT, parseDiscovery, pushDiscovery, replaceDiscovery, type DiscoveryState } from './lib/searchState';
 import { DiscoveryFilters } from './components/DiscoveryFilters';
 import { AIFoodDiscovery } from './components/AIFoodDiscovery';
+import { LiveRestaurantDiscovery, type LivePrefill } from './components/LiveRestaurantDiscovery';
 import { Icon } from './components/Icon';
 import { ItemCard } from './components/ItemCard';
 import { DetailDialog } from './components/DetailDialog';
@@ -22,6 +23,7 @@ export function App() {
   const [retry, setRetry] = useState(0);
   const [selected, setSelected] = useState<CatalogItem | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [livePrefill, setLivePrefill] = useState<LivePrefill | null>(null);
   const searchBox = useRef<HTMLInputElement>(null);
   const isSearch = Boolean(discovery.q);
   // A stale page count must not rewrite a newly restored URL during popstate.
@@ -143,11 +145,17 @@ export function App() {
         <div className="quick-row"><span className="quick-label">I'm looking for</span><div role="group" aria-label="Food type" className="kind-switch"><button className={discovery.kind === 'restaurant' ? 'active' : ''} onClick={() => changeKind('restaurant')} aria-pressed={discovery.kind === 'restaurant'} type="button"><Icon name="utensils" size={16}/> Places to eat</button><button className={discovery.kind === 'recipe' ? 'active' : ''} onClick={() => changeKind('recipe')} aria-pressed={discovery.kind === 'recipe'} type="button"><Icon name="book" size={16}/> Recipes</button></div></div>
         <p className="hero-footnote"><Icon name="info" size={15}/> Not live availability, pricing, or dietary verification.</p>
       </div><div className="hero-right" aria-hidden="true"><div className="editorial-card"><div className="editorial-circle circle-1"/><div className="editorial-circle circle-2"/><div className="editorial-plate"><div className="plate-ring"><div className="plate-center"><Icon name="leaf" size={67}/></div></div></div><span className="editorial-word">GOOD FOOD<br/>BETTER CONTEXT</span><span className="editorial-index">SR / 001</span></div><div className="floating-note"><Icon name="check" size={16}/><div><strong>Clearer choices</strong><span>Source first. Guesswork last.</span></div></div></div></div></section>
-      <div className="layout-width"><AIFoodDiscovery onUseSearch={query => {
-        setDraft(query);
-        changeDiscovery({ q: query, cuisine: '', maxPriceTier: null, page: 1 });
-        document.getElementById('explore')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }}/></div>
+      <div className="layout-width">
+        <AIFoodDiscovery onUseSearch={(query, cuisine) => {
+          setDraft(query);
+          changeDiscovery({ q: query, cuisine, kind: 'restaurant', maxPriceTier: null, page: 1 });
+          document.getElementById('explore')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }} onDiscoverLive={(query, cuisine) => {
+          setLivePrefill({ query, cuisine, sequence: Date.now() });
+          document.getElementById('live-discovery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }}/>
+        <LiveRestaurantDiscovery prefill={livePrefill}/>
+      </div>
       <div className="value-strip"><div className="layout-width value-inner"><div><span className="value-number">01</span><span>Explore with intent</span></div><span className="value-rule"/><div><span className="value-number">02</span><span>Understand the evidence</span></div><span className="value-rule"/><div><span className="value-number">03</span><span>Choose with confidence</span></div></div></div>
       <section id="explore" className="explore-section layout-width"><div className="section-title-row"><div><p className="eyebrow"><span className="eyebrow-line"/> THE COLLECTION</p><h2>{discovery.q ? `Matches for “${discovery.q}”` : discovery.kind === 'restaurant' ? 'Places to explore' : 'Recipes to discover'}</h2><p>Every entry is a catalog record, not a guarantee of current information.</p></div><button className="outline-cta" type="button" onClick={reset}>Reset search <Icon name="arrow" size={17}/></button></div>
         <div className="collection-bar"><div className="collection-status"><span className="status-dot"/><span>{meta ? `${meta.dataset_name} · ${meta.catalog_items} records` : 'Connecting to catalog'}</span>{meta?.catalog_synthetic && <span className="demo-label">FICTIONAL DEMO</span>}</div><div className="collection-kind"><button aria-pressed={discovery.kind === 'restaurant'} className={discovery.kind === 'restaurant' ? 'active' : ''} onClick={() => changeKind('restaurant')}>Restaurants</button><button aria-pressed={discovery.kind === 'recipe'} className={discovery.kind === 'recipe' ? 'active' : ''} onClick={() => changeKind('recipe')}>Recipes</button></div></div>

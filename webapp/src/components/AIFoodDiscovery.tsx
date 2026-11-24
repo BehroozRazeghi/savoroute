@@ -39,15 +39,19 @@ async function preparePhoto(file: File): Promise<string> {
   }
 }
 
-type Props = { onUseSearch: (query: string) => void };
+type Props = {
+  onUseSearch: (query: string, cuisine: string) => void;
+  onDiscoverLive: (query: string, cuisine: string) => void;
+};
 
-export function AIFoodDiscovery({ onUseSearch }: Props) {
+export function AIFoodDiscovery({ onUseSearch, onDiscoverLive }: Props) {
   const [status, setStatus] = useState<AIStatus | null>(null);
   const [prompt, setPrompt] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [consent, setConsent] = useState(false);
   const [result, setResult] = useState<FoodInterpretation | null>(null);
   const [suggestedQuery, setSuggestedQuery] = useState('');
+  const [selectedCuisine, setSelectedCuisine] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const inFlight = useRef<AbortController | null>(null);
@@ -96,6 +100,7 @@ export function AIFoodDiscovery({ onUseSearch }: Props) {
       if (!controller.signal.aborted) {
         setResult(response.interpretation);
         setSuggestedQuery(response.interpretation.search_query);
+        setSelectedCuisine(response.interpretation.cuisines[0] ?? '');
       }
     } catch (failure) {
       if (!controller.signal.aborted) setError(failure instanceof ApiError ?
@@ -114,7 +119,7 @@ export function AIFoodDiscovery({ onUseSearch }: Props) {
     <div className="ai-discovery-heading">
       <span className="eyebrow"><Icon name="leaf" size={15}/> OPTIONAL AI ASSISTANCE</span>
       <h2 id="ai-title">Discover food from a thought or photo.</h2>
-      <p>AI suggests possible dishes and search words. You decide what to search; SavoRoute only returns catalog-backed records.</p>
+      <p>AI suggests possible dishes and search words. Choose how to search: strict catalog filtering or separate, source-linked web discovery.</p>
     </div>
     {status === null ? <p role="status">Checking AI availability…</p> :
       !status.enabled ? <p className="ai-off" role="status">AI interpretation is not configured on this server. Regular food discovery is still available below.</p> :
@@ -151,8 +156,17 @@ export function AIFoodDiscovery({ onUseSearch }: Props) {
             <label htmlFor="ai-suggested-query">Edit suggested search</label>
             <input id="ai-suggested-query" maxLength={180} value={suggestedQuery}
               onChange={event => setSuggestedQuery(event.target.value)}/>
+            <label htmlFor="ai-selected-cuisine">Required cuisine (optional; exact catalog filter)</label>
+            <select id="ai-selected-cuisine" value={selectedCuisine} onChange={event => setSelectedCuisine(event.target.value)}>
+              <option value="">No required cuisine</option>
+              {result.cuisines.map(value => <option value={value} key={value}>{value}</option>)}
+            </select>
             <button type="button" className="ai-submit" disabled={!suggestedQuery.trim()}
-              onClick={() => { onUseSearch(suggestedQuery.trim()); setResult(null); }}>Search catalog <Icon name="arrow" size={15}/></button>
+              onClick={() => { onUseSearch(suggestedQuery.trim(), selectedCuisine); setResult(null); }}>Search catalog <Icon name="arrow" size={15}/></button>
+            <button type="button" className="ai-photo-button" disabled={!suggestedQuery.trim() || !selectedCuisine}
+              onClick={() => { onDiscoverLive(suggestedQuery.trim(), selectedCuisine); setResult(null); }}>
+              Continue to live restaurant discovery
+            </button>
           </div>}
         </form>}
   </section>;

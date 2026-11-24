@@ -62,14 +62,24 @@ def serve(
     if beta_policy is not None and host not in {"127.0.0.1", "::1", "localhost"}:
         raise ValueError("controlled beta must bind to loopback behind a trusted HTTPS proxy")
     beta_admission = BetaAdmission(beta_policy) if beta_policy is not None else None
+    review_registry = None
+    review_file = os.environ.get("SAVOROUTE_LIVE_REVIEW_FILE", "")
+    if review_file:
+        from savoroute.live.review import LiveReviewRegistry
+
+        review_registry = LiveReviewRegistry.load(review_file)
+    # Public-facing invite beta never promotes unreviewed web leads to recommendations.
+    if beta_policy is not None and live_provider is not None and review_registry is None:
+        raise ValueError("Live beta requires SAVOROUTE_LIVE_REVIEW_FILE with human reviews")
     # An HTTP API key alone is not equivalent to TLS or hardened hosting.
     application = create_app(catalog_path=catalog, index_path=index,
                              evidence_path=evidence, osm_path=osm,
                              reviewed_media_path=reviewed_media,
                              source_facts_path=source_facts, recipe_notes_path=recipe_notes,
                              api_key=api_key, ai_provider=ai_provider,
-                             live_provider=live_provider, beta_admission=beta_admission)
-    options = {"host": host, "port": port, "reload": False, "access_log": osm is None}
+                             live_provider=live_provider, beta_admission=beta_admission,
+                             live_review_registry=review_registry)
+    options = {"host": host, "port": port, "reload": False, "access_log": beta_policy is None and osm is None}
     if beta_policy is not None:
         # Never use X-Forwarded-For as an anonymous client's identity. An
         # authenticated edge should apply real per-user limits separately.

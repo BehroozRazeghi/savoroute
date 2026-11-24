@@ -171,6 +171,18 @@ export function App() {
       </section>
       <section id="how-it-works" className="approach-section"><div className="layout-width approach-grid"><div><p className="eyebrow eyebrow-light">A DIFFERENT KIND OF DISCOVERY</p><h2>Good recommendations start with <em>honest information.</em></h2></div><div className="approach-right"><p>We distinguish what's recorded from what's verified, so you can make informed decisions. No invented ratings, no implied real-time availability, and no hidden claims of dietary safety.</p><a href="/docs" className="approach-link">Explore the underlying API <Icon name="arrow-up-right" size={17}/></a></div></div></section>
       <div className="layout-width bottom-note"><Icon name="info" size={19}/><p>{meta?.catalog_synthetic ? 'This is a fictional demonstration catalog. Restaurant and recipe entries here do not represent verified real-world recommendations.' : 'Catalog entries may be incomplete or stale. Always verify critical details with the original provider.'}</p></div>
+      <section className="layout-width" id="data-use" aria-label="Beta data use information">
+        <details>
+          <summary>Data use and privacy in the controlled beta</summary>
+          <p>Catalog browsing does not require external AI. Only after you consent, optional AI
+            interpretation sends the submitted text or transformed food image to an external provider,
+            and optional live discovery sends your search terms and selected cities to an external web-search provider.</p>
+          <p>The app does not intentionally save these prompts, images, or model responses. Beta usage limits
+            retain short-lived pseudonymous request counters and aggregate daily attempts. External services
+            may process or retain submitted information under their own terms. Do not share sensitive health
+            or personal information through a food-search prompt. Restaurant status and menu claims are not guaranteed.</p>
+        </details>
+      </section>
     </main>
     <footer className="footer"><div className="layout-width footer-inner"><span className="footer-brand">savoroute<span>.</span></span><span>Food discovery with context</span><a href="/">Developer interface <Icon name="arrow-up-right" size={14}/></a></div></footer>
     <DetailDialog item={selected} onClose={() => setSelected(null)}/>

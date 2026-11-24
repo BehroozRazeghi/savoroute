@@ -46,6 +46,7 @@ from savoroute.api.contracts import (
     SourceFactsItemOutput,
 )
 from savoroute.beta.admission import AdmissionLimited, AdmissionUnavailable, BetaAdmission
+from savoroute.beta.operations import log_request
 from savoroute.data.catalog import load_catalog
 from savoroute.domain.models import Catalog, CatalogItem
 from savoroute.evidence.review import load_evidence_bundle
@@ -53,6 +54,7 @@ from savoroute.geography.nearby import NearbyIndex
 from savoroute.live.contracts import LiveDiscoveryInput, LiveDiscoveryOutput, LiveStatusOutput
 from savoroute.live.provider import LiveRestaurantProvider
 from savoroute.live.quality import link_and_dedupe, matching_catalog, rank_web
+from savoroute.live.review import LiveReviewRegistry
 from savoroute.live.validation import filter_displayed_leads
 from savoroute.media.reviewed import load_reviewed_media
 from savoroute.providers.contracts import JointTextImageEmbedder
@@ -135,6 +137,7 @@ def create_app(
     ai_provider: FoodAIProvider | None = None,
     live_provider: LiveRestaurantProvider | None = None,
     beta_admission: BetaAdmission | None = None,
+    live_review_registry: LiveReviewRegistry | None = None,
 ) -> FastAPI:
     """Create an independent app with explicit catalog/index configuration.
 
@@ -213,6 +216,7 @@ def create_app(
     )
 
     if beta_admission is not None:
+        app.middleware("http")(log_request)
         app.add_middleware(
             TrustedHostMiddleware,
             allowed_hosts=list(beta_admission.policy.trusted_hosts),
@@ -391,7 +395,8 @@ def create_app(
 
     @router.get("/live/status", response_model=LiveStatusOutput, tags=["live"])
     def live_status() -> dict[str, object]:
-        return {"enabled": live_provider is not None}
+        return {"enabled": live_provider is not None,
+                "human_review_required": live_review_registry is not None}
 
     @router.post("/live/discover", response_model=LiveDiscoveryOutput, tags=["live"])
     async def live_discover(request: Request, response: Response) -> dict[str, object]:
@@ -442,6 +447,8 @@ def create_app(
         finally:
             live_guard.release()
         admitted_web = rank_web(filter_displayed_leads(web_results, payload), payload)
+        if live_review_registry is not None:
+            admitted_web = live_review_registry.filter(admitted_web)
         distinct_web, linked = link_and_dedupe(catalog_matches, admitted_web)
         return {
             "provider": live_provider.name,
@@ -452,6 +459,7 @@ def create_app(
             "catalog_synthetic": catalog.synthetic,
             "catalog_results": [_item(item) for item in catalog_matches],
             "web_results": [entry.model_dump() for entry in distinct_web],
+            "human_review_required": live_review_registry is not None,
             "linked_sources": [entry.model_dump() for entry in linked],
         }
 

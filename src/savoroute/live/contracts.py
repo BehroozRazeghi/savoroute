@@ -71,6 +71,7 @@ class LiveDiscoveryOutput(StrictModel):
     geography_scope: Literal["city", "nearby"] = "city"
     requested_cities: list[str] = Field(default_factory=list)
     catalog_synthetic: bool = False
+    human_review_required: bool = False
     linked_sources: list[LinkedSource] = Field(default_factory=list)
     catalog_results: list[dict[str, object]]
     web_results: list[WebRestaurant]
@@ -82,6 +83,7 @@ class LiveDiscoveryOutput(StrictModel):
 
 
 class LiveStatusOutput(StrictModel):
+    human_review_required: bool = False
     api_version: Literal["v1"] = "v1"
     enabled: bool
     consent_required: Literal[True] = True

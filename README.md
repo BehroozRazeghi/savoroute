@@ -10,21 +10,29 @@ fictional for reproducible development and does not claim verified availability.
 ### Real application screenshots
 
 <!-- SCREENSHOTS_BEGIN -->
-These screenshots were captured from the **running React consumer app** using
-the opt-in November 2026 Boston OSM snapshot. Records are source-tagged,
-but this does **not** verify current restaurant availability.
+These screenshots show the current SavoRoute React interface with the Boston OSM
+catalog. The catalog reflects a dated source snapshot; check current details
+before visiting.
+The AI and online-discovery panels show actual API responses captured during this session.
+Web-discovered candidates link to sources; restaurant status and menus have not been independently checked.
 
 #### Desktop application
 
-![SavoRoute desktop food discovery with Boston OSM records](docs/screenshots/consumer-desktop-real.png)
+![SavoRoute desktop React consumer app](docs/screenshots/consumer-desktop-real.png)
 
-#### Mobile application
+#### Mobile search and browsing
 
-| Search | Filters | Restaurant results |
+| Search | Filters | Catalog results |
 | :---: | :---: | :---: |
-| ![SavoRoute mobile search screen](docs/screenshots/consumer-mobile-search.png) | ![SavoRoute mobile filter controls](docs/screenshots/consumer-mobile-filters.png) | ![SavoRoute mobile restaurant results](docs/screenshots/consumer-mobile-results.png) |
+| ![SavoRoute mobile search](docs/screenshots/consumer-mobile-search.png) | ![SavoRoute mobile filters](docs/screenshots/consumer-mobile-filters.png) | ![SavoRoute mobile catalog results](docs/screenshots/consumer-mobile-results.png) |
 
-[View the complete mobile screenshot](docs/screenshots/consumer-mobile-real.png).
+#### AI-assisted and live discovery — actual provider responses
+
+| Food interpretation | Online restaurant discovery |
+| :---: | :---: |
+| ![SavoRoute AI food interpretation panel](docs/screenshots/consumer-mobile-ai-discovery.png) | ![SavoRoute live restaurant discovery panel](docs/screenshots/consumer-mobile-live-discovery.png) |
+
+[View the complete mobile page](docs/screenshots/consumer-mobile-real.png).
 <!-- SCREENSHOTS_END -->
 
 ### Optional live restaurant discovery

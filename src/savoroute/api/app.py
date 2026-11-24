@@ -19,8 +19,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.security import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
+from pydantic import ValidationError
 
 from savoroute import __version__
+from savoroute.ai.contracts import MAX_BODY_BYTES, AIStatusOutput, InterpretInput, InterpretOutput
+from savoroute.ai.images import InvalidFoodImage, normalize_image
+from savoroute.ai.limits import AIGuard, RequestLimited
+from savoroute.ai.provider import FoodAIProvider, ProviderUnavailable
 from savoroute.api.contracts import (
     EvidenceItemOutput,
     FacetsOutput,
@@ -120,6 +125,7 @@ def create_app(
     encoder: JointTextImageEmbedder | None = None,
     api_key: str | None = None,
     consumer_dist_path: str | Path | None = None,
+    ai_provider: FoodAIProvider | None = None,
 ) -> FastAPI:
     """Create an independent app with explicit catalog/index configuration.
 
@@ -137,6 +143,7 @@ def create_app(
     catalog: Catalog = load_catalog(catalog_path)
     service = DiscoveryService(catalog)
     facet_bundles = {kind: _catalog_facets(catalog, kind) for kind in ("restaurant", "recipe")}
+    ai_guard = AIGuard()
     source_facts = load_source_facts(source_facts_path, catalog) if source_facts_path else None
     source_facts_by_item = ({entry["item_id"]: entry for entry in source_facts["records"]}
                             if source_facts is not None else {})
@@ -222,7 +229,7 @@ def create_app(
                 "code": codes.get(exc.status_code, "http_error"),
                 "message": str(exc.detail),
             }},
-            headers=exc.headers,
+            headers={**(exc.headers or {}), "Cache-Control": "no-store"},
         )
 
     @app.get("/healthz", tags=["operations"])
@@ -270,6 +277,68 @@ def create_app(
     def facets(kind: Literal["restaurant", "recipe"] = "restaurant") -> dict[str, object]:
         """Return cached source-recorded facets; never infer unknown fields."""
         return facet_bundles[kind]
+
+    @router.get("/ai/status", response_model=AIStatusOutput, tags=["ai"])
+    def ai_status() -> dict[str, object]:
+        return {
+            "enabled": ai_provider is not None,
+            "input_types": ["text", "image"] if ai_provider is not None else [],
+        }
+
+    @router.post("/ai/interpret", response_model=InterpretOutput, tags=["ai"])
+    async def ai_interpret(request: Request, response: Response) -> dict[str, object]:
+        """Opt-in food *hypotheses*; catalog retrieval remains a separate user action.
+
+        Parse bounded JSON from the ASGI request stream rather than asking
+        FastAPI to buffer an arbitrarily large base64 payload first.
+        """
+        response.headers["Cache-Control"] = "no-store"
+        if ai_provider is None:
+            raise HTTPException(status_code=503, detail="AI interpretation is not configured")
+        if request.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
+            raise HTTPException(status_code=415, detail="Expected application/json")
+        length = request.headers.get("content-length")
+        if length is not None:
+            try:
+                if int(length) > MAX_BODY_BYTES:
+                    raise HTTPException(status_code=413, detail="AI request is too large")
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail="Invalid Content-Length") from exc
+        identity = request.client.host if request.client is not None else "unknown"
+        try:
+            await ai_guard.check_rate(identity)
+        except RequestLimited as exc:
+            raise HTTPException(status_code=429, detail=str(exc),
+                                headers={"Retry-After": "60"}) from exc
+        data = bytearray()
+        async for chunk in request.stream():
+            if len(data) + len(chunk) > MAX_BODY_BYTES:
+                raise HTTPException(status_code=413, detail="AI request is too large")
+            data.extend(chunk)
+        try:
+            payload = InterpretInput.model_validate_json(bytes(data))
+        except ValidationError as exc:
+            # Do not disclose potentially sensitive prompt/image fragments.
+            raise HTTPException(status_code=422,
+                                detail="Invalid AI input or missing remote-processing consent") from exc
+        try:
+            image = normalize_image(payload.image_base64) if payload.image_base64 else None
+        except InvalidFoodImage as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        try:
+            await ai_guard.acquire()
+        except RequestLimited as exc:
+            raise HTTPException(status_code=429, detail=str(exc),
+                                headers={"Retry-After": "1"}) from exc
+        try:
+            interpretation = await ai_provider.interpret(payload.prompt, image)
+        except ProviderUnavailable as exc:
+            raise HTTPException(status_code=503,
+                                detail="AI provider is temporarily unavailable") from exc
+        finally:
+            ai_guard.release()
+        return {"provider": ai_provider.name, "interpretation": interpretation.model_dump(),
+                "catalog_verified": False}
 
     @router.get("/items", response_model=ItemListOutput)
     def items(

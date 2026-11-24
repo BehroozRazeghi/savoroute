@@ -16,10 +16,10 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, Request, Security
 from fastapi.exceptions import RequestValidationError
-from pydantic import ValidationError
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.security import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
+from pydantic import ValidationError
 
 from savoroute import __version__
 from savoroute.ai.contracts import AIStatusOutput, InterpretInput, InterpretOutput, MAX_BODY_BYTES

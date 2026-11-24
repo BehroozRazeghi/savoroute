@@ -6,6 +6,7 @@ loaded once when creating the application, never from a client-supplied path.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 from collections import Counter
@@ -20,6 +21,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 from fastapi.security import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from savoroute import __version__
 from savoroute.ai.contracts import MAX_BODY_BYTES, AIStatusOutput, InterpretInput, InterpretOutput
@@ -43,6 +45,7 @@ from savoroute.api.contracts import (
     SearchOutput,
     SourceFactsItemOutput,
 )
+from savoroute.beta.admission import AdmissionLimited, AdmissionUnavailable, BetaAdmission
 from savoroute.data.catalog import load_catalog
 from savoroute.domain.models import Catalog, CatalogItem
 from savoroute.evidence.review import load_evidence_bundle
@@ -131,6 +134,7 @@ def create_app(
     consumer_dist_path: str | Path | None = None,
     ai_provider: FoodAIProvider | None = None,
     live_provider: LiveRestaurantProvider | None = None,
+    beta_admission: BetaAdmission | None = None,
 ) -> FastAPI:
     """Create an independent app with explicit catalog/index configuration.
 
@@ -208,6 +212,38 @@ def create_app(
         debug=False,
     )
 
+    if beta_admission is not None:
+        app.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=list(beta_admission.policy.trusted_hosts),
+            www_redirect=False,
+        )
+
+    @app.middleware("http")
+    async def safe_response_headers(request: Request, call_next):
+        result = await call_next(request)
+        result.headers.setdefault("X-Content-Type-Options", "nosniff")
+        result.headers.setdefault("Referrer-Policy", "no-referrer")
+        result.headers.setdefault("X-Frame-Options", "DENY")
+        if request.url.path.startswith(("/v1/ai/", "/v1/live/")):
+            result.headers["Cache-Control"] = "no-store"
+        return result
+
+    async def admit_paid(endpoint: str, identity: str) -> None:
+        if beta_admission is None:
+            return
+        try:
+            await asyncio.to_thread(beta_admission.admit, endpoint, identity)
+        except AdmissionLimited as exc:
+            raise HTTPException(
+                status_code=429, detail=str(exc),
+                headers={"Retry-After": str(exc.retry_after)},
+            ) from exc
+        except AdmissionUnavailable as exc:
+            raise HTTPException(
+                status_code=503, detail="Paid discovery is temporarily unavailable",
+            ) from exc
+
     @app.exception_handler(RequestValidationError)
     def on_validation_error(_request: Request, exc: RequestValidationError) -> JSONResponse:
         # Do not echo raw rejected inputs (which may contain private data).
@@ -241,6 +277,12 @@ def create_app(
     @app.get("/healthz", tags=["operations"])
     def health() -> dict[str, str]:
         return {"status": "ok", "api_version": "v1"}
+
+    @app.get("/readyz", tags=["operations"])
+    def readiness() -> dict[str, str]:
+        if beta_admission is not None and not beta_admission.ready():
+            raise HTTPException(status_code=503, detail="Beta admission storage is unavailable")
+        return {"status": "ready", "api_version": "v1"}
 
     header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
@@ -337,6 +379,7 @@ def create_app(
             raise HTTPException(status_code=429, detail=str(exc),
                                 headers={"Retry-After": "1"}) from exc
         try:
+            await admit_paid("ai", identity)
             interpretation = await ai_provider.interpret(payload.prompt, image)
         except ProviderUnavailable as exc:
             raise HTTPException(status_code=503,
@@ -392,6 +435,7 @@ def create_app(
         except RequestLimited as exc:
             raise HTTPException(status_code=429, detail=str(exc), headers={"Retry-After": "1"}) from exc
         try:
+            await admit_paid("live", identity)
             web_results = await live_provider.search(payload)
         except ProviderUnavailable as exc:
             raise HTTPException(status_code=503, detail="Live web discovery is temporarily unavailable") from exc

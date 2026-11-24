@@ -27,6 +27,19 @@ but this does **not** verify current restaurant availability.
 [View the complete mobile screenshot](docs/screenshots/consumer-mobile-real.png).
 <!-- SCREENSHOTS_END -->
 
+### Optional live restaurant discovery
+
+SavoRoute supports opt-in live restaurant discovery using web search,
+alongside its existing local catalog and retrieval engine.
+
+The feature includes required cuisine and city constraints, source-linked
+web candidates, and an optional food-image interpretation workflow.
+
+See [Grounded Live Restaurant Discovery](docs/grounded-live-discovery-pr27.md)
+for setup, API contracts, limitations, and testing requirements.
+
+Web-discovered restaurant information is not independently verified.
+
 ### Try real Boston restaurant data
 
 With Python 3.11+ and Node.js 22.12+ from a checked-out repository:

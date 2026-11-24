@@ -150,3 +150,47 @@ export function interpretFood(
     cache: 'no-store',
   }, signal);
 }
+
+/** Live web discoveries are external candidates, never local catalog records. */
+export type WebRestaurant = {
+  name: string;
+  city: string;
+  region: string;
+  country: string;
+  cuisine: string;
+  source_url: string;
+  source_title: string;
+  source_label: 'web_search_source_not_independently_verified';
+};
+export type LiveStatus = { enabled: boolean; consent_required: true; limitations: string };
+export type LiveResult = {
+  provider: string;
+  requested_cuisine: string;
+  requested_city: string;
+  catalog_results: CatalogItem[];
+  web_results: WebRestaurant[];
+  limitations: string;
+};
+export type LiveParams = {
+  query: string;
+  cuisine: string;
+  city: string;
+  region: string;
+  country: string;
+};
+export function getLiveStatus(signal?: AbortSignal): Promise<LiveStatus> {
+  return request<LiveStatus>('/v1/live/status', {}, signal);
+}
+export function discoverLive(params: LiveParams, consent: boolean, signal?: AbortSignal): Promise<LiveResult> {
+  if (!consent) throw new Error('External live web search requires consent.');
+  if (!params.city.trim() || !params.cuisine.trim()) throw new Error('Enter cuisine and city.');
+  return request<LiveResult>('/v1/live/discover', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: params.query.trim(), cuisine: params.cuisine.trim(), city: params.city.trim(),
+      region: params.region.trim(), country: params.country.trim(), consent_remote_processing: true,
+    }),
+    cache: 'no-store',
+  }, signal);
+}

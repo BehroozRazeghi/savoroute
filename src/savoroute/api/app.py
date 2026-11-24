@@ -47,6 +47,9 @@ from savoroute.data.catalog import load_catalog
 from savoroute.domain.models import Catalog, CatalogItem
 from savoroute.evidence.review import load_evidence_bundle
 from savoroute.geography.nearby import NearbyIndex
+from savoroute.live.contracts import LiveDiscoveryInput, LiveDiscoveryOutput, LiveStatusOutput
+from savoroute.live.provider import LiveRestaurantProvider
+from savoroute.live.validation import canonical_cuisine, filter_displayed_leads, place_matches
 from savoroute.media.reviewed import load_reviewed_media
 from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.quality.osm_facts import load_source_facts, osm_snapshot_digest
@@ -126,6 +129,7 @@ def create_app(
     api_key: str | None = None,
     consumer_dist_path: str | Path | None = None,
     ai_provider: FoodAIProvider | None = None,
+    live_provider: LiveRestaurantProvider | None = None,
 ) -> FastAPI:
     """Create an independent app with explicit catalog/index configuration.
 
@@ -144,6 +148,7 @@ def create_app(
     service = DiscoveryService(catalog)
     facet_bundles = {kind: _catalog_facets(catalog, kind) for kind in ("restaurant", "recipe")}
     ai_guard = AIGuard()
+    live_guard = AIGuard(requests_per_minute=3, concurrency=1)
     source_facts = load_source_facts(source_facts_path, catalog) if source_facts_path else None
     source_facts_by_item = ({entry["item_id"]: entry for entry in source_facts["records"]}
                             if source_facts is not None else {})
@@ -339,6 +344,78 @@ def create_app(
             ai_guard.release()
         return {"provider": ai_provider.name, "interpretation": interpretation.model_dump(),
                 "catalog_verified": False}
+
+    @router.get("/live/status", response_model=LiveStatusOutput, tags=["live"])
+    def live_status() -> dict[str, object]:
+        return {"enabled": live_provider is not None}
+
+    @router.post("/live/discover", response_model=LiveDiscoveryOutput, tags=["live"])
+    async def live_discover(request: Request, response: Response) -> dict[str, object]:
+        """Source-labeled web leads and independently hard-filtered catalog records.
+
+        Live search is a separate opt-in service. Untrusted web discoveries are
+        never inserted into the local catalog or used to alter ranking methods.
+        """
+        response.headers["Cache-Control"] = "no-store"
+        if live_provider is None:
+            raise HTTPException(status_code=503, detail="Live discovery is not configured")
+        if request.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
+            raise HTTPException(status_code=415, detail="Expected application/json")
+        if request.headers.get("content-length"):
+            try:
+                if int(request.headers["content-length"]) > 4096:
+                    raise HTTPException(status_code=413, detail="Live discovery request is too large")
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail="Invalid Content-Length") from exc
+        identity = request.client.host if request.client else "unknown"
+        try:
+            await live_guard.check_rate(identity)
+        except RequestLimited as exc:
+            raise HTTPException(status_code=429, detail=str(exc), headers={"Retry-After": "60"}) from exc
+        data = bytearray()
+        async for chunk in request.stream():
+            if len(data) + len(chunk) > 4096:
+                raise HTTPException(status_code=413, detail="Live discovery request is too large")
+            data.extend(chunk)
+        try:
+            payload = LiveDiscoveryInput.model_validate_json(bytes(data))
+        except ValidationError as exc:
+            raise HTTPException(status_code=422, detail="Invalid location/cuisine or missing consent") from exc
+
+        # Catalog membership is decided by source-recorded city/cuisine tags,
+        # never by the model or by text in an address/description.
+        desired = canonical_cuisine(payload.cuisine)
+        matching = [
+            item for item in catalog.items
+            if item.kind == "restaurant"
+            and item.city
+            and place_matches(item.city, item.region or "", item.country or "", payload)
+            and any(canonical_cuisine(tag) == desired for tag in item.cuisines)
+        ]
+        if payload.query:
+            # A dish query can narrow the already admissible catalog subset,
+            # but cannot restore anything excluded by hard cuisine/city filters.
+            hits = service.search(payload.query, filters=SearchFilters(kind="restaurant"), limit=100)
+            matched_ids = {hit.item.item_id for hit in hits}
+            matching = [item for item in matching if item.item_id in matched_ids]
+
+        try:
+            await live_guard.acquire()
+        except RequestLimited as exc:
+            raise HTTPException(status_code=429, detail=str(exc), headers={"Retry-After": "1"}) from exc
+        try:
+            web_results = await live_provider.search(payload)
+        except ProviderUnavailable as exc:
+            raise HTTPException(status_code=503, detail="Live web discovery is temporarily unavailable") from exc
+        finally:
+            live_guard.release()
+        return {
+            "provider": live_provider.name,
+            "requested_cuisine": payload.cuisine,
+            "requested_city": payload.city,
+            "catalog_results": [_item(item) for item in matching[:8]],
+            "web_results": [entry.model_dump() for entry in filter_displayed_leads(web_results, payload)],
+        }
 
     @router.get("/items", response_model=ItemListOutput)
     def items(

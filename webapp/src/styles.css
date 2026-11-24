@@ -1512,3 +1512,16 @@ button:focus-visible,a:focus-visible,input:focus-visible {
 .ai-result select { display: block; margin: 8px 0 14px; padding: 10px;
   max-width: 100%; border: 1px solid #9bb3a3; border-radius: 8px; background: white; }
 @media (max-width: 520px) { .live-row { grid-template-columns: 1fr; } }
+
+/* User-defined nearby municipalities are explicit inputs, not an implied radius. */
+.live-form select, .live-form textarea {
+  width: 100%; min-width: 0; padding: 11px 12px;
+  border: 1px solid #b8c8be; border-radius: 8px;
+  color: #263c30; font: inherit; background: #fff;
+}
+.live-form .live-preset {
+  justify-self: start; max-width: 100%; white-space: normal;
+  padding: 8px 12px; border: 1px solid #94aa9c; border-radius: 8px;
+  color: #263c30; background: #f4f7f1; cursor: pointer;
+}
+.live-form .live-help { margin: 0 0 6px; color: #52675e; font-size: .83rem; }

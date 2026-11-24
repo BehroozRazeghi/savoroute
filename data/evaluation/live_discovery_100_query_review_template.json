@@ -1,0 +1,2006 @@
+{
+  "dataset_type": "unreviewed_100_query_template",
+  "warning": "Queries are evaluation candidates only. No real result labels or performance measurements.",
+  "cases": [
+    {
+      "id": "review_001",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Persian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_002",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Persian",
+        "query": "ghormeh sabzi",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_003",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Persian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_004",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Persian",
+        "query": "vegetarian options (not verified)",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_005",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Persian",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_006",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Persian",
+        "query": "غذای ایرانی",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_007",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Persian",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_008",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Persian",
+        "query": "ghormeh sabzi near me",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_009",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Persian",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_010",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Persian",
+        "query": "ghormeh sabzi",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_011",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Italian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_012",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Italian",
+        "query": "vegetarian options (not verified)",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_013",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Italian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_014",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Italian",
+        "query": "ristorante italiano",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_015",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Italian",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_016",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Italian",
+        "query": "pasta carbonara near me",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_017",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Italian",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_018",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Italian",
+        "query": "pasta carbonara",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_019",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Italian",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_020",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Italian",
+        "query": "vegetarian options (not verified)",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_021",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_022",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "日本料理",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_023",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_024",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "ramen near me",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_025",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_026",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "ramen",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_027",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_028",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "vegetarian options (not verified)",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_029",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_030",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Japanese",
+        "query": "日本料理",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_031",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Indian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_032",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Indian",
+        "query": "biryani near me",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_033",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Indian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_034",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Indian",
+        "query": "biryani",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_035",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Indian",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_036",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Indian",
+        "query": "vegetarian options (not verified)",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_037",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Indian",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_038",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Indian",
+        "query": "भारतीय खाना",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_039",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Indian",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_040",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Indian",
+        "query": "biryani near me",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_041",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Thai",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_042",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Thai",
+        "query": "pad thai",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_043",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Thai",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_044",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Thai",
+        "query": "vegetarian options (not verified)",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_045",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Thai",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_046",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Thai",
+        "query": "อาหารไทย",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_047",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Thai",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_048",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Thai",
+        "query": "pad thai near me",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_049",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Thai",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_050",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Thai",
+        "query": "pad thai",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_051",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_052",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "vegetarian options (not verified)",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_053",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_054",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "ምግብ ኢትዮጵያ",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_055",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_056",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "injera near me",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_057",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_058",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "injera",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_059",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_060",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Ethiopian",
+        "query": "vegetarian options (not verified)",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_061",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_062",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "comida mexicana",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_063",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_064",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "tacos al pastor near me",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_065",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_066",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "tacos al pastor",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_067",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_068",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "vegetarian options (not verified)",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_069",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_070",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Mexican",
+        "query": "comida mexicana",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_071",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_072",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "pho near me",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_073",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_074",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "pho",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_075",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_076",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "vegetarian options (not verified)",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_077",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_078",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "món ăn Việt Nam",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_079",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_080",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Vietnamese",
+        "query": "pho near me",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_081",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Korean",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_082",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Korean",
+        "query": "bibimbap",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_083",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Korean",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_084",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Korean",
+        "query": "vegetarian options (not verified)",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_085",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Korean",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_086",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Korean",
+        "query": "한식",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_087",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Korean",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_088",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Korean",
+        "query": "bibimbap near me",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_089",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Korean",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_090",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Korean",
+        "query": "bibimbap",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_091",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Greek",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_092",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Greek",
+        "query": "vegetarian options (not verified)",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_093",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Greek",
+        "query": "",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_094",
+      "intent": "multilingual_preference",
+      "request": {
+        "cuisine": "Greek",
+        "query": "ελληνικό φαγητό",
+        "city": "Boston",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "nearby",
+        "nearby_cities": [
+          "Cambridge",
+          "Somerville",
+          "Brookline",
+          "Newton"
+        ]
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_095",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Greek",
+        "query": "",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_096",
+      "intent": "specific_dish_preference",
+      "request": {
+        "cuisine": "Greek",
+        "query": "souvlaki near me",
+        "city": "Cambridge",
+        "region": "MA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_097",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Greek",
+        "query": "",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_098",
+      "intent": "dish_preference",
+      "request": {
+        "cuisine": "Greek",
+        "query": "souvlaki",
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_099",
+      "intent": "cuisine",
+      "request": {
+        "cuisine": "Greek",
+        "query": "",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    },
+    {
+      "id": "review_100",
+      "intent": "dietary_preference",
+      "request": {
+        "cuisine": "Greek",
+        "query": "vegetarian options (not verified)",
+        "city": "San Diego",
+        "region": "CA",
+        "country": "United States",
+        "geography_scope": "city",
+        "nearby_cities": []
+      },
+      "review_status": "unreviewed",
+      "answerable": null,
+      "relevant_ids": null,
+      "results": null,
+      "reviewer_notes": "",
+      "reviewed_at": null
+    }
+  ]
+}

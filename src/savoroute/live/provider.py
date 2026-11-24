@@ -58,9 +58,13 @@ class OpenAIWebSearchProvider:
     async def search(self, request: LiveDiscoveryInput) -> list[WebRestaurant]:
         import httpx
 
-        place = ", ".join(part for part in (request.city, request.region, request.country) if part)
+        cities = [request.city, *request.nearby_cities] if request.geography_scope == "nearby" else [request.city]
+        allowed = ", ".join(cities)
+        place = ", ".join(part for part in (request.region, request.country) if part)
         prompt = (
-            f"Find up to 8 {request.cuisine} restaurants in exactly {place}. "
+            f"Find up to 8 {request.cuisine} restaurants in these specifically requested "
+            f"cities only: {allowed}. State/country: {place or 'not specified'}. "
+            "Do not silently expand to another city or metro area. "
             f"User's additional preferences (not proof of menu offerings): {request.query or 'none'}"
         )
         payload: dict[str, object] = {

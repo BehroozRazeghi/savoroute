@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sqlite3
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 from urllib.parse import quote
 
@@ -12,7 +12,7 @@ from urllib.parse import quote
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("database", type=Path, help="Absolute path to existing private SQLite DB")
-    parser.add_argument("--day", default=datetime.now(timezone.utc).date().isoformat(),
+    parser.add_argument("--day", default=datetime.now(UTC).date().isoformat(),
                         help="UTC YYYY-MM-DD (default: current UTC day)")
     args = parser.parse_args()
     day = date.fromisoformat(args.day).isoformat()

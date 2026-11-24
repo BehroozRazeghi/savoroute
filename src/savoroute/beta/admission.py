@@ -16,7 +16,7 @@ import stat
 import time
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import quote
 
@@ -121,7 +121,7 @@ class BetaAdmission:
             fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         except FileExistsError:
             if not path.is_file() or (path.stat().st_mode & 0o077):
-                raise ValueError("Existing beta usage database must be a private regular file")
+                raise ValueError("Existing beta usage database must be a private regular file") from None
         else:
             os.close(fd)
         if not stat.S_ISREG(path.stat().st_mode):
@@ -162,7 +162,7 @@ class BetaAdmission:
             raise ValueError("Unknown paid route")
         epoch = time.time() if now is None else now
         minute = int(epoch // 60)
-        day = datetime.fromtimestamp(epoch, tz=timezone.utc).date().isoformat()
+        day = datetime.fromtimestamp(epoch, tz=UTC).date().isoformat()
         daily_limit = (
             self.policy.ai_attempts_per_utc_day if endpoint == "ai"
             else self.policy.live_attempts_per_utc_day
@@ -216,7 +216,7 @@ class BetaAdmission:
 
     def totals(self, *, day: str | None = None) -> dict[str, int]:
         """Read only aggregate counts; for CLI use, never expose through HTTP."""
-        selected = day or datetime.now(timezone.utc).date().isoformat()
+        selected = day or datetime.now(UTC).date().isoformat()
         try:
             with self._connect() as con:
                 rows = con.execute(

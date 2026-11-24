@@ -329,6 +329,7 @@ def test_serve_command_uses_explicit_app_without_starting_real_socket(monkeypatc
             received["metadata"] = client.get("/v1/meta").json()
 
     monkeypatch.setattr(uvicorn, "run", intercept)
+    monkeypatch.setenv("SAVOROUTE_BETA_ENABLED", "0")
     monkeypatch.setenv("SAVOROUTE_API_KEY", "nonempty-test-key")
     serve(catalog=catalog_path, host="127.0.0.1", port=9191)
     assert received["host"] == "127.0.0.1" and received["port"] == 9191

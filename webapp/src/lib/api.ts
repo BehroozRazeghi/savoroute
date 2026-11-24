@@ -162,7 +162,7 @@ export type WebRestaurant = {
   source_title: string;
   source_label: 'web_search_source_not_independently_verified';
 };
-export type LiveStatus = { enabled: boolean; consent_required: true; limitations: string };
+export type LiveStatus = { enabled: boolean; consent_required: true; limitations: string; human_review_required?: boolean };
 export type LiveResult = {
   provider: string;
   requested_cuisine: string;
@@ -170,6 +170,7 @@ export type LiveResult = {
   geography_scope?: 'city' | 'nearby';
   requested_cities?: string[];
   catalog_synthetic?: boolean;
+  human_review_required?: boolean;
   linked_sources?: { catalog_item_id: string; source_url: string; source_title: string }[];
   catalog_results: CatalogItem[];
   web_results: WebRestaurant[];

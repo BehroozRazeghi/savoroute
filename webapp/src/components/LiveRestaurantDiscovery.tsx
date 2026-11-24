@@ -146,7 +146,9 @@ export function LiveRestaurantDiscovery({ prefill }: Props) {
         </li>)}</ul>
       </div>}
       {result.web_results.length > 0 && <div className="live-group">
-        <h4>Web-discovered candidates (unverified)</h4>
+        <h4>{result.human_review_required ?
+          "Web sources reviewed by a human (current status not guaranteed)" :
+          "Web-discovered candidates (unverified)"}</h4>
         <ul>{result.web_results.map(item => <li key={`${item.name}:${item.source_url}`}>
           <strong>{item.name}</strong> · {[item.city, item.region, item.country].filter(Boolean).join(', ')} · source-reported {item.cuisine}
           {' · '}<a href={item.source_url} target="_blank" rel="noopener noreferrer">
@@ -154,7 +156,9 @@ export function LiveRestaurantDiscovery({ prefill }: Props) {
         </li>)}</ul>
       </div>}
       {result.catalog_results.length === 0 && result.web_results.length === 0 &&
-        <p>No source-supported matches found for the requested cuisine and selected cities.
+        <p>{result.human_review_required ?
+          "No currently human-reviewed matches for the requested cuisine and selected cities." :
+          "No source-supported matches found for the requested cuisine and selected cities."}
           We do not substitute unrelated restaurants.</p>}
       <p className="live-limitations">{result.limitations}</p>
     </div>}

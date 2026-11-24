@@ -1,0 +1,31 @@
+[Unit]
+Description=SavoRoute controlled beta (loopback HTTP backend)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=savoroute
+Group=savoroute
+WorkingDirectory=/opt/savoroute/app
+EnvironmentFile=/etc/savoroute-beta/server.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/savoroute/venv/bin/savoroute web serve --host 127.0.0.1 --port 8000 --catalog /opt/savoroute/app/data/real/boston-osm-2026-11.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/savoroute-beta
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=600M
+TasksMax=80
+
+[Install]
+WantedBy=multi-user.target

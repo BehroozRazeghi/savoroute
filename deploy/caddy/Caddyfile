@@ -1,0 +1,27 @@
+# Single-host, invite-only beta. Caddy obtains and renews public HTTPS certificates.
+# Domain, login and hashed password are read from the systemd caddy.env file.
+# Never publish the Python service's port; it binds to 127.0.0.1 only.
+{$SAVOROUTE_BETA_DOMAIN} {
+    encode zstd gzip
+
+    basic_auth {
+        {$SAVOROUTE_BETA_USERNAME} {$SAVOROUTE_BETA_PASSWORD_HASH}
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        X-Frame-Options "DENY"
+    }
+
+    reverse_proxy 127.0.0.1:8000 {
+        # Do not let proxy-generated client identity or Basic credentials
+        # be trusted by the application, and do not log request bodies here.
+        header_up -Authorization
+        header_up -X-Forwarded-For
+        header_up -X-Forwarded-Host
+        header_up -X-Forwarded-Proto
+        header_up -X-Real-IP
+    }
+}

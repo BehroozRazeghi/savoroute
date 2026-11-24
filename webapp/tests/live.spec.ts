@@ -78,3 +78,24 @@ test('AI food interpretation can prefill an editable live discovery', async ({ p
   await expect(page.getByLabel('Additional request (optional)')).toHaveValue('Iranian restaurant');
   await expect(page.getByLabel('Required city')).toHaveValue('');
 });
+
+
+test('controlled beta labels human-review restriction without claiming current operation', async ({ page }) => {
+  await page.route('**/v1/live/status', async route => {
+    await route.fulfill({ json: { ...statusEnabled, human_review_required: true } });
+  });
+  await page.route('**/v1/live/discover', async route => {
+    await route.fulfill({ json: {
+      provider: 'fixture', requested_cuisine: 'Persian', requested_city: 'Boston',
+      human_review_required: true, catalog_results: [], web_results: [],
+      limitations: 'Human review of cited evidence does not prove current operation',
+    } });
+  });
+  await page.goto('/app/');
+  await page.getByLabel('Required cuisine').fill('Persian');
+  await page.getByLabel('Required city').fill('Boston');
+  await page.getByLabel(/I agree to send my search terms/).check();
+  await page.getByRole('button', { name: 'Discover online' }).click();
+  await expect(page.getByText(/No currently human-reviewed matches/)).toBeVisible();
+  await expect(page.getByText(/We do not substitute unrelated restaurants/)).toBeVisible();
+});

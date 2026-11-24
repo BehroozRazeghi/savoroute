@@ -54,11 +54,24 @@ def serve(
         live_provider = OpenAIWebSearchProvider(
             api_key=secret, model=os.environ.get("SAVOROUTE_LIVE_MODEL", "gpt-6.1-terra"),
         )
-    # An HTTP API key alone is not equivalent to TLS, rate limits, or hardened hosting.
+    # The opt-in beta policy enforces cross-worker admission. It is not an
+    # authentication, TLS, edge abuse, or provider-side USD-spending limit.
+    from savoroute.beta.admission import BetaAdmission, BetaPolicy
+
+    beta_policy = BetaPolicy.from_environ(os.environ)
+    if beta_policy is not None and host not in {"127.0.0.1", "::1", "localhost"}:
+        raise ValueError("controlled beta must bind to loopback behind a trusted HTTPS proxy")
+    beta_admission = BetaAdmission(beta_policy) if beta_policy is not None else None
+    # An HTTP API key alone is not equivalent to TLS or hardened hosting.
     application = create_app(catalog_path=catalog, index_path=index,
                              evidence_path=evidence, osm_path=osm,
                              reviewed_media_path=reviewed_media,
                              source_facts_path=source_facts, recipe_notes_path=recipe_notes,
                              api_key=api_key, ai_provider=ai_provider,
-                             live_provider=live_provider)
-    uvicorn.run(application, host=host, port=port, reload=False, access_log=osm is None)
+                             live_provider=live_provider, beta_admission=beta_admission)
+    options = {"host": host, "port": port, "reload": False, "access_log": osm is None}
+    if beta_policy is not None:
+        # Never use X-Forwarded-For as an anonymous client's identity. An
+        # authenticated edge should apply real per-user limits separately.
+        options["proxy_headers"] = False
+    uvicorn.run(application, **options)

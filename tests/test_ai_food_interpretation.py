@@ -202,6 +202,7 @@ def test_server_ai_is_explicit_opt_in_and_server_only(monkeypatch):
     from savoroute.api.server import serve
 
     apps = []
+    monkeypatch.setenv("SAVOROUTE_BETA_ENABLED", "0")
     monkeypatch.setenv("SAVOROUTE_AI_ENABLED", "1")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("SAVOROUTE_OPENAI_API_KEY", raising=False)

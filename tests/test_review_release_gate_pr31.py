@@ -49,9 +49,8 @@ def test_relevant_case_without_answer_fails_release_gate():
 
 
 def test_preflight_does_not_print_secrets_or_claim_completed_deployment(tmp_path):
-    from scripts.beta_preflight import preflight
-
     from savoroute.live.review import LiveReviewRegistry
+    from scripts.beta_preflight import preflight
 
     data = tmp_path / "private"
     data.mkdir(mode=0o700)

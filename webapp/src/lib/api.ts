@@ -167,6 +167,10 @@ export type LiveResult = {
   provider: string;
   requested_cuisine: string;
   requested_city: string;
+  geography_scope?: 'city' | 'nearby';
+  requested_cities?: string[];
+  catalog_synthetic?: boolean;
+  linked_sources?: { catalog_item_id: string; source_url: string; source_title: string }[];
   catalog_results: CatalogItem[];
   web_results: WebRestaurant[];
   limitations: string;
@@ -177,6 +181,8 @@ export type LiveParams = {
   city: string;
   region: string;
   country: string;
+  geography_scope?: 'city' | 'nearby';
+  nearby_cities?: string[];
 };
 export function getLiveStatus(signal?: AbortSignal): Promise<LiveStatus> {
   return request<LiveStatus>('/v1/live/status', {}, signal);
@@ -189,7 +195,9 @@ export function discoverLive(params: LiveParams, consent: boolean, signal?: Abor
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       query: params.query.trim(), cuisine: params.cuisine.trim(), city: params.city.trim(),
-      region: params.region.trim(), country: params.country.trim(), consent_remote_processing: true,
+      region: params.region.trim(), country: params.country.trim(),
+      geography_scope: params.geography_scope ?? 'city',
+      nearby_cities: params.nearby_cities ?? [], consent_remote_processing: true,
     }),
     cache: 'no-store',
   }, signal);

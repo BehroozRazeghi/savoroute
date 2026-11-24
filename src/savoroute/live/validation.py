@@ -24,17 +24,50 @@ def canonical_cuisine(value: str) -> str:
 
 def _country_key(value: str) -> str:
     key = _normalize(value)
-    return "united states" if key in {"us", "usa", "u.s.", "united states of america"} else key
+    if key in {"us", "usa", "u.s.", "u.s.a.", "united states of america"}:
+        return "united states"
+    if key in {"uk", "u.k.", "gb", "great britain"}:
+        return "united kingdom"
+    return key
+
+
+# Explicit U.S. state aliases; unknown foreign regions remain exact-match only.
+_US_STATES = dict(zip(
+    (
+        "alabama", "alaska", "arizona", "arkansas", "california", "colorado",
+        "connecticut", "delaware", "district of columbia", "florida", "georgia",
+        "hawaii", "idaho", "illinois", "indiana", "iowa", "kansas", "kentucky",
+        "louisiana", "maine", "maryland", "massachusetts", "michigan", "minnesota",
+        "mississippi", "missouri", "montana", "nebraska", "nevada", "new hampshire",
+        "new jersey", "new mexico", "new york", "north carolina", "north dakota",
+        "ohio", "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina",
+        "south dakota", "tennessee", "texas", "utah", "vermont", "virginia",
+        "washington", "west virginia", "wisconsin", "wyoming",
+    ),
+    (
+        "al", "ak", "az", "ar", "ca", "co", "ct", "de", "dc", "fl", "ga",
+        "hi", "id", "il", "in", "ia", "ks", "ky", "la", "me", "md", "ma",
+        "mi", "mn", "ms", "mo", "mt", "ne", "nv", "nh", "nj", "nm", "ny",
+        "nc", "nd", "oh", "ok", "or", "pa", "ri", "sc", "sd", "tn", "tx",
+        "ut", "vt", "va", "wa", "wv", "wi", "wy",
+    ),
+    strict=True,
+))
 
 
 def _region_key(value: str) -> str:
     key = _normalize(value)
-    return "ma" if key == "massachusetts" else key
+    return _US_STATES.get(key, key)
 
 
 def place_matches(city: str, region: str, country: str, request: LiveDiscoveryInput) -> bool:
+    target_cities = (
+        (request.city, *request.nearby_cities)
+        if request.geography_scope == "nearby" else (request.city,)
+    )
     return (
-        _normalize(city) == _normalize(request.city)
+        bool(city.strip())
+        and _normalize(city) in {_normalize(value) for value in target_cities}
         and (not request.region or _region_key(region) == _region_key(request.region))
         and (not request.country or _country_key(country) == _country_key(request.country))
     )
@@ -88,7 +121,7 @@ def filter_source_leads(
         if key and safe_url:
             observed[key] = (safe_url, source.get("title", "")[:160])
     selected: list[WebRestaurant] = []
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str, str, str]] = set()
     wanted = canonical_cuisine(request.cuisine)
     for restaurant in proposed.restaurants:
         if not place_matches(restaurant.city, restaurant.region, restaurant.country, request):
@@ -99,7 +132,8 @@ def filter_source_leads(
         if matching is None:
             continue
         source = observed.get(_source_key(restaurant.source_url) or "")
-        key = (_normalize(restaurant.name), _normalize(restaurant.city))
+        key = (_normalize(restaurant.name), _normalize(restaurant.city),
+               _region_key(restaurant.region), _country_key(restaurant.country))
         if source is None or key in seen:
             continue
         seen.add(key)
@@ -119,13 +153,14 @@ def filter_displayed_leads(
 ) -> list[WebRestaurant]:
     """A second boundary check for all current and future provider adapters."""
     matching: list[WebRestaurant] = []
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str, str, str]] = set()
     for candidate in candidates[:20]:
         if (not place_matches(candidate.city, candidate.region, candidate.country, request)
                 or canonical_cuisine(candidate.cuisine) != canonical_cuisine(request.cuisine)
                 or _safe_url(candidate.source_url) is None):
             continue
-        key = (_normalize(candidate.name), _normalize(candidate.city))
+        key = (_normalize(candidate.name), _normalize(candidate.city),
+               _region_key(candidate.region), _country_key(candidate.country))
         if key not in seen:
             seen.add(key)
             matching.append(candidate)

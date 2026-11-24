@@ -49,7 +49,8 @@ from savoroute.evidence.review import load_evidence_bundle
 from savoroute.geography.nearby import NearbyIndex
 from savoroute.live.contracts import LiveDiscoveryInput, LiveDiscoveryOutput, LiveStatusOutput
 from savoroute.live.provider import LiveRestaurantProvider
-from savoroute.live.validation import canonical_cuisine, filter_displayed_leads, place_matches
+from savoroute.live.quality import link_and_dedupe, matching_catalog, rank_web
+from savoroute.live.validation import filter_displayed_leads
 from savoroute.media.reviewed import load_reviewed_media
 from savoroute.providers.contracts import JointTextImageEmbedder
 from savoroute.quality.osm_facts import load_source_facts, osm_snapshot_digest
@@ -382,22 +383,9 @@ def create_app(
         except ValidationError as exc:
             raise HTTPException(status_code=422, detail="Invalid location/cuisine or missing consent") from exc
 
-        # Catalog membership is decided by source-recorded city/cuisine tags,
-        # never by the model or by text in an address/description.
-        desired = canonical_cuisine(payload.cuisine)
-        matching = [
-            item for item in catalog.items
-            if item.kind == "restaurant"
-            and item.city
-            and place_matches(item.city, item.region or "", item.country or "", payload)
-            and any(canonical_cuisine(tag) == desired for tag in item.cuisines)
-        ]
-        if payload.query:
-            # A dish query can narrow the already admissible catalog subset,
-            # but cannot restore anything excluded by hard cuisine/city filters.
-            hits = service.search(payload.query, filters=SearchFilters(kind="restaurant"), limit=100)
-            matched_ids = {hit.item.item_id for hit in hits}
-            matching = [item for item in matching if item.item_id in matched_ids]
+        # Admission depends only on recorded cuisine and declared city membership.
+        # A dish/preference query is *soft* and cannot be treated as verified menu data.
+        catalog_matches = matching_catalog(catalog.items, payload)[:8]
 
         try:
             await live_guard.acquire()
@@ -409,12 +397,18 @@ def create_app(
             raise HTTPException(status_code=503, detail="Live web discovery is temporarily unavailable") from exc
         finally:
             live_guard.release()
+        admitted_web = rank_web(filter_displayed_leads(web_results, payload), payload)
+        distinct_web, linked = link_and_dedupe(catalog_matches, admitted_web)
         return {
             "provider": live_provider.name,
             "requested_cuisine": payload.cuisine,
             "requested_city": payload.city,
-            "catalog_results": [_item(item) for item in matching[:8]],
-            "web_results": [entry.model_dump() for entry in filter_displayed_leads(web_results, payload)],
+            "geography_scope": payload.geography_scope,
+            "requested_cities": [payload.city, *payload.nearby_cities],
+            "catalog_synthetic": catalog.synthetic,
+            "catalog_results": [_item(item) for item in catalog_matches],
+            "web_results": [entry.model_dump() for entry in distinct_web],
+            "linked_sources": [entry.model_dump() for entry in linked],
         }
 
     @router.get("/items", response_model=ItemListOutput)

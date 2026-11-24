@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 
 class StrictModel(BaseModel):
@@ -20,7 +20,26 @@ class LiveDiscoveryInput(StrictModel):
     city: Label
     region: Annotated[str, StringConstraints(strip_whitespace=True, max_length=80)] = ""
     country: Annotated[str, StringConstraints(strip_whitespace=True, max_length=80)] = ""
+    # "nearby" is an explicitly chosen *set of cities*, NOT a radius or an
+    # inferred administrative metro boundary. No geocoding is performed.
+    geography_scope: Literal["city", "nearby"] = "city"
+    nearby_cities: Annotated[list[Label], Field(max_length=12)] = Field(default_factory=list)
     consent_remote_processing: Literal[True]
+
+    @model_validator(mode="after")
+    def validate_geographic_scope(self) -> LiveDiscoveryInput:
+        from savoroute.live.validation import _normalize
+
+        chosen = [_normalize(value) for value in self.nearby_cities]
+        if len(chosen) != len(set(chosen)) or _normalize(self.city) in chosen:
+            raise ValueError("nearby cities must be distinct from each other and the origin")
+        if self.geography_scope == "city" and chosen:
+            raise ValueError("nearby cities require geography_scope=nearby")
+        if self.geography_scope == "nearby" and (
+            not chosen or not self.region or not self.country
+        ):
+            raise ValueError("nearby scope requires nearby cities, region and country")
+        return self
 
 
 class WebRestaurant(StrictModel):
@@ -29,11 +48,19 @@ class WebRestaurant(StrictModel):
     cuisine: Label
     region: str = ""
     country: str = ""
-    source_url: str
+    source_url: Annotated[str, StringConstraints(max_length=2048)]
     source_title: Annotated[str, StringConstraints(max_length=160)]
     source_label: Literal["web_search_source_not_independently_verified"] = (
         "web_search_source_not_independently_verified"
     )
+
+
+class LinkedSource(StrictModel):
+    """Extra web citations for an *exact* catalog identity match, not a merged fact."""
+
+    catalog_item_id: str
+    source_url: Annotated[str, StringConstraints(max_length=2048)]
+    source_title: str
 
 
 class LiveDiscoveryOutput(StrictModel):
@@ -41,6 +68,10 @@ class LiveDiscoveryOutput(StrictModel):
     provider: str
     requested_cuisine: str
     requested_city: str
+    geography_scope: Literal["city", "nearby"] = "city"
+    requested_cities: list[str] = Field(default_factory=list)
+    catalog_synthetic: bool = False
+    linked_sources: list[LinkedSource] = Field(default_factory=list)
     catalog_results: list[dict[str, object]]
     web_results: list[WebRestaurant]
     limitations: str = (
